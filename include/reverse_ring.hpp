@@ -1,6 +1,6 @@
 /*
- * ring.hpp
- * Copyright (C) 2020 Author removed for double-blind evaluation
+ * reverse_ring.hpp
+ * Copyright (C) 2022, Fabrizio
  *
  *
  * This is free software: you can redistribute it and/or modify it
@@ -17,8 +17,8 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RING_SPO
-#define RING_SPO
+#ifndef RING_SOP
+#define RING_SOP
 
 #include <cstdint>
 #include "bwt.hpp"
@@ -30,7 +30,7 @@
 namespace ring {
 
     template <class bwt_t = bwt<>>
-    class ring {
+    class reverse_ring {
     public:
         typedef uint64_t size_type;
         typedef uint64_t value_type;
@@ -50,7 +50,7 @@ namespace ring {
         size_type m_sigma_p;
         size_type m_sigma_o;
 
-        void copy(const ring &o) {
+        void copy(const reverse_ring &o) {
             m_bwt_s = o.m_bwt_s;
             m_bwt_p = o.m_bwt_p;
             m_bwt_o = o.m_bwt_o;
@@ -64,40 +64,41 @@ namespace ring {
         }
 
     public:
-        ring() = default;
+        reverse_ring() = default;
 
         // Assumes the triples have been stored in a vector<spo_triple>
-        ring(vector<spo_triple_type> &D) {
+        reverse_ring(vector<spo_triple_type> &D) {
             typedef typename vector<spo_triple_type>::iterator triple_iterator;
             size_type i;
             triple_iterator it, triple_begin = D.begin(), triple_end = D.end();
             size_type n = m_n_triples = triple_end - triple_begin;
             int_vector<32> bwt_aux(3 * n);
 
-            //cout << "  > Determining alphabets of S; P; O..."; fflush(stdout);
+            //cout << "  > Determining alphabets of S; O; P..."; fflush(stdout);
             {
                 set<uint64_t> alphabet_S, alphabet_P, alphabet_O;
                 for (it = triple_begin, i = 0; i < n; i++, it++) {
                     alphabet_S.insert(std::get<0>(*it));
-                    alphabet_P.insert(std::get<1>(*it));
-                    alphabet_O.insert(std::get<2>(*it));
+                    alphabet_O.insert(std::get<1>(*it));
+                    alphabet_P.insert(std::get<2>(*it));
                 }
 
                 //cout << "Done" << endl; fflush(stdout);
                 m_sigma_s = alphabet_S.size();
-                m_sigma_p = alphabet_P.size();
                 m_sigma_o = alphabet_O.size();
+                m_sigma_p = alphabet_P.size();
                 m_max_s = *alphabet_S.rbegin();
-                m_max_p = *alphabet_P.rbegin();
                 m_max_o = *alphabet_O.rbegin();
+                m_max_p = *alphabet_P.rbegin();
                 alphabet_S.clear();
-                alphabet_P.clear();
                 alphabet_O.clear();
+                alphabet_P.clear();
+                std::cout << " Maximum sizes. S = " << m_max_s << ", O = " << m_max_o << ", P = " << m_max_p << std::endl;
             }
-            //cout << "sigma S = " << sigma_S << endl;
-            //cout << "sigma P = " << m_sigma_p << endl;
-            //cout << "sigma O = " << sigma_O << endl;
-            //cout << "  > Determining number of elements per symbol..."; fflush(stdout);
+            std::cout << "sigma S = " << m_sigma_s << std::endl;
+            std::cout << "sigma O = " << m_sigma_o << std::endl;
+            std::cout << "sigma P = " << m_sigma_p << std::endl;
+            std::cout << "  > Determining number of elements per symbol..."; fflush(stdout);
             uint64_t alphabet_SO = (m_max_s < m_max_o) ? m_max_o : m_max_s;
 
             std::map<uint64_t, uint64_t> M_O, M_S, M_P;
@@ -111,35 +112,35 @@ namespace ring {
                 M_P[i] = 0;
 
             for (it = triple_begin, i = 0; i < n; i++, it++) {
-                M_O[std::get<2>(*it)] = M_O[std::get<2>(*it)] + 1;
                 M_S[std::get<0>(*it)] = M_S[std::get<0>(*it)] + 1;
-                M_P[std::get<1>(*it)] = M_P[std::get<1>(*it)] + 1;
+                M_O[std::get<1>(*it)] = M_O[std::get<1>(*it)] + 1;
+                M_P[std::get<2>(*it)] = M_P[std::get<2>(*it)] + 1;
             }
-            //cout << "Done" << endl; fflush(stdout);
-            //cout << "  > Sorting out triples..."; fflush(stdout);
+            std::cout << "Done" << std::endl; fflush(stdout);
+            std::cout << "  > Sorting out triples..."; fflush(stdout);
             // Sorts the triples lexycographically
             sort(triple_begin, triple_end);
-            //cout << "Done" << endl; fflush(stdout);
+            std::cout << "Done" << std::endl; fflush(stdout);
             {
                 int_vector<> t(3 * n + 2);
-                //cout << "  > Generating int vector of the triples..."; fflush(stdout);
+                std::cout << "  > Generating int vector of the triples..."; fflush(stdout);
                 for (i = 0, it = triple_begin; it != triple_end; it++, i++) {
-                    t[3 * i] = std::get<0>(*it);
-                    t[3 * i + 1] = std::get<1>(*it) + m_max_s;
-                    t[3 * i + 2] = std::get<2>(*it) + m_max_s + m_max_p;
+                    t[3 * i] = std::get<0>(*it);//S
+                    t[3 * i + 1] = std::get<1>(*it) + m_max_s; //O
+                    t[3 * i + 2] = std::get<2>(*it) + m_max_s + m_max_o; //P
                 }
                 t[3 * n] = m_max_s + m_max_p + m_max_o + 1;
                 t[3 * n + 1] = 0;
-                //D.clear();
-                //D.shrink_to_fit();
+                D.clear();
+                D.shrink_to_fit();
                 util::bit_compress(t);
 
                 {
                     int_vector<> sa;
                     qsufsort::construct_sa(sa, t);
 
-                    //cout << "  > Suffix array built " << size_in_bytes(sa) << " bytes" <<  endl;
-                    //cout << "  > Building the global BWT" << endl;
+                    std::cout << "  > Suffix array built " << size_in_bytes(sa) << " bytes" <<  std::endl;
+                    std::cout << "  > Building the global BWT" << std::endl;
 
                     size_type j;
                     for (j = i = 0; i < sa.size(); i++) {
@@ -151,35 +152,35 @@ namespace ring {
                     }
                 }
             }
-            //cout << "  > Building m_bwt_o" << endl; fflush(stdout);
-            // First O
+            //cout << "  > Building m_bwt_p" << endl; fflush(stdout);
+            // First P
             {
-                int_vector<> O(n + 1);
+                int_vector<> P(n + 1);
                 uint64_t j = 1, c;
-                vector<uint64_t> C_O;
-                O[0] = 0;
+                vector<uint64_t> C_P;
+                P[0] = 0;
                 for (i = 1; i < n; i++)
-                    O[j++] = bwt_aux[i] - (m_max_s + m_max_p);
+                    P[j++] = bwt_aux[i] - (m_max_s + m_max_o);
 
                 // This is for making the bwt of triples circular
-                O[j] = bwt_aux[0] - (m_max_s + m_max_p);
-                util::bit_compress(O);
-
+                P[j] = bwt_aux[0] - (m_max_s + m_max_o);
+                util::bit_compress(P);
+                //pre requisites to build the C bitmap. We use Map of S since they represent the range of P.
                 uint64_t cur_pos = 1;
 
-                C_O.push_back(0); // Dummy value
-                C_O.push_back(cur_pos);
+                C_P.push_back(0); // Dummy value
+                C_P.push_back(cur_pos);
                 for (c = 2; c <= alphabet_SO; c++) {
                     cur_pos += M_S[c - 1];
-                    C_O.push_back(cur_pos);
+                    C_P.push_back(cur_pos);
                 }
-                C_O.push_back(n + 1);
-                C_O.shrink_to_fit();
+                C_P.push_back(n + 1);
+                C_P.shrink_to_fit();
 
                 M_S.clear();
 
-                // builds the WT for BWT(O)
-                m_bwt_o = bwt_type(O, C_O);
+                // builds the WT for BWT(P)
+                m_bwt_p = bwt_type(P, C_P);
             }
 
             //cout << "  > Building m_bwt_s" << endl; fflush(stdout);
@@ -198,44 +199,44 @@ namespace ring {
                 uint64_t cur_pos = 1;
                 C_S.push_back(0);  // Dummy value
                 C_S.push_back(cur_pos);
-                for (c = 2; c <= m_max_p; c++) {
-                    cur_pos += M_P[c - 1];
+                for (c = 2; c <= alphabet_SO; c++) {
+                    cur_pos += M_O[c - 1];
                     C_S.push_back(cur_pos);
                 }
                 C_S.push_back(n + 1);
                 C_S.shrink_to_fit();
 
-                M_P.clear();
+                M_O.clear();
 
                 m_bwt_s = bwt_type(S, C_S);
             }
 
-            //cout << "  > Building m_bwt_p" << endl; fflush(stdout);
+            //cout << "  > Building m_bwt_o" << endl; fflush(stdout);
             // Then P
             {
-                int_vector<> P(n + 1);
+                int_vector<> O(n + 1);
                 uint64_t j = 1, c;
-                vector<uint64_t> C_P;
+                vector<uint64_t> C_O;
 
-                P[0] = 0;
+                O[0] = 0;
                 while (i < 3 * n) {
-                    P[j++] = bwt_aux[i++] - m_max_s;
+                    O[j++] = bwt_aux[i++] - m_max_s;
                 }
-                util::bit_compress(P);
+                util::bit_compress(O);
 
                 uint64_t cur_pos = 1;
-                C_P.push_back(0);  // Dummy value
-                C_P.push_back(cur_pos);
-                for (c = 2; c <= alphabet_SO; c++) {
-                    cur_pos += M_O[c - 1];
-                    C_P.push_back(cur_pos);
+                C_O.push_back(0);  // Dummy value
+                C_O.push_back(cur_pos);
+                for (c = 2; c <= m_max_p; c++) {
+                    cur_pos += M_P[c - 1];
+                    C_O.push_back(cur_pos);
                 }
-                C_P.push_back(n + 1);
-                C_P.shrink_to_fit();
+                C_O.push_back(n + 1);
+                C_O.shrink_to_fit();
 
-                M_O.clear();
+                M_P.clear();
 
-                m_bwt_p = bwt_type(P, C_P);
+                m_bwt_o = bwt_type(O, C_O);
             }
             cout << "-- Index constructed successfully" << endl;
             fflush(stdout);
@@ -243,17 +244,17 @@ namespace ring {
 
 
         //! Copy constructor
-        ring(const ring &o) {
+        reverse_ring(const reverse_ring &o) {
             copy(o);
         }
 
         //! Move constructor
-        ring(ring &&o) {
+        reverse_ring(reverse_ring &&o) {
             *this = std::move(o);
         }
 
         //! Copy Operator=
-        ring &operator=(const ring &o) {
+        reverse_ring &operator=(const reverse_ring &o) {
             if (this != &o) {
                 copy(o);
             }
@@ -261,7 +262,7 @@ namespace ring {
         }
 
         //! Move Operator=
-        ring &operator=(ring &&o) {
+        reverse_ring &operator=(reverse_ring &&o) {
             if (this != &o) {
                 m_bwt_s = std::move(o.m_bwt_s);
                 m_bwt_p = std::move(o.m_bwt_p);
@@ -277,7 +278,7 @@ namespace ring {
             return *this;
         }
 
-        void swap(ring &o) {
+        void swap(reverse_ring &o) {
             // m_bp.swap(bp_support.m_bp); use set_vector to set the supported bit_vector
             std::swap(m_bwt_s, o.m_bwt_s);
             std::swap(m_bwt_p, o.m_bwt_p);
@@ -381,13 +382,12 @@ namespace ring {
         /**********************************/
         // Functions for PSO
         //
-
+        /*
         bwt_interval open_PSO() {
             //return bwt_interval(2 * m_n_triples + 1, 3 * m_n_triples);
             return bwt_interval( 1, m_n_triples);
         }
 
-        /**********************************/
         // P->S  (simulates going down in the trie)
         // Returns an interval within m_bwt_o
         bwt_interval down_P_S(bwt_interval &p_int, uint64_t s) {
@@ -431,22 +431,19 @@ namespace ring {
         bool there_are_O_in_PS(bwt_interval &I) {
             return I.get_cur_value() != I.end();
         }
-
+        */
         std::vector<uint64_t>
         all_O_in_range(bwt_interval &I) {
             return m_bwt_o.values_in_range(I.left(), I.right());
         }
-
         /**********************************/
         // Functions for OPS
         //
-
+        /*
         bwt_interval open_OPS() {
             return bwt_interval(1, m_n_triples);
         }
 
-
-        /**********************************/
         // O->P  (simulates going down in the trie)
         // Returns an interval within m_bwt_s
         bwt_interval down_O_P(bwt_interval &o_int, uint64_t p) {
@@ -495,19 +492,16 @@ namespace ring {
         all_S_in_range(bwt_interval &I) {
             return m_bwt_s.values_in_range(I.left(), I.right());
         }
-
+        */
 
         /**********************************/
         // Function for SOP
         //
-
+        /*
         bwt_interval open_SOP() {
             return bwt_interval(1,  m_n_triples);
         }
 
-
-
-        /**********************************/
         // S->O  (simulates going down in the trie)
         // Returns an interval within m_bwt_p
         bwt_interval down_S_O(bwt_interval &s_int, uint64_t o) {
@@ -551,16 +545,15 @@ namespace ring {
         bool there_are_P_in_O(bwt_interval &I) {
             return I.get_cur_value() != I.end();
         }
-
+        */
         std::vector<uint64_t>
         all_P_in_range(bwt_interval &I) {
             return m_bwt_p.values_in_range(I.left(), I.right());
         }
-
-
         /**********************************/
         // Functions for SPO
         //
+        /*
         bwt_interval open_SPO() {
             return bwt_interval(1, m_n_triples);
         }
@@ -636,11 +629,11 @@ namespace ring {
         bool there_are_O_in_SP(bwt_interval &I) {
             return I.get_cur_value() != I.end();
         }
-
+        */
         /**********************************/
         // Functions for POS
         //
-
+        /*
         bwt_interval open_POS() {
             return bwt_interval( 1, m_n_triples);
         }
@@ -721,11 +714,11 @@ namespace ring {
         bool there_are_S_in_PO(bwt_interval &I) {
             return I.get_cur_value() != I.end();
         }
-
+        */
         /**********************************/
         // Functions for OSP
         //
-
+        /*
         bwt_interval open_OSP() {
             return bwt_interval(1, m_n_triples);
         }
@@ -800,6 +793,7 @@ namespace ring {
         bool there_are_P_in_OS(bwt_interval &I) {
             return I.get_cur_value() != I.end();
         }
+        */
 
         bwt_type get_m_bwt_s() const{
             return m_bwt_s;
@@ -812,39 +806,31 @@ namespace ring {
         bwt_type get_m_bwt_o() const{
             return m_bwt_o;
         }
+
+        size_type get_n_triples() const{
+            return m_n_triples;
+        }
+        /*
         std::vector<uint64_t> get_P_given_S(uint64_t symbol_id){
             std::vector<u_int64_t> results;
-            //based on ring query debugging. at minimum one needs to call min_P_in_S (1 time) and next_P_in_S (N -1 times).
-            auto num_elems = m_bwt_o.nElems(symbol_id);
-            bwt_interval aux_i = bwt_interval(symbol_id, num_elems);
-            auto current_p = min_P_in_S(aux_i, symbol_id);
-            uint64_t old_p = 0;
-            results.push_back(current_p);
-            for(uint64_t q=0; q < num_elems; q++){
-                current_p = next_P_in_S(aux_i, symbol_id, ++current_p);
-                if(current_p <= old_p){
-                    break;
-                }
-                old_p = current_p;
-                results.push_back(current_p);
+            //auto num_elems = BWT_P.nElems(symbol_id);
+            bwt_interval aux_i = bwt_interval(BWT_P.get_C(symbol_id) , BWT_P.get_C(symbol_id + 1) -1);
+            auto values = all_P_in_range(aux_i);
+            for (auto& value : values) {
+                //std::cout<< value.first << " - " << value.second << std::endl;
+                results.push_back(value.second);
             }
-            results.shrink_to_fit();
-            //std::cout << "range_values: " << results << endl;
-            return results;
         }
-        //! TODO:
-        /*!
-        * \returns std::vector<uint64_t>
-        */
+
         std::vector<uint64_t> get_S_given_O(uint64_t symbol_id){
             std::vector<u_int64_t> results;
             //based on ring query debugging. check getPGivenS
-            auto num_elems = m_bwt_p.nElems(symbol_id);
+            auto num_elems = BWT_P.nElems(symbol_id);
             bwt_interval aux_i = bwt_interval(symbol_id, num_elems);
             auto current_p = min_S_in_O(aux_i, symbol_id);
             uint64_t old_p = 0;
             results.push_back(current_p);
-            for(uint64_t q=0; q < num_elems; q++){
+            for(int q=0; q < num_elems; q++){
                 current_p = next_S_in_O(aux_i, symbol_id, ++current_p);
                 if(current_p <= old_p){
                     break;
@@ -855,19 +841,17 @@ namespace ring {
             results.shrink_to_fit();
             return results;
         }
-        //! TODO:
-        /*!
-        * \returns std::vector<uint64_t>
-        */
+
+
         std::vector<uint64_t> get_O_given_P(uint64_t symbol_id){
             std::vector<u_int64_t> results;
             //based on ring query debugging. check getPGivenS
-            auto num_elems = m_bwt_s.nElems(symbol_id);
+            auto num_elems = BWT_S.nElems(symbol_id);
             bwt_interval aux_i = bwt_interval(symbol_id, num_elems);
             auto current_p = min_O_in_P(aux_i, symbol_id);
             uint64_t old_p = 0;
             results.push_back(current_p);
-            for(uint64_t q=0; q < num_elems; q++){
+            for(int q=0; q < num_elems; q++){
                 current_p = next_O_in_P(aux_i, symbol_id, ++current_p);
                 if(current_p <= old_p){
                     break;
@@ -877,11 +861,8 @@ namespace ring {
             }
             results.shrink_to_fit();
             return results;
-        }
+        }*/
     };
-
-    typedef ring<bwt<rrr_vector<15>>> c_ring;
-
 }
 
 #endif

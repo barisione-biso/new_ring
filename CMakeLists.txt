@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.7)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(AppendCompilerFlags)
 project(Ring)
+
 set(CMAKE_PROJECT_NAME "Ring")
 
 #Change to "Debug" when you need it
@@ -21,10 +22,10 @@ else()
     message(STATUS "Compiler is recent enough to support C++11.")
 endif()
 if( CMAKE_COMPILER_IS_GNUCXX )
-    append_cxx_compiler_flags("-fpermissive -std=c++11 -Wall -Wextra " "GCC" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-fpermissive -std=c++14 -Wall -Wextra " "GCC" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-msse4.2 -O3 -ffast-math -funroll-loops -fno-omit-frame-pointer -g" "GCC" CMAKE_CXX_FLAGS_RELEASE)
 else()
-    append_cxx_compiler_flags("-fpermissive -std=c++11" "CLANG" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-fpermissive -std=c++14" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-stdlib=libc++" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-msse4.2 -O3  -ffast-math -funroll-loops -DNDEBUG" "CLANG" CMAKE_CXX_FLAGS_RELEASE)
 endif()
@@ -52,3 +53,24 @@ target_link_libraries(build-index sdsl divsufsort divsufsort64)
 
 add_executable(query-index src/query-index.cpp)
 target_link_libraries(query-index sdsl divsufsort divsufsort64)
+
+
+#Setting up tests
+include(CTest)
+enable_testing()
+#Retrieve recursively all cpp files within 'src' https://cmake.org/cmake/help/latest/command/file.html#glob-recurse
+file(GLOB_RECURSE SRCS src/*.cpp)
+#And then set them as 'sources'
+set(sources ${SRCS})
+# Include ring's 'sources' as a static library (used later by the linker)
+add_library(ringlib STATIC ${sources})
+set(TEST_TARGETS
+    test_ring_spo
+    test_colored_range_counting_wm_parameter
+)
+
+add_test(NAME test_vm COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build/test_wm)
+foreach(target ${TEST_TARGETS})
+    add_executable(${target} src/tests/${target}.cpp)
+    target_link_libraries(${target} ringlib sdsl divsufsort divsufsort64)
+endforeach(target)

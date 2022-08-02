@@ -176,8 +176,6 @@ void query(const std::string &file, const std::string &queries){
             typedef std::vector<typename ring::ltj_algorithm<>::tuple_type> results_type;
             results_type res;
 
-            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
             ltj.join(res, 1000, 600);
             //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
@@ -200,8 +198,6 @@ void query(const std::string &file, const std::string &queries){
 
 int main(int argc, char* argv[])
 {
-
-    typedef ring::ring<> ring_type;
     //typedef ring::c_ring ring_type;
     if(argc != 3){
         std::cout << "Usage: " << argv[0] << "<index> <queries>" << std::endl;

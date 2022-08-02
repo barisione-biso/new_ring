@@ -20,19 +20,26 @@
 
 #include <iostream>
 #include "ring.hpp"
+#include "reverse_ring.hpp"
 #include <fstream>
 #include <sdsl/construct.hpp>
 #include <ltj_algorithm.hpp>
+#include "crc_arrays.hpp"
 
 using namespace std;
 
 using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
 
-template<class ring>
+typedef ring::ring<> ring_spo;
+typedef ring::reverse_ring<> ring_sop;
+typedef ring::c_ring cring_spo;
+typedef ring::crc_arrays<> crc_arrays;
+template<class ring, class crc_arrays>
 void build_index(const std::string &dataset, const std::string &output){
-    vector<spo_triple> D, E;
+    std::vector<spo_triple> D, E;
 
+    //1. Read the source file.
     std::ifstream ifs(dataset);
     uint64_t s, p , o;
     do {
@@ -41,19 +48,62 @@ void build_index(const std::string &dataset, const std::string &output){
     } while (!ifs.eof());
 
     D.shrink_to_fit();
-    cout << "--Indexing " << D.size() << " triples" << endl;
-    memory_monitor::start();
-    auto start = timer::now();
 
-    ring A(D);
-    auto stop = timer::now();
-    memory_monitor::stop();
-    cout << "  Index built  " << sdsl::size_in_bytes(A) << " bytes" << endl;
+    //2. Building the Index SPO - OSP - POS (Cyclic)
+    {
+        crc_arrays crc_a;
+        std::cout << " Building the SPO Index " << std::endl;
+        std::cout << "--Indexing " << D.size() << " triples" << std::endl;
+        memory_monitor::start();
+        auto start = timer::now();
 
-    sdsl::store_to_file(A, output);
-    cout << "Index saved" << endl;
-    cout << duration_cast<seconds>(stop-start).count() << " seconds." << endl;
-    cout << memory_monitor::peak() << " bytes." << endl;
+        ring_spo ring_spo(D);
+        auto stop = timer::now();
+        memory_monitor::stop();
+        std::cout << "  Index built  " << sdsl::size_in_bytes(ring_spo) << " bytes" << std::endl;
+
+        sdsl::store_to_file(ring_spo, output);
+        std::cout << "Index saved" << endl;
+
+        std::cout << "Building & saving crc arrays" << std::endl;
+        crc_a.build_spo_arrays(ring_spo);
+        crc_a.save_spo(output);
+        std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
+        std::cout << memory_monitor::peak() << " bytes." << std::endl;
+    }
+
+    for (uint64_t i = 0; i < D.size(); i++){
+        auto& t = D[i];
+        auto s = std::get<0>(t);
+        auto p = std::get<1>(t);
+        auto o = std::get<2>(t);
+        //Due to space efficiency spo is used to build sop ring.
+        t = spo_triple(s, o, p);
+    }
+
+    //3. Building the reverse Index SOP - PSO - OPS (Cyclic)
+    {
+        crc_arrays crc_a;
+        std::cout << " Building the SOP Index " << std::endl;
+        std::cout << "--Indexing " << D.size() << " triples" << std::endl;
+        memory_monitor::start();
+        auto start = timer::now();
+
+        ring_sop ring_sop(D);
+        D.clear();
+        auto stop = timer::now();
+        memory_monitor::stop();
+        std::cout << "  Index built  " << sdsl::size_in_bytes(ring_sop) << " bytes" << std::endl;
+
+        sdsl::store_to_file(ring_sop, output);
+        std::cout << "Index saved" << endl;
+
+        std::cout << "Building & saving crc arrays" << std::endl;
+        crc_a.build_sop_arrays(ring_sop);
+        crc_a.save_sop(output);
+        std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
+        std::cout << memory_monitor::peak() << " bytes." << std::endl;
+    }
 
 }
 
@@ -69,10 +119,10 @@ int main(int argc, char **argv)
     std::string type    = argv[2];
     if(type == "ring"){
         std::string index_name = dataset + ".ring";
-        build_index<ring::ring<>>(dataset, index_name);
+        build_index<ring_spo, crc_arrays>(dataset, index_name);
     }else if (type == "c-ring"){
         std::string index_name = dataset + ".c-ring";
-        build_index<ring::c_ring>(dataset, index_name);
+        build_index<cring_spo, crc_arrays>(dataset, index_name);
     }else{
         std::cout << "Usage: " << argv[0] << "<dataset> [ring|c-ring]" << std::endl;
     }

@@ -38,7 +38,7 @@ namespace ring {
         typedef sdsl::rank_support_v<> c_rank_type;
         typedef sdsl::select_support_mcl<1> c_select_1_type;
         typedef sdsl::select_support_mcl<0> c_select_0_type;
-        typedef sdsl::wm_int<bwt_bit_vector_t> bwt_type;
+        typedef sdsl::wm_int<bwt_bit_vector_t> bwt_type;//TODO: MALO, esto es wm type, no bwt type. o no?
 
     private:
         bwt_type m_L;
@@ -219,6 +219,9 @@ namespace ring {
             return {m_L.rank(c + I.first, S), m_L.rank(c + I.second, S)};
         }
 
+        bwt_type get_L() const{
+            return m_L;
+        }
     };
 
 }
