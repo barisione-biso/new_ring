@@ -139,7 +139,7 @@ void query(const std::string &file, const std::string &queries){
 
     cout << " Loading the index..."; fflush(stdout);
     sdsl::load_from_file(graph, file);
-
+    graph.load_crc_arrays(file);
     cout << endl << " Index loaded " << sdsl::size_in_bytes(graph) << " bytes" << endl;
 
     std::ifstream ifs;

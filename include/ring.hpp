@@ -23,18 +23,19 @@
 #include <cstdint>
 #include "bwt.hpp"
 #include "bwt_interval.hpp"
-//#include "crc_arrays.hpp" PARA ARREGAR ESTA REF NECESITO SACAR EL RING Y EL REVERSE DE CRC ARRAYS, AHI SOLO NECESITO UNA REF A LA BWT o mejor, a la WM.
+#include "crc_arrays.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 
 namespace ring {
 
-    template <class bwt_t = bwt<>>
+    template <class bwt_t = bwt<>, class crc_arrays_t = crc_arrays<>>
     class ring {
     public:
         typedef uint64_t size_type;
         typedef uint64_t value_type;
         typedef bwt_t bwt_type;
+        typedef crc_arrays_t crc_arrays_type;
         typedef std::tuple<uint32_t, uint32_t, uint32_t> spo_triple_type;
 
         bwt_type m_bwt_s; //POS
@@ -50,6 +51,8 @@ namespace ring {
         size_type m_sigma_p;
         size_type m_sigma_o;
 
+        crc_arrays_type m_crc_arrays;
+
         void copy(const ring &o) {
             m_bwt_s = o.m_bwt_s;
             m_bwt_p = o.m_bwt_p;
@@ -61,12 +64,14 @@ namespace ring {
             m_sigma_s = o.m_sigma_s;
             m_sigma_p = o.m_sigma_p;
             m_sigma_o = o.m_sigma_o;
+            m_crc_arrays = o.m_crc_arrays;
         }
 
     public:
         ring() = default;
 
         // Assumes the triples have been stored in a vector<spo_triple>
+        // This constructor is used to index the data.
         ring(vector<spo_triple_type> &D) {
             typedef typename vector<spo_triple_type>::iterator triple_iterator;
             size_type i;
@@ -273,6 +278,7 @@ namespace ring {
                 m_sigma_s = o.m_sigma_s;
                 m_sigma_p = o.m_sigma_p;
                 m_sigma_o = o.m_sigma_o;
+                m_crc_arrays = std::move(o.m_crc_arrays);
             }
             return *this;
         }
@@ -289,6 +295,7 @@ namespace ring {
             std::swap(m_sigma_s, o.m_sigma_s);
             std::swap(m_sigma_p, o.m_sigma_p);
             std::swap(m_sigma_o, o.m_sigma_o);
+            std::swap(m_crc_arrays, o.m_crc_arrays);
         }
 
         //! Serializes the data structure into the given ostream
@@ -305,6 +312,8 @@ namespace ring {
             written_bytes += sdsl::write_member(m_sigma_s, out, child, "sigma_s");
             written_bytes += sdsl::write_member(m_sigma_p, out, child, "sigma_p");
             written_bytes += sdsl::write_member(m_sigma_o, out, child, "sigma_o");
+            //Currently crc arrays are stored in a different file.
+            //written_bytes += sdsl::write_member(m_crc_arrays, out, child, "crc_arrays");
             sdsl::structure_tree::add_size(child, written_bytes);
             return written_bytes;
         }
@@ -320,8 +329,12 @@ namespace ring {
             sdsl::read_member(m_sigma_s, in);
             sdsl::read_member(m_sigma_p, in);
             sdsl::read_member(m_sigma_o, in);
+            //Currently crc arrays are stored in a different file.
+            //m_crc_arrays.load(in);
         }
-
+        void load_crc_arrays(std::string file){
+            sdsl::load_from_file(m_crc_arrays, file+".crc");
+        }
         // The following init funtions work with suffix array positions
         // (i.e., positions in the global interval [1, 3*m_n_triples] )
         pair<uint64_t, uint64_t> init_no_constants() const {
