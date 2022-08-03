@@ -26,14 +26,14 @@
 
 namespace ring {
 
-    template <class wm_bit_vector_t = bit_vector>
+    template <class bwt_bit_vector_t = bit_vector>//<class wm_bit_vector_t = bit_vector>
     class crc{
         public:
             typedef int_vector<>::size_type size_type;
             typedef int_vector<>::value_type value_type;
-            typedef sdsl::wm_int<wm_bit_vector_t> wm_type;
+            typedef sdsl::wm_int<bwt_bit_vector_t> wm_type; //TODO: no deberia ser typedef sdsl::wm_int<wm_bit_vector_t> y wm_type?
         private:
-            wm_type m_L;
+            wm_type m_L;//Reference to BWT's L, useful for crc WM creation.
             wm_type m_crc_L;
 
             void copy(const crc &o) {
@@ -100,12 +100,6 @@ namespace ring {
                     build_crc_wm(0, m_L.size() - 1);
                 }
             }
-            void load(string filename){
-                sdsl::load_from_file(m_crc_L, filename + ".crc");
-            }
-            void save(string filename){
-                sdsl::store_to_file(m_crc_L, filename + ".crc");
-            }
             value_type get_number_distinct_values_on_range(value_type x_s, value_type x_e, value_type rng_s, value_type rng_e){
                 return m_crc_L.count_range_search_2d(x_s, x_e, rng_s, rng_e);
             }
@@ -170,10 +164,13 @@ namespace ring {
             size_type serialize(std::ostream &out, sdsl::structure_tree_node *v = nullptr, std::string name = "") const {
                 sdsl::structure_tree_node *child = sdsl::structure_tree::add_child(v, name, sdsl::util::class_name(*this));
                 size_type written_bytes = 0;
-                written_bytes += m_L.serialize(out, child, "L");
                 written_bytes += m_crc_L.serialize(out, child, "crc_L");
                 sdsl::structure_tree::add_size(child, written_bytes);
                 return written_bytes;
+            }
+
+            void load(std::istream &in) {
+                m_crc_L.load(in);
             }
     };
 }

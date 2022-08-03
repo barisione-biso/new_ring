@@ -50,8 +50,8 @@ void build_index(const std::string &dataset, const std::string &output){
     D.shrink_to_fit();
 
     //2. Building the Index SPO - OSP - POS (Cyclic)
+    crc_arrays crc_a;
     {
-        crc_arrays crc_a;
         std::cout << " Building the SPO Index " << std::endl;
         std::cout << "--Indexing " << D.size() << " triples" << std::endl;
         memory_monitor::start();
@@ -62,12 +62,11 @@ void build_index(const std::string &dataset, const std::string &output){
         memory_monitor::stop();
         std::cout << "  Index built  " << sdsl::size_in_bytes(ring_spo) << " bytes" << std::endl;
 
+        std::cout << "Building SPO crc arrays" << std::endl;
+        crc_a.build_spo_arrays((ring_spo.get_m_bwt_s()).get_L(), (ring_spo.get_m_bwt_p()).get_L(), (ring_spo.get_m_bwt_o()).get_L() );
+        std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
         sdsl::store_to_file(ring_spo, output);
         std::cout << "Index saved" << endl;
-
-        std::cout << "Building & saving crc arrays" << std::endl;
-        crc_a.build_spo_arrays(ring_spo);
-        crc_a.save_spo(output);
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
         std::cout << memory_monitor::peak() << " bytes." << std::endl;
     }
@@ -83,7 +82,6 @@ void build_index(const std::string &dataset, const std::string &output){
 
     //3. Building the reverse Index SOP - PSO - OPS (Cyclic)
     {
-        crc_arrays crc_a;
         std::cout << " Building the SOP Index " << std::endl;
         std::cout << "--Indexing " << D.size() << " triples" << std::endl;
         memory_monitor::start();
@@ -95,15 +93,17 @@ void build_index(const std::string &dataset, const std::string &output){
         memory_monitor::stop();
         std::cout << "  Index built  " << sdsl::size_in_bytes(ring_sop) << " bytes" << std::endl;
 
+        std::cout << "Building SOP crc arrays" << std::endl;
+        crc_a.build_sop_arrays(ring_sop.get_m_bwt_s().get_L(), ring_sop.get_m_bwt_o().get_L(), ring_sop.get_m_bwt_p().get_L());
+        std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
         sdsl::store_to_file(ring_sop, output);
         std::cout << "Index saved" << endl;
-
-        std::cout << "Building & saving crc arrays" << std::endl;
-        crc_a.build_sop_arrays(ring_sop);
-        crc_a.save_sop(output);
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
         std::cout << memory_monitor::peak() << " bytes." << std::endl;
     }
+
+    sdsl::store_to_file(crc_a, output + ".crc");
+    std::cout << "CRC array saved" << endl;
 
 }
 

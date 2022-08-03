@@ -20,8 +20,9 @@ int main(int argc, char* argv[])
     //1.
     std::cout << ">> Starting test_wm" << std::endl << " loading CRC array of " << argv[1] << std::endl;
     ring::crc_arrays<> crc_arrays;
-    crc_arrays.load(string(argv[1]));
-    crc_arrays.print_arrays();
+    //crc_arrays.load(string(argv[1]));
+    sdsl::load_from_file(crc_arrays, string(argv[1])+".crc");
+    //crc_arrays.print_arrays();
     //2. Quering it.
     //! This function counts distinct values on a range. It's based on Muthukrishnan's Colored range counting algorithm.
     //! See algorithm 2 here: https://users.dcc.uchile.cl/~gnavarro/ps/tcs11.2.pdf

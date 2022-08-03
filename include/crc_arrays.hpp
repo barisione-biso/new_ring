@@ -22,25 +22,26 @@
 #include "configuration.hpp"
 #include <exception> // std::exception
 #include <unordered_map>
-#include "ring.hpp" //SPO order
-#include "reverse_ring.hpp" //SOP order
 #include "crc_array.hpp"
-#include "bwt.hpp"
 
 namespace ring {
-    template <class bwt_t = bwt<>>//Is this needed?
+    template <class bwt_bit_vector_t = bit_vector>//Is this needed?
     class crc_arrays
     {
     public:
         typedef uint64_t value_type;
-        typedef ring<> ring_spo;
-        typedef reverse_ring<> ring_sop;
-        //typedef sdsl::wm_int<bwt_bit_vector_t> bwt_type;//Is this needed?
-        typedef bwt_t bwt_type;
+        typedef uint64_t size_type;
+        typedef sdsl::wm_int<bwt_bit_vector_t> wm_type; //TODO: no deberia ser typedef sdsl::wm_int<wm_bit_vector_t> y wm_type?
     private:
-        ring_spo r_spo;
-        ring_sop r_sop;
+        void copy(const crc_arrays &o) {
+            spo_BWT_S = std::move(o.spo_BWT_S);
+            spo_BWT_P = std::move(o.spo_BWT_P);
+            spo_BWT_O = std::move(o.spo_BWT_O);
 
+            sop_BWT_S = std::move(o.sop_BWT_S);
+            sop_BWT_O = std::move(o.sop_BWT_O);
+            sop_BWT_P = std::move(o.sop_BWT_P);
+        }
     public:
         unique_ptr<crc<>> spo_BWT_S;
         unique_ptr<crc<>> spo_BWT_P;
@@ -49,52 +50,19 @@ namespace ring {
         unique_ptr<crc<>> sop_BWT_S;
         unique_ptr<crc<>> sop_BWT_P;
         unique_ptr<crc<>> sop_BWT_O;
-
-        void build_spo_arrays(ring_spo &spo)
+        crc_arrays() = default;
+        void build_spo_arrays(const wm_type &spo_bwt_s_L,const wm_type &spo_bwt_p_L,const wm_type &spo_bwt_o_L)
         {
-            r_spo = spo;
-            spo_BWT_S = std::make_unique<crc<>>((r_spo.get_m_bwt_s()).get_L());
-            spo_BWT_P = std::make_unique<crc<>>((r_spo.get_m_bwt_p()).get_L());
-            spo_BWT_O = std::make_unique<crc<>>((r_spo.get_m_bwt_o()).get_L());
+            spo_BWT_S = std::make_unique<crc<>>(spo_bwt_s_L);
+            spo_BWT_P = std::make_unique<crc<>>(spo_bwt_p_L);
+            spo_BWT_O = std::make_unique<crc<>>(spo_bwt_o_L);
         }
-        void build_sop_arrays(ring_sop &sop)
+        void build_sop_arrays(const wm_type &sop_bwt_s_L,const wm_type &sop_bwt_o_L,const wm_type &sop_bwt_p_L)
         {
-            r_sop = sop;
-            sop_BWT_S = std::make_unique<crc<>>((r_sop.get_m_bwt_s()).get_L());
-            sop_BWT_O = std::make_unique<crc<>>((r_sop.get_m_bwt_o()).get_L());
-            sop_BWT_P = std::make_unique<crc<>>((r_sop.get_m_bwt_p()).get_L());
+            sop_BWT_S = std::make_unique<crc<>>(sop_bwt_s_L);
+            sop_BWT_O = std::make_unique<crc<>>(sop_bwt_o_L);
+            sop_BWT_P = std::make_unique<crc<>>(sop_bwt_p_L);
         }
-        void save_spo(string filename)
-        {
-            spo_BWT_S->save(filename + "_spo_crc_S");
-            spo_BWT_P->save(filename + "_spo_crc_P");
-            spo_BWT_O->save(filename + "_spo_crc_O");
-        }
-        void save_sop(string filename)
-        {
-            sop_BWT_S->save(filename + "_sop_crc_S");
-            sop_BWT_O->save(filename + "_sop_crc_O");
-            sop_BWT_P->save(filename + "_sop_crc_P");
-        }
-        void load(string filename)
-        {
-            spo_BWT_S = std::make_unique<crc<>>();
-            spo_BWT_P = std::make_unique<crc<>>();
-            spo_BWT_O = std::make_unique<crc<>>();
-
-            sop_BWT_S = std::make_unique<crc<>>();
-            sop_BWT_P = std::make_unique<crc<>>();
-            sop_BWT_O = std::make_unique<crc<>>();
-
-            spo_BWT_S->load(filename + "_spo_crc_S");
-            spo_BWT_P->load(filename + "_spo_crc_P");
-            spo_BWT_O->load(filename + "_spo_crc_O");
-
-            sop_BWT_S->load(filename + "_sop_crc_S");
-            sop_BWT_P->load(filename + "_sop_crc_P");
-            sop_BWT_O->load(filename + "_sop_crc_O");
-        }
-
         void print_arrays()
         {
             std::cout << "spo S : "<< std::endl;
@@ -171,6 +139,84 @@ namespace ring {
         value_type get_number_distinct_values_sop_BWT_O(value_type l, value_type r)
         {
             return sop_BWT_O->get_number_distinct_values(l, r);
+        }
+        //! Copy constructor
+        crc_arrays(const crc_arrays &o) {
+            copy(o);
+        }
+
+        //! Move constructor
+        crc_arrays(crc_arrays &&o) {
+            *this = std::move(o);
+        }
+
+        //! Copy Operator=
+        crc_arrays &operator=(const crc_arrays &o) {
+            if (this != &o) {
+                copy(o);
+            }
+            return *this;
+        }
+
+        //! Move Operator=
+        crc_arrays &operator=(crc_arrays &&o) {
+            if (this != &o) {
+                spo_BWT_S = std::move(o.spo_BWT_S);
+                spo_BWT_P = std::move(o.spo_BWT_P);
+                spo_BWT_O = std::move(o.spo_BWT_O);
+
+                sop_BWT_S = std::move(o.sop_BWT_S);
+                sop_BWT_O = std::move(o.sop_BWT_O);
+                sop_BWT_P = std::move(o.sop_BWT_P);
+            }
+            return *this;
+        }
+
+        void swap(crc_arrays &o) {
+            std::swap(spo_BWT_S, o.spo_BWT_S);
+            std::swap(spo_BWT_P, o.spo_BWT_P);
+            std::swap(spo_BWT_O, o.spo_BWT_O);
+
+            std::swap(sop_BWT_S, o.sop_BWT_S);
+            std::swap(sop_BWT_O, o.sop_BWT_O);
+            std::swap(sop_BWT_P, o.sop_BWT_P);
+        }
+
+        //! Serializes the data structure into the given ostream
+        size_type serialize(std::ostream &out, sdsl::structure_tree_node *v = nullptr, std::string name = "") const {
+            sdsl::structure_tree_node *child = sdsl::structure_tree::add_child(v, name, sdsl::util::class_name(*this));
+            size_type written_bytes = 0;
+            //SPO Ring : The following two if statements must exists otherwise a call to 'serialize' via 'size_in_bytes' will trigger a segfault if is done while SOP ring is not built yet.
+            if(spo_BWT_S && spo_BWT_P && spo_BWT_O){
+                written_bytes += spo_BWT_S->serialize(out, child, "spo_BWT_S");
+                written_bytes += spo_BWT_P->serialize(out, child, "spo_BWT_P");
+                written_bytes += spo_BWT_O->serialize(out, child, "spo_BWT_O");
+            }
+            //SOP (Reverse Ring)
+            if(sop_BWT_S && sop_BWT_P && sop_BWT_O){
+                written_bytes += sop_BWT_S->serialize(out, child, "sop_BWT_S");
+                written_bytes += sop_BWT_O->serialize(out, child, "sop_BWT_O");
+                written_bytes += sop_BWT_P->serialize(out, child, "sop_BWT_P");
+            }
+            sdsl::structure_tree::add_size(child, written_bytes);
+            return written_bytes;
+        }
+
+        void load(std::istream &in) {
+            spo_BWT_S = std::make_unique<crc<>>();
+            spo_BWT_P = std::make_unique<crc<>>();
+            spo_BWT_O = std::make_unique<crc<>>();
+            sop_BWT_S = std::make_unique<crc<>>();
+            sop_BWT_O = std::make_unique<crc<>>();
+            sop_BWT_P = std::make_unique<crc<>>();
+
+            spo_BWT_S->load(in);
+            spo_BWT_P->load(in);
+            spo_BWT_O->load(in);
+
+            sop_BWT_S->load(in);
+            sop_BWT_O->load(in);
+            sop_BWT_P->load(in);
         }
     };
 }

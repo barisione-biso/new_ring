@@ -23,7 +23,7 @@
 #include <cstdint>
 #include "bwt.hpp"
 #include "bwt_interval.hpp"
-
+//#include "crc_arrays.hpp" PARA ARREGAR ESTA REF NECESITO SACAR EL RING Y EL REVERSE DE CRC ARRAYS, AHI SOLO NECESITO UNA REF A LA BWT o mejor, a la WM.
 #include <stdio.h>
 #include <stdlib.h>
 
