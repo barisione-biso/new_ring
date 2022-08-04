@@ -6,7 +6,7 @@ project(Ring)
 set(CMAKE_PROJECT_NAME "Ring")
 
 #Change to "Debug" when you need it
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "Debug")
 
 # C++11 compiler Check
 if(NOT CMAKE_CXX_COMPILER_VERSION) # work around for cmake versions smaller than 2.8.10
@@ -22,10 +22,10 @@ else()
     message(STATUS "Compiler is recent enough to support C++11.")
 endif()
 if( CMAKE_COMPILER_IS_GNUCXX )
-    append_cxx_compiler_flags("-fpermissive -std=c++14 -Wall -Wextra " "GCC" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-fpermissive -std=c++11 -Wall -Wextra " "GCC" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-msse4.2 -O3 -ffast-math -funroll-loops -fno-omit-frame-pointer -g" "GCC" CMAKE_CXX_FLAGS_RELEASE)
 else()
-    append_cxx_compiler_flags("-fpermissive -std=c++14" "CLANG" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-fpermissive -std=c++11" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-stdlib=libc++" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-msse4.2 -O3  -ffast-math -funroll-loops -DNDEBUG" "CLANG" CMAKE_CXX_FLAGS_RELEASE)
 endif()
