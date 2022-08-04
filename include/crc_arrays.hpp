@@ -203,12 +203,12 @@ namespace ring {
         }
 
         void load(std::istream &in) {
-            spo_BWT_S = std::unique_ptr<crc<>>{};
-            spo_BWT_P = std::unique_ptr<crc<>>{};
-            spo_BWT_O = std::unique_ptr<crc<>>{};
-            sop_BWT_S = std::unique_ptr<crc<>>{};
-            sop_BWT_O = std::unique_ptr<crc<>>{};
-            sop_BWT_P = std::unique_ptr<crc<>>{};
+            spo_BWT_S = std::unique_ptr<crc<>>{new crc<>};
+            spo_BWT_P = std::unique_ptr<crc<>>{new crc<>};
+            spo_BWT_O = std::unique_ptr<crc<>>{new crc<>};
+            sop_BWT_S = std::unique_ptr<crc<>>{new crc<>};
+            sop_BWT_O = std::unique_ptr<crc<>>{new crc<>};
+            sop_BWT_P = std::unique_ptr<crc<>>{new crc<>};
 
             spo_BWT_S->load(in);
             spo_BWT_P->load(in);
