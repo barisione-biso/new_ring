@@ -43,25 +43,25 @@ namespace ring {
             sop_BWT_P = std::move(o.sop_BWT_P);
         }
     public:
-        unique_ptr<crc<>> spo_BWT_S;
-        unique_ptr<crc<>> spo_BWT_P;
-        unique_ptr<crc<>> spo_BWT_O;
+        std::unique_ptr<crc<>> spo_BWT_S;
+        std::unique_ptr<crc<>> spo_BWT_P;
+        std::unique_ptr<crc<>> spo_BWT_O;
 
-        unique_ptr<crc<>> sop_BWT_S;
-        unique_ptr<crc<>> sop_BWT_P;
-        unique_ptr<crc<>> sop_BWT_O;
+        std::unique_ptr<crc<>> sop_BWT_S;
+        std::unique_ptr<crc<>> sop_BWT_P;
+        std::unique_ptr<crc<>> sop_BWT_O;
         crc_arrays() = default;
         void build_spo_arrays(const wm_type &spo_bwt_s_L,const wm_type &spo_bwt_p_L,const wm_type &spo_bwt_o_L)
         {
-            spo_BWT_S = std::make_unique<crc<>>(spo_bwt_s_L);
-            spo_BWT_P = std::make_unique<crc<>>(spo_bwt_p_L);
-            spo_BWT_O = std::make_unique<crc<>>(spo_bwt_o_L);
+            spo_BWT_S = std::move(std::unique_ptr<crc<>>{new crc<>(spo_bwt_s_L)});
+            spo_BWT_P = std::move(std::unique_ptr<crc<>>{new crc<>(spo_bwt_p_L)});
+            spo_BWT_O = std::move(std::unique_ptr<crc<>>{new crc<>(spo_bwt_o_L)});
         }
         void build_sop_arrays(const wm_type &sop_bwt_s_L,const wm_type &sop_bwt_o_L,const wm_type &sop_bwt_p_L)
         {
-            sop_BWT_S = std::make_unique<crc<>>(sop_bwt_s_L);
-            sop_BWT_O = std::make_unique<crc<>>(sop_bwt_o_L);
-            sop_BWT_P = std::make_unique<crc<>>(sop_bwt_p_L);
+            sop_BWT_S = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_s_L)});
+            sop_BWT_O = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_o_L)});
+            sop_BWT_P = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_p_L)});
         }
         void print_arrays()
         {
@@ -203,12 +203,12 @@ namespace ring {
         }
 
         void load(std::istream &in) {
-            spo_BWT_S = std::make_unique<crc<>>();
-            spo_BWT_P = std::make_unique<crc<>>();
-            spo_BWT_O = std::make_unique<crc<>>();
-            sop_BWT_S = std::make_unique<crc<>>();
-            sop_BWT_O = std::make_unique<crc<>>();
-            sop_BWT_P = std::make_unique<crc<>>();
+            spo_BWT_S = std::unique_ptr<crc<>>{};
+            spo_BWT_P = std::unique_ptr<crc<>>{};
+            spo_BWT_O = std::unique_ptr<crc<>>{};
+            sop_BWT_S = std::unique_ptr<crc<>>{};
+            sop_BWT_O = std::unique_ptr<crc<>>{};
+            sop_BWT_P = std::unique_ptr<crc<>>{};
 
             spo_BWT_S->load(in);
             spo_BWT_P->load(in);
