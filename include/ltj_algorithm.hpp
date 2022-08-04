@@ -165,6 +165,13 @@ namespace ring {
             search(0, t, res, start, limit_results, timeout_seconds);
         };
 
+        std::string get_gao(std::unordered_map<uint8_t, std::string>& ht) const{
+            std::string str = "";
+            for(const auto& var : m_gao){
+                str += "?" + ht[var] + " ";
+            }
+            return str;
+        }
 
         /**
          *

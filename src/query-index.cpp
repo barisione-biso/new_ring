@@ -183,7 +183,12 @@ void query(const std::string &file, const std::string &queries){
             time_span = duration_cast<microseconds>(stop - start);
             total_time = time_span.count();
 
-            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
+            std::unordered_map<uint8_t, std::string> ht;
+            for(const auto &p : hash_table_vars){
+                ht.insert({p.second, p.first});
+            }
+
+            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
