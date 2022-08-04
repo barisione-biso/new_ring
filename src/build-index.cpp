@@ -96,8 +96,9 @@ void build_index(const std::string &dataset, const std::string &output){
         std::cout << "Building SOP crc arrays" << std::endl;
         crc_a.build_sop_arrays(ring_sop.get_m_bwt_s().get_L(), ring_sop.get_m_bwt_o().get_L(), ring_sop.get_m_bwt_p().get_L());
         std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
-        sdsl::store_to_file(ring_sop, output);
-        std::cout << "Index saved" << endl;
+        //The reverse ring is not persisted.
+        //sdsl::store_to_file(ring_sop, output);
+        //std::cout << "Index saved" << endl;
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
         std::cout << memory_monitor::peak() << " bytes." << std::endl;
     }
