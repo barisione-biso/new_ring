@@ -891,6 +891,26 @@ namespace ring {
             results.shrink_to_fit();
             return results;
         }
+        //CRC arrays wrapper functions
+        value_type get_number_distinct_values_spo_BWT_S(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_spo_BWT_S(l, r);
+        }
+        value_type get_number_distinct_values_spo_BWT_P(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_spo_BWT_P(l, r);
+        }
+        value_type get_number_distinct_values_spo_BWT_O(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_spo_BWT_O(l, r);
+        }
+        value_type get_number_distinct_values_sop_BWT_S(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_sop_BWT_S(l, r);
+        }
+        value_type get_number_distinct_values_sop_BWT_P(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_sop_BWT_P(l, r);
+        }
+        value_type get_number_distinct_values_sop_BWT_O(value_type l, value_type r) const{
+            return m_crc_arrays.get_number_distinct_values_sop_BWT_O(l, r);
+        }
+
     };
 
     typedef ring<bwt<rrr_vector<15>>> c_ring;

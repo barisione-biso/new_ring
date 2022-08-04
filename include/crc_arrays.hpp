@@ -86,7 +86,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_spo_BWT_S(value_type l, value_type r)
+        value_type get_number_distinct_values_spo_BWT_S(value_type l, value_type r) const
         {
             return spo_BWT_S->get_number_distinct_values(l, r);
         }
@@ -96,7 +96,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_spo_BWT_P(value_type l, value_type r)
+        value_type get_number_distinct_values_spo_BWT_P(value_type l, value_type r) const
         {
             return spo_BWT_P->get_number_distinct_values(l, r);
         }
@@ -106,7 +106,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_spo_BWT_O(value_type l, value_type r)
+        value_type get_number_distinct_values_spo_BWT_O(value_type l, value_type r) const
         {
             return spo_BWT_O->get_number_distinct_values(l, r);
         }
@@ -116,7 +116,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_sop_BWT_S(value_type l, value_type r)
+        value_type get_number_distinct_values_sop_BWT_S(value_type l, value_type r) const
         {
             return sop_BWT_S->get_number_distinct_values(l, r);
         }
@@ -126,7 +126,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_sop_BWT_P(value_type l, value_type r)
+        value_type get_number_distinct_values_sop_BWT_P(value_type l, value_type r) const
         {
             return sop_BWT_P->get_number_distinct_values(l, r);
         }
@@ -136,7 +136,7 @@ namespace ring {
         * \param r : right value of the range.
         * \returns value_type
         */
-        value_type get_number_distinct_values_sop_BWT_O(value_type l, value_type r)
+        value_type get_number_distinct_values_sop_BWT_O(value_type l, value_type r) const
         {
             return sop_BWT_O->get_number_distinct_values(l, r);
         }

@@ -51,7 +51,6 @@ namespace ring {
             return 0;
         }
     }
-
 }
 
 
