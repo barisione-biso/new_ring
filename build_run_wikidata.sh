@@ -1,1 +1,1 @@
-./build/build-index dat/wikidata-filtered-enumerated.dat ring
+./build/build-index ../data/wikidata-filtered-enumerated.dat ring
