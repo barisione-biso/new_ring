@@ -116,33 +116,30 @@ namespace ring {
                     return linfo.weight < rinfo.weight;
                 }
             };
-            
-            std::unordered_map<uint64_t, uint64_t> get_num_diff_values(const triple_pattern& triple_pattern, const ltj_iter_type &iter) const{
-                std::unordered_map<uint64_t, uint64_t> hash_map;
+            template <class Iterator>
+            std::unordered_map<size_type, size_type> get_num_diff_values(const triple_pattern& triple_pattern, const Iterator &iter) const{
+                std::unordered_map<size_type, size_type> hash_map;
 
                 //First case: ?S ?P ?O
                 if (triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*
                     bwt_interval open_interval = m_ptr_ring->open_SPO();
-                    // TODO: do something different here.
-                    hash_map.insert({triple_pattern->s->varname, open_interval.size()});
-                    hash_map.insert({triple_pattern->p->varname, open_interval.size()});
-                    hash_map.insert({triple_pattern->o->varname, open_interval.size()});
+                    hash_map.insert({triple_pattern.term_s.value, open_interval.size()});
+                    hash_map.insert({triple_pattern.term_p.value, open_interval.size()});
+                    hash_map.insert({triple_pattern.term_o.value, open_interval.size()});
                     //std::cout << "num_distinct_values S = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
                     //std::cout << "num_distinct_values P = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
                     //std::cout << "num_distinct_values O = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
-                    return hash_map;*/
+                    return hash_map;
                 }
                 //Second case : ?S P ?O
                 else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
                 {
                     //Ring => Going from P to S.
-                    uint64_t num_distinct_values_s = m_ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                    size_type num_distinct_values_s = m_ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
                     // Reverse Ring => Going from P to O.
                     // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    uint64_t num_distinct_values_o = m_ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_s.left(), iter.i_s.right());
+                    size_type num_distinct_values_o = m_ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_s.left(), iter.i_s.right());
 
                     assert (num_distinct_values_s <= iter.i_s.size());
                     assert (num_distinct_values_o <= iter.i_s.size());
@@ -155,150 +152,59 @@ namespace ring {
                 //Third case ?S ?P O
                 else if (triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*bwt_interval open_interval = graph_spo.open_OSP();
-                    uint64_t cur_o = graph_spo.min_O(open_interval);
-                    cur_o = graph_spo.next_O(open_interval, triple_pattern->o->constant);
-                    if (cur_o == 0 || cur_o != triple_pattern->o->constant)
-                    {
-                        hash_map.insert({triple_pattern->p->varname, 0});
-                        hash_map.insert({triple_pattern->s->varname, 0});
-                        return hash_map;//return 0;
-                    }
-                    else
-                    {
-                        bwt_interval i_o = graph_spo.down_O(cur_o); // Range in C array pointing to the O value.
-                        // Ring => Going from O to P: values must be shifted back to the left, by subtracting n_triples. Remember O is between 2* n_triples + 1 and 3*n_triples.
-                        uint64_t num_distinct_values_p = crc_arrays.get_number_distinct_values_spo_BWT_P(i_o.left() - n_triples, i_o.right() - n_triples);
-                        // Reverse Ring => Going from O to S: values must be shifted back to the left, by subtracting n_triples. Remember O is between n_triples + 1 and 2*n_triples.
-                        // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                        uint64_t num_distinct_values_s = crc_arrays.get_number_distinct_values_sop_BWT_S(i_o.left() - n_triples, i_o.right() - n_triples);
-                        //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << i_o.size() << std::endl;
-                        //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << i_o.size() << std::endl;
-                        hash_map.insert({triple_pattern->p->varname, num_distinct_values_p});
-                        hash_map.insert({triple_pattern->s->varname, num_distinct_values_s});
-                        return hash_map;
-                    }*/
+                    // Ring => Going from O to P.
+                    size_type num_distinct_values_p = m_ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                    // Reverse Ring => Going from O to S.
+                    // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
+                    uint64_t num_distinct_values_s = m_ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_p.left(), iter.i_p.right());
+                    //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_p.size() << std::endl;
+                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
+                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
+                    hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
+                    return hash_map;
                 }
                 //Fourth case S ?P ?O
                 else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*bwt_interval open_interval = graph_spo.open_SPO();
-                    uint64_t cur_s = graph_spo.min_S(open_interval);
-                    cur_s = graph_spo.next_S(open_interval, triple_pattern->s->constant);
-                    if (cur_s == 0 || cur_s != triple_pattern->s->constant)
-                    {
-                        hash_map.insert({triple_pattern->o->varname, 0});
-                        hash_map.insert({triple_pattern->p->varname, 0});
-                        return hash_map;//return 0;
-                    }
-                    else
-                    {
-                        bwt_interval i_s = graph_spo.down_S(cur_s);// Range in C array pointing to the S value.
-                        // Ring => Going from S to O: values must be shifted to the right, by adding 2 * n_triples. Remember S is between  1 and n_triples.
-                        uint64_t num_distinct_values_o = crc_arrays.get_number_distinct_values_spo_BWT_O(i_s.left() + 2 * n_triples, i_s.right() + 2 * n_triples);
-                        // Reverse Ring => Going from S to P:  values must be shifted to the right, by adding 2 * n_triples. Remember S is between  1 and n_triples.
-                        // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                        uint64_t num_distinct_values_p = crc_arrays.get_number_distinct_values_sop_BWT_P(i_s.left() + 2 * n_triples, i_s.right() + 2 * n_triples);
-                        //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << i_s.size() << std::endl;
-                        //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << i_s.size() << std::endl;
-                        hash_map.insert({triple_pattern->o->varname, num_distinct_values_o});
-                        hash_map.insert({triple_pattern->p->varname, num_distinct_values_p});
-                        return hash_map;
-                    }*/
+                    // Ring => Going from S to O.
+                    uint64_t num_distinct_values_o = m_ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                    // Reverse Ring => Going from S to P.
+                    // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
+                    uint64_t num_distinct_values_p = m_ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_o.left(), iter.i_o.right());
+                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_o.size() << std::endl;
+                    //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
+                    hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
+                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
+                    return hash_map;
                 }
                 //Fifth case S P ?O
                 else if (!triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*bwt_interval open_interval = graph_spo.open_SPO();
-                    uint64_t cur_s = graph_spo.min_S(open_interval);
-                    cur_s = graph_spo.next_S(open_interval, triple_pattern->s->constant);
-                    if (cur_s == 0 || cur_s != triple_pattern->s->constant)
-                    {
-                        hash_map.insert({triple_pattern->o->varname, 0});
-                        return hash_map;//return 0;
-                    }
-                    else
-                    {
-                        bwt_interval i_s = graph_spo.down_S(cur_s);
-                        uint64_t cur_p = graph_spo.min_P_in_S(i_s, cur_s);
-                        cur_p = graph_spo.next_P_in_S(i_s, cur_s, triple_pattern->p->constant);
-                        if (cur_p == 0 || cur_p != triple_pattern->p->constant)
-                        {
-                            hash_map.insert({triple_pattern->o->varname, 0});
-                            return hash_map;//return 0;
-                        }
-                        bwt_interval i_p = graph_spo.down_S_P(i_s, cur_s, cur_p);
-                        // Ring => Going from P to O: values must be shifted to the right, by adding n_triples. Remember P is between n_triples + 1 and 2 * n_triples.
-                        uint64_t num_distinct_values_o = crc_arrays.get_number_distinct_values_spo_BWT_O(i_p.left() + n_triples, i_p.right() + n_triples);
-                        //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << i_p.size() << std::endl;
-                        hash_map.insert({triple_pattern->o->varname, num_distinct_values_o});
-                        return hash_map;
-                    }*/
+                    // Ring => Going from P to O.
+                    uint64_t num_distinct_values_o = m_ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                    //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
+                    hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
+                    return hash_map;
                 }
                 //Sixth case S ?P O
                 else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*bwt_interval open_interval = graph_spo.open_SOP();
-                    uint64_t cur_s = graph_spo.min_S(open_interval);
-                    cur_s = graph_spo.next_S(open_interval, triple_pattern->s->constant);
-                    if (cur_s == 0 || cur_s != triple_pattern->s->constant)
-                    {
-                        hash_map.insert({triple_pattern->p->varname, 0});
-                        return hash_map;//return 0;
-                    }
-                    else
-                    {
-                        bwt_interval i_s = graph_spo.down_S(cur_s);
-                        uint64_t cur_o = graph_spo.min_O_in_S(i_s);
-                        cur_o = graph_spo.next_O_in_S(i_s, triple_pattern->o->constant);
-                        if (cur_o == 0 || cur_o != triple_pattern->o->constant)
-                        {
-                            hash_map.insert({triple_pattern->p->varname, 0});
-                            return hash_map;//return 0;
-                        }
-                        bwt_interval i_o = graph_spo.down_S_O(i_s, cur_o);
-                        // Ring => Going from O to P: values must be shifted to the left, by subtracting n_triples. Remember O is between 2 * n_triples + 1 and 3 * n_triples.
-                        uint64_t num_distinct_values_p = crc_arrays.get_number_distinct_values_spo_BWT_P(i_o.left() - n_triples, i_o.right() - n_triples);
-                        //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << i_o.size() << std::endl;
-                        hash_map.insert({triple_pattern->p->varname, num_distinct_values_p});
-                        return hash_map;
-                    }*/
+                    // Ring => Going from O to P.
+                    uint64_t num_distinct_values_p = m_ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
+                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
+                    return hash_map;
                 }
                 //Seventh case ?S P O
                 else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
                 {
-                    std::cout << " pling " << std::endl;
-                    /*bwt_interval open_interval = graph_spo.open_POS();
-                    uint64_t cur_p = graph_spo.min_P(open_interval);
-                    cur_p = graph_spo.next_P(open_interval, triple_pattern->p->constant);
-                    if (cur_p == 0 || cur_p != triple_pattern->p->constant)
-                    {
-                        hash_map.insert({triple_pattern->s->varname, 0});
-                        return hash_map;//return 0;
-                    }
-                    else
-                    {
-                        bwt_interval i_p = graph_spo.down_P(cur_p);
-                        uint64_t cur_o = graph_spo.min_O_in_P(i_p, cur_p);
-                        cur_o = graph_spo.next_O_in_P(i_p, cur_p, triple_pattern->o->constant);
-                        if (cur_o == 0 || cur_o != triple_pattern->o->constant)
-                        {
-                            hash_map.insert({triple_pattern->s->varname, 0});
-                            return hash_map;//return 0;
-                        }
-                        i_p = graph_spo.down_P_O(i_p, cur_p, cur_o);
-                        // Ring => Going from P to S: values must be shifted to the left, by subtracting n_triples. Remember P is between n_triples + 1 and 2 * n_triples.
-                        uint64_t num_distinct_values_s = crc_arrays.get_number_distinct_values_spo_BWT_S(i_p.left() - n_triples, i_p.right() - n_triples);
-                        //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << i_p.size() << std::endl;
-                        hash_map.insert({triple_pattern->s->varname, num_distinct_values_s});
-                        return hash_map;
-                    }*/
+                    // Ring => Going from P to S.
+                    uint64_t num_distinct_values_s = m_ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                    //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_s.size() << std::endl;
+                    hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
+                    return hash_map;
                 }
-                return hash_map;//return 0;
+                return hash_map;
             }
         public:
 
@@ -318,7 +224,7 @@ namespace ring {
                 std::unordered_map<var_type, size_type> hash_table_position;
                 size_type i = 0;
                 for (const triple_pattern& triple_pattern : *m_ptr_triple_patterns) {
-                    auto var_size_map = get_num_diff_values(triple_pattern, m_ptr_iterators->at(i));
+                    auto var_size_map = get_num_diff_values<ltj_iter_type>(triple_pattern, m_ptr_iterators->at(i));
                     bool s = false, p = false, o = false;
                     var_type var_s, var_p, var_o;
                     if(triple_pattern.s_is_variable()){
@@ -336,28 +242,10 @@ namespace ring {
                         var_o = triple_pattern.term_o.value;
                         var_to_vector(var_o, var_size_map[var_o],hash_table_position, var_info);
                     }
-                    
-                    /*>> OLD CODE
+                    //the compiler discovers the class passed as template from the parameter :-)
                     size_type size = util::get_size_interval(m_ptr_iterators->at(i));
-                    bool s = false, p = false, o = false;
-                    var_type var_s, var_p, var_o;
-
-                    if(triple_pattern.s_is_variable()){
-                        s = true;
-                        var_s = (var_type) triple_pattern.term_s.value;
-                        var_to_vector(var_s, size,hash_table_position, var_info);
-                    }
-                    if(triple_pattern.p_is_variable()){
-                        p = true;
-                        var_p = (var_type) triple_pattern.term_p.value;
-                        var_to_vector(var_p, size,hash_table_position, var_info);
-                    }
-                    if(triple_pattern.o_is_variable()){
-                        o = true;
-                        var_o = triple_pattern.term_o.value;
-                        var_to_vector(var_o, size,hash_table_position, var_info);
-                    }<< OLD CODE
-                    */
+                    //Is equivalent to...
+                    //size_type size = util::get_size_interval<ltj_iter_type>(m_ptr_iterators->at(i));
                     if(s && p){
                         var_to_related(var_s, var_p, hash_table_position, var_info);
                     }
