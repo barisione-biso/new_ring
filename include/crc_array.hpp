@@ -46,8 +46,8 @@ namespace ring {
             */
             bool build_crc_wm(value_type x_s, value_type x_e){
                 sdsl::int_vector<> C(x_e - x_s);
-                std::cout << "L.sigma : " << m_L.sigma << ", L.size() : " << m_L.size() << " x_s : " << x_s << " x_e : " << x_e << std::endl;
-                std::cout << "Building int vector to store CRC (size = " << C.size() << ")." << std::endl;
+                //std::cout << "L.sigma : " << m_L.sigma << ", L.size() : " << m_L.size() << " x_s : " << x_s << " x_e : " << x_e << std::endl;
+                //std::cout << "Building int vector to store CRC (size = " << C.size() << ")." << std::endl;
                 // O ( (x_e - x_s) * log sigma)
                 //  CORE >>
                 {

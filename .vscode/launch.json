@@ -30,7 +30,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/build-index",
-            "args": ["${workspaceFolder}/dat/wikidata-filtered-enumerated.dat",
+            "args": ["${workspaceFolder}/dat/wikidata-filtered-enumerated-red.dat",
                     "ring"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

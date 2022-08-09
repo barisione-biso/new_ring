@@ -36,7 +36,7 @@ typedef ring::reverse_ring<> ring_sop;
 typedef ring::c_ring cring_spo;
 typedef ring::crc_arrays<> crc_arrays;
 template<class ring, class crc_arrays>
-void build_index(const std::string &dataset, const std::string &output){
+void build_index(const std::string &dataset, const std::string &ext){
     std::vector<spo_triple> D, E;
 
     //1. Read the source file.
@@ -65,7 +65,7 @@ void build_index(const std::string &dataset, const std::string &output){
         std::cout << "Building SPO crc arrays" << std::endl;
         crc_a.build_spo_arrays((ring_spo.get_m_bwt_s()).get_L(), (ring_spo.get_m_bwt_p()).get_L(), (ring_spo.get_m_bwt_o()).get_L() );
         std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
-        sdsl::store_to_file(ring_spo, output);
+        sdsl::store_to_file(ring_spo, dataset+"_spo."+ext);
         std::cout << "Index saved" << endl;
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
         std::cout << memory_monitor::peak() << " bytes." << std::endl;
@@ -97,13 +97,13 @@ void build_index(const std::string &dataset, const std::string &output){
         crc_a.build_sop_arrays(ring_sop.get_m_bwt_s().get_L(), ring_sop.get_m_bwt_o().get_L(), ring_sop.get_m_bwt_p().get_L());
         std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
         //The reverse ring is not persisted.
-        //sdsl::store_to_file(ring_sop, output);
-        //std::cout << "Index saved" << endl;
+        sdsl::store_to_file(ring_sop,  dataset+"_sop."+ext);
+        std::cout << "Index saved" << endl;
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
         std::cout << memory_monitor::peak() << " bytes." << std::endl;
     }
 
-    sdsl::store_to_file(crc_a, output + ".crc");
+    sdsl::store_to_file(crc_a, dataset + ".crc");
     std::cout << "CRC array saved" << endl;
 
 }
@@ -119,11 +119,9 @@ int main(int argc, char **argv)
     std::string dataset = argv[1];
     std::string type    = argv[2];
     if(type == "ring"){
-        std::string index_name = dataset + ".ring";
-        build_index<ring_spo, crc_arrays>(dataset, index_name);
+        build_index<ring_spo, crc_arrays>(dataset, "ring");
     }else if (type == "c-ring"){
-        std::string index_name = dataset + ".c-ring";
-        build_index<cring_spo, crc_arrays>(dataset, index_name);
+        build_index<cring_spo, crc_arrays>(dataset, "c-ring");
     }else{
         std::cout << "Usage: " << argv[0] << "<dataset> [ring|c-ring]" << std::endl;
     }
