@@ -93,12 +93,12 @@ namespace ring {
                 alphabet_S.clear();
                 alphabet_O.clear();
                 alphabet_P.clear();
-                std::cout << " Maximum sizes. S = " << m_max_s << ", O = " << m_max_o << ", P = " << m_max_p << std::endl;
+                //std::cout << " Maximum sizes. S = " << m_max_s << ", O = " << m_max_o << ", P = " << m_max_p << std::endl;
             }
-            std::cout << "sigma S = " << m_sigma_s << std::endl;
+            /*std::cout << "sigma S = " << m_sigma_s << std::endl;
             std::cout << "sigma O = " << m_sigma_o << std::endl;
             std::cout << "sigma P = " << m_sigma_p << std::endl;
-            std::cout << "  > Determining number of elements per symbol..."; fflush(stdout);
+            std::cout << "  > Determining number of elements per symbol..."; fflush(stdout);*/
             uint64_t alphabet_SO = (m_max_s < m_max_o) ? m_max_o : m_max_s;
 
             std::map<uint64_t, uint64_t> M_O, M_S, M_P;
@@ -116,14 +116,14 @@ namespace ring {
                 M_O[std::get<1>(*it)] = M_O[std::get<1>(*it)] + 1;
                 M_P[std::get<2>(*it)] = M_P[std::get<2>(*it)] + 1;
             }
-            std::cout << "Done" << std::endl; fflush(stdout);
-            std::cout << "  > Sorting out triples..."; fflush(stdout);
+            //std::cout << "Done" << std::endl; fflush(stdout);
+            //std::cout << "  > Sorting out triples..."; fflush(stdout);
             // Sorts the triples lexycographically
             sort(triple_begin, triple_end);
-            std::cout << "Done" << std::endl; fflush(stdout);
+            //std::cout << "Done" << std::endl; fflush(stdout);
             {
                 int_vector<> t(3 * n + 2);
-                std::cout << "  > Generating int vector of the triples..."; fflush(stdout);
+                //std::cout << "  > Generating int vector of the triples..."; fflush(stdout);
                 for (i = 0, it = triple_begin; it != triple_end; it++, i++) {
                     t[3 * i] = std::get<0>(*it);//S
                     t[3 * i + 1] = std::get<1>(*it) + m_max_s; //O
@@ -139,8 +139,8 @@ namespace ring {
                     int_vector<> sa;
                     qsufsort::construct_sa(sa, t);
 
-                    std::cout << "  > Suffix array built " << size_in_bytes(sa) << " bytes" <<  std::endl;
-                    std::cout << "  > Building the global BWT" << std::endl;
+                    //std::cout << "  > Suffix array built " << size_in_bytes(sa) << " bytes" <<  std::endl;
+                    //std::cout << "  > Building the global BWT" << std::endl;
 
                     size_type j;
                     for (j = i = 0; i < sa.size(); i++) {
