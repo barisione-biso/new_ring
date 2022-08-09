@@ -187,7 +187,11 @@ void query(const std::string &file, const std::string &queries){
                 ht.insert({p.second, p.first});
             }
 
-            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;
+            if(ring::util::configuration.print_gao == 0){
+                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
+            } else{
+                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;
+            }
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
@@ -200,22 +204,33 @@ void query(const std::string &file, const std::string &queries){
 }
 ring::util::execution_mode get_execution_mode(std::string &mode){
     ring::util::execution_mode ex_mode = ring::util::execution_mode::sigmod21;
-    if(mode == "ring_muthu_leap"){
+    if(mode == "one_ring_muthu_leap"){
         ex_mode = ring::util::execution_mode::one_ring_muthu_leap;
     }
     return ex_mode;
 }
 
+std::string get_mode_label(int mode){
+    switch(mode){
+        case static_cast<int>(ring::util::execution_mode::one_ring_muthu_leap):
+            return "one_ring_muthu_leap";
+            break;
+        case static_cast<int>(ring::util::execution_mode::sigmod21):
+        default:
+            return "sigmod21";
+            break;
+    }
+}
 void print_configuration(){
     std::cout << "Configuration" << std::endl << "=============" << std::endl;
-    std::cout << "Execution Mode: " << static_cast<int>(ring::util::configuration.mode) << std::endl;
+    std::cout << "Execution Mode: " << get_mode_label(static_cast<int>(ring::util::configuration.mode)) << std::endl;
     std::cout << "Print gao: " << ring::util::configuration.print_gao<<std::endl;
 }
 int main(int argc, char* argv[])
 {
     //typedef ring::c_ring ring_type;
     if(argc < 3 || argc > 5){
-        std::cout << "Usage: " << argv[0] << "<index> <queries> [execution_mode=sigmod21] [print_gao=true|false default=false]" << std::endl;
+        std::cout << "Usage: " << argv[0] << "<index> <queries> [execution_mode=sigmod21|one_ring_muthu_leap default=sigmod21] [print_gao=true|false default=false]" << std::endl;
         return 0;
     }
 

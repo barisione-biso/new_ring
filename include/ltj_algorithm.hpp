@@ -166,7 +166,6 @@ namespace ring {
         };
 
         std::string get_gao(std::unordered_map<uint8_t, std::string>& ht) const{
-            //TODO: if(m_ptr_ring->m_configuration) implement it: if print_gao is true then...
             std::string str = "";
             for(const auto& var : m_gao){
                 str += "?" + ht[var] + " ";
