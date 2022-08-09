@@ -224,28 +224,43 @@ namespace ring {
                 std::unordered_map<var_type, size_type> hash_table_position;
                 size_type i = 0;
                 for (const triple_pattern& triple_pattern : *m_ptr_triple_patterns) {
-                    auto var_size_map = get_num_diff_values<ltj_iter_type>(triple_pattern, m_ptr_iterators->at(i));
-                    bool s = false, p = false, o = false;
                     var_type var_s, var_p, var_o;
-                    if(triple_pattern.s_is_variable()){
-                        s = true;
-                        var_s = (var_type) triple_pattern.term_s.value;
-                        var_to_vector(var_s, var_size_map[var_s],hash_table_position, var_info);
+                    bool s = false, p = false, o = false;
+                    if(util::configuration.mode == util::execution_mode::sigmod21){
+                        size_type size = util::get_size_interval<ltj_iter_type>(m_ptr_iterators->at(i));
+                        if(triple_pattern.s_is_variable()){
+                            s = true;
+                            var_s = (var_type) triple_pattern.term_s.value;
+                            var_to_vector(var_s, size,hash_table_position, var_info);
+                        }
+                        if(triple_pattern.p_is_variable()){
+                            p = true;
+                            var_p = (var_type) triple_pattern.term_p.value;
+                            var_to_vector(var_p, size,hash_table_position, var_info);
+                        }
+                        if(triple_pattern.o_is_variable()){
+                            o = true;
+                            var_o = triple_pattern.term_o.value;
+                            var_to_vector(var_o, size,hash_table_position, var_info);
+                        }
+                    } else if(util::configuration.mode == util::execution_mode::one_ring_muthu_leap){
+                        auto var_size_map = get_num_diff_values<ltj_iter_type>(triple_pattern, m_ptr_iterators->at(i));
+                        if(triple_pattern.s_is_variable()){
+                            s = true;
+                            var_s = (var_type) triple_pattern.term_s.value;
+                            var_to_vector(var_s, var_size_map[var_s],hash_table_position, var_info);
+                        }
+                        if(triple_pattern.p_is_variable()){
+                            p = true;
+                            var_p = (var_type) triple_pattern.term_p.value;
+                            var_to_vector(var_p, var_size_map[var_p],hash_table_position, var_info);
+                        }
+                        if(triple_pattern.o_is_variable()){
+                            o = true;
+                            var_o = triple_pattern.term_o.value;
+                            var_to_vector(var_o, var_size_map[var_o],hash_table_position, var_info);
+                        }
                     }
-                    if(triple_pattern.p_is_variable()){
-                        p = true;
-                        var_p = (var_type) triple_pattern.term_p.value;
-                        var_to_vector(var_p, var_size_map[var_p],hash_table_position, var_info);
-                    }
-                    if(triple_pattern.o_is_variable()){
-                        o = true;
-                        var_o = triple_pattern.term_o.value;
-                        var_to_vector(var_o, var_size_map[var_o],hash_table_position, var_info);
-                    }
-                    //the compiler discovers the class passed as template from the parameter :-)
-                    size_type size = util::get_size_interval(m_ptr_iterators->at(i));
-                    //Is equivalent to...
-                    //size_type size = util::get_size_interval<ltj_iter_type>(m_ptr_iterators->at(i));
                     if(s && p){
                         var_to_related(var_s, var_p, hash_table_position, var_info);
                     }

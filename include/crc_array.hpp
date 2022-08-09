@@ -26,11 +26,11 @@
 
 namespace ring {
 
-    template <class bwt_bit_vector_t = bit_vector>//<class wm_bit_vector_t = bit_vector>
+    template <class bwt_bit_vector_t = sdsl::bit_vector>//<class wm_bit_vector_t = bit_vector>
     class crc{
         public:
-            typedef int_vector<>::size_type size_type;
-            typedef int_vector<>::value_type value_type;
+            typedef sdsl::int_vector<>::size_type size_type;
+            typedef sdsl::int_vector<>::value_type value_type;
             typedef sdsl::wm_int<bwt_bit_vector_t> wm_type; //TODO: no deberia ser typedef sdsl::wm_int<wm_bit_vector_t> y wm_type?
         private:
             wm_type m_L;//Reference to BWT's L, useful for crc WM creation.

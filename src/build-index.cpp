@@ -36,7 +36,7 @@ typedef ring::reverse_ring<> ring_sop;
 typedef ring::c_ring cring_spo;
 typedef ring::crc_arrays<> crc_arrays;
 template<class ring, class crc_arrays>
-void build_index(const std::string &dataset, const std::string &ext){
+void build_index(const std::string &dataset, const std::string &output){
     std::vector<spo_triple> D, E;
 
     //1. Read the source file.
@@ -54,21 +54,21 @@ void build_index(const std::string &dataset, const std::string &ext){
     {
         std::cout << " Building the SPO Index " << std::endl;
         std::cout << "--Indexing " << D.size() << " triples" << std::endl;
-        memory_monitor::start();
+        sdsl::memory_monitor::start();
         auto start = timer::now();
 
         ring_spo ring_spo(D);
         auto stop = timer::now();
-        memory_monitor::stop();
+        sdsl::memory_monitor::stop();
         std::cout << "  Index built  " << sdsl::size_in_bytes(ring_spo) << " bytes" << std::endl;
 
         std::cout << "Building SPO crc arrays" << std::endl;
         crc_a.build_spo_arrays((ring_spo.get_m_bwt_s()).get_L(), (ring_spo.get_m_bwt_p()).get_L(), (ring_spo.get_m_bwt_o()).get_L() );
         std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
-        sdsl::store_to_file(ring_spo, dataset+"_spo."+ext);
+        sdsl::store_to_file(ring_spo, output+".spo");
         std::cout << "Index saved" << endl;
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
-        std::cout << memory_monitor::peak() << " bytes." << std::endl;
+        std::cout << sdsl::memory_monitor::peak() << " bytes." << std::endl;
     }
 
     for (uint64_t i = 0; i < D.size(); i++){
@@ -84,26 +84,26 @@ void build_index(const std::string &dataset, const std::string &ext){
     {
         std::cout << " Building the SOP Index " << std::endl;
         std::cout << "--Indexing " << D.size() << " triples" << std::endl;
-        memory_monitor::start();
+        sdsl::memory_monitor::start();
         auto start = timer::now();
 
         ring_sop ring_sop(D);
         D.clear();
         auto stop = timer::now();
-        memory_monitor::stop();
+        sdsl::memory_monitor::stop();
         std::cout << "  Index built  " << sdsl::size_in_bytes(ring_sop) << " bytes" << std::endl;
 
         std::cout << "Building SOP crc arrays" << std::endl;
         crc_a.build_sop_arrays(ring_sop.get_m_bwt_s().get_L(), ring_sop.get_m_bwt_o().get_L(), ring_sop.get_m_bwt_p().get_L());
         std::cout << " CRC arrays built " << sdsl::size_in_bytes(crc_a) << " bytes" << std::endl;
         //The reverse ring is not persisted.
-        sdsl::store_to_file(ring_sop,  dataset+"_sop."+ext);
+        sdsl::store_to_file(ring_sop, output+".sop");
         std::cout << "Index saved" << endl;
         std::cout << duration_cast<seconds>(stop-start).count() << " seconds." << std::endl;
-        std::cout << memory_monitor::peak() << " bytes." << std::endl;
+        std::cout << sdsl::memory_monitor::peak() << " bytes." << std::endl;
     }
 
-    sdsl::store_to_file(crc_a, dataset + ".crc");
+    sdsl::store_to_file(crc_a, output + ".crc");
     std::cout << "CRC array saved" << endl;
 
 }
@@ -119,9 +119,11 @@ int main(int argc, char **argv)
     std::string dataset = argv[1];
     std::string type    = argv[2];
     if(type == "ring"){
-        build_index<ring_spo, crc_arrays>(dataset, "ring");
+        std::string index_name = dataset + ".ring";
+        build_index<ring_spo, crc_arrays>(dataset, index_name);
     }else if (type == "c-ring"){
-        build_index<cring_spo, crc_arrays>(dataset, "c-ring");
+        std::string index_name = dataset + ".c-ring";
+        build_index<cring_spo, crc_arrays>(dataset, index_name);
     }else{
         std::cout << "Usage: " << argv[0] << "<dataset> [ring|c-ring]" << std::endl;
     }

@@ -30,7 +30,6 @@
 #include <sdsl/wavelet_trees.hpp>
 #include <sdsl/wt_algorithm.hpp>
 
-using namespace sdsl;
 using namespace std;
 
 typedef std::tuple<uint32_t, uint32_t, uint32_t> spo_triple;

@@ -72,7 +72,7 @@ namespace ring {
             size_type i;
             triple_iterator it, triple_begin = D.begin(), triple_end = D.end();
             size_type n = m_n_triples = triple_end - triple_begin;
-            int_vector<32> bwt_aux(3 * n);
+            sdsl::int_vector<32> bwt_aux(3 * n);
 
             //cout << "  > Determining alphabets of S; O; P..."; fflush(stdout);
             {
@@ -122,7 +122,7 @@ namespace ring {
             sort(triple_begin, triple_end);
             //std::cout << "Done" << std::endl; fflush(stdout);
             {
-                int_vector<> t(3 * n + 2);
+                sdsl::int_vector<> t(3 * n + 2);
                 //std::cout << "  > Generating int vector of the triples..."; fflush(stdout);
                 for (i = 0, it = triple_begin; it != triple_end; it++, i++) {
                     t[3 * i] = std::get<0>(*it);//S
@@ -133,11 +133,11 @@ namespace ring {
                 t[3 * n + 1] = 0;
                 D.clear();
                 D.shrink_to_fit();
-                util::bit_compress(t);
+                sdsl::util::bit_compress(t);
 
                 {
-                    int_vector<> sa;
-                    qsufsort::construct_sa(sa, t);
+                    sdsl::int_vector<> sa;
+                    sdsl::qsufsort::construct_sa(sa, t);
 
                     //std::cout << "  > Suffix array built " << size_in_bytes(sa) << " bytes" <<  std::endl;
                     //std::cout << "  > Building the global BWT" << std::endl;
@@ -155,7 +155,7 @@ namespace ring {
             //cout << "  > Building m_bwt_p" << endl; fflush(stdout);
             // First P
             {
-                int_vector<> P(n + 1);
+                sdsl::int_vector<> P(n + 1);
                 uint64_t j = 1, c;
                 vector<uint64_t> C_P;
                 P[0] = 0;
@@ -164,7 +164,7 @@ namespace ring {
 
                 // This is for making the bwt of triples circular
                 P[j] = bwt_aux[0] - (m_max_s + m_max_o);
-                util::bit_compress(P);
+                sdsl::util::bit_compress(P);
                 //pre requisites to build the C bitmap. We use Map of S since they represent the range of P.
                 uint64_t cur_pos = 1;
 
@@ -186,7 +186,7 @@ namespace ring {
             //cout << "  > Building m_bwt_s" << endl; fflush(stdout);
             // Then S
             {
-                int_vector<> S(n + 1);
+                sdsl::int_vector<> S(n + 1);
                 uint64_t j = 1, c;
                 vector<uint64_t> C_S;
 
@@ -194,7 +194,7 @@ namespace ring {
                 while (i < 2 * n) {
                     S[j++] = bwt_aux[i++];
                 }
-                util::bit_compress(S);
+                sdsl::util::bit_compress(S);
 
                 uint64_t cur_pos = 1;
                 C_S.push_back(0);  // Dummy value
@@ -214,7 +214,7 @@ namespace ring {
             //cout << "  > Building m_bwt_o" << endl; fflush(stdout);
             // Then P
             {
-                int_vector<> O(n + 1);
+                sdsl::int_vector<> O(n + 1);
                 uint64_t j = 1, c;
                 vector<uint64_t> C_O;
 
@@ -222,7 +222,7 @@ namespace ring {
                 while (i < 3 * n) {
                     O[j++] = bwt_aux[i++] - m_max_s;
                 }
-                util::bit_compress(O);
+                sdsl::util::bit_compress(O);
 
                 uint64_t cur_pos = 1;
                 C_O.push_back(0);  // Dummy value

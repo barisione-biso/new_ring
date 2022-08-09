@@ -129,7 +129,6 @@ std::string get_type(const std::string &file){
     return file.substr(p+1);
 }
 
-
 template<class ring_type>
 void query(const std::string &file, const std::string &queries){
     vector<string> dummy_queries;
@@ -138,7 +137,7 @@ void query(const std::string &file, const std::string &queries){
     ring_type graph;
 
     cout << " Loading the index..."; fflush(stdout);
-    sdsl::load_from_file(graph, file);
+    sdsl::load_from_file(graph, file+".spo");
     graph.load_crc_arrays(file);
     cout << endl << " Index loaded " << sdsl::size_in_bytes(graph) << " bytes" << endl;
 
@@ -199,20 +198,47 @@ void query(const std::string &file, const std::string &queries){
 
     }
 }
+ring::util::execution_mode get_execution_mode(std::string &mode){
+    ring::util::execution_mode ex_mode = ring::util::execution_mode::sigmod21;
+    if(mode == "ring_muthu_leap"){
+        ex_mode = ring::util::execution_mode::one_ring_muthu_leap;
+    }
+    return ex_mode;
+}
 
-
+void print_configuration(){
+    std::cout << "Configuration" << std::endl << "=============" << std::endl;
+    std::cout << "Execution Mode: " << static_cast<int>(ring::util::configuration.mode) << std::endl;
+    std::cout << "Print gao: " << ring::util::configuration.print_gao<<std::endl;
+}
 int main(int argc, char* argv[])
 {
     //typedef ring::c_ring ring_type;
-    if(argc != 3){
-        std::cout << "Usage: " << argv[0] << "<index> <queries>" << std::endl;
+    if(argc < 3 || argc > 5){
+        std::cout << "Usage: " << argv[0] << "<index> <queries> [execution_mode=sigmod21] [print_gao=true|false default=false]" << std::endl;
         return 0;
     }
 
     std::string index = argv[1];
     std::string queries = argv[2];
+    //configuration: execution mode.
+    std::string mode = "";
+    if(argv[3])
+        mode = argv[3];
     std::string type = get_type(index);
 
+    ring::util::configuration.mode = get_execution_mode(mode);
+    //configuration: print gao (yes / no).
+    bool print_gao = false;
+    if(argv[4]){
+        std::istringstream(argv[4]) >> print_gao;
+    }
+    ring::util::configuration.print_gao = print_gao;
+
+    //print configuration.
+    print_configuration();
+
+    //Starting quering the index.
     if(type == "ring"){
         query<ring::ring<>>(index, queries);
     }else if (type == "c-ring"){

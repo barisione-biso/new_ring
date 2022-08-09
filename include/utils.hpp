@@ -30,7 +30,13 @@ namespace ring {
 
     namespace util {
 
+        enum class execution_mode { sigmod21, one_ring_muthu_leap };
 
+        struct configuration_s {
+                execution_mode mode;
+                bool print_gao;
+        };
+        static struct configuration_s configuration;
         template<class Iterator>
         uint64_t get_size_interval(const Iterator &iter) {
             if(iter.cur_s == -1 && iter.cur_p == -1 && iter.cur_o == -1){

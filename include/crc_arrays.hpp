@@ -25,7 +25,7 @@
 #include "crc_array.hpp"
 
 namespace ring {
-    template <class bwt_bit_vector_t = bit_vector>//Is this needed?
+    template <class bwt_bit_vector_t = sdsl::bit_vector>//Is this needed?
     class crc_arrays
     {
     public:

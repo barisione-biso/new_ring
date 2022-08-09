@@ -28,7 +28,7 @@ using namespace std;
 
 namespace ring {
 
-    template <class bwt_bit_vector_t = bit_vector>
+    template <class bwt_bit_vector_t = sdsl::bit_vector>
     class bwt {
 
     public:
@@ -63,7 +63,7 @@ namespace ring {
 
         bwt() = default;
 
-        bwt(const int_vector<> &L, const vector<uint64_t> &C) {
+        bwt(const sdsl::int_vector<> &L, const vector<uint64_t> &C) {
             //Building the wavelet matrix
             construct_im(m_L, L);
             //Building C and its rank and select structures
@@ -71,9 +71,9 @@ namespace ring {
             for (uint64_t i = 0; i < C.size(); i++) {
                 m_C[C[i] + i] = 1;
             }
-            util::init_support(m_C_rank, &m_C);
-            util::init_support(m_C_select1, &m_C);
-            util::init_support(m_C_select0, &m_C);
+            sdsl::util::init_support(m_C_rank, &m_C);
+            sdsl::util::init_support(m_C_select1, &m_C);
+            sdsl::util::init_support(m_C_select0, &m_C);
         }
 
 
