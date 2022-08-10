@@ -116,96 +116,6 @@ namespace ring {
                     return linfo.weight < rinfo.weight;
                 }
             };
-            template <class Iterator>
-            std::unordered_map<size_type, size_type> get_num_diff_values(const triple_pattern& triple_pattern, const Iterator &iter) const{
-                std::unordered_map<size_type, size_type> hash_map;
-
-                //First case: ?S ?P ?O
-                if (triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
-                {
-                    bwt_interval open_interval = m_ptr_ring->open_SPO();
-                    hash_map.insert({triple_pattern.term_s.value, open_interval.size()});
-                    hash_map.insert({triple_pattern.term_p.value, open_interval.size()});
-                    hash_map.insert({triple_pattern.term_o.value, open_interval.size()});
-                    //std::cout << "num_distinct_values S = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
-                    //std::cout << "num_distinct_values P = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
-                    //std::cout << "num_distinct_values O = " << open_interval.size() << " vs. interval size = " << open_interval.size() << std::endl;
-                    return hash_map;
-                }
-                //Second case : ?S P ?O
-                else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
-                {
-                    //Ring => Going from P to S.
-                    size_type num_distinct_values_s = m_ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
-                    // Reverse Ring => Going from P to O.
-                    // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    size_type num_distinct_values_o = m_ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_s.left(), iter.i_s.right());
-
-                    assert (num_distinct_values_s <= iter.i_s.size());
-                    assert (num_distinct_values_o <= iter.i_s.size());
-                    //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_s.size() << std::endl;
-                    //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_s.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
-                    hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
-                    return hash_map;
-                }
-                //Third case ?S ?P O
-                else if (triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
-                {
-                    // Ring => Going from O to P.
-                    size_type num_distinct_values_p = m_ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
-                    // Reverse Ring => Going from O to S.
-                    // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    uint64_t num_distinct_values_s = m_ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_p.left(), iter.i_p.right());
-                    //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_p.size() << std::endl;
-                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
-                    hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
-                    return hash_map;
-                }
-                //Fourth case S ?P ?O
-                else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
-                {
-                    // Ring => Going from S to O.
-                    uint64_t num_distinct_values_o = m_ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
-                    // Reverse Ring => Going from S to P.
-                    // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    uint64_t num_distinct_values_p = m_ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_o.left(), iter.i_o.right());
-                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_o.size() << std::endl;
-                    //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
-                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
-                    return hash_map;
-                }
-                //Fifth case S P ?O
-                else if (!triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
-                {
-                    // Ring => Going from P to O.
-                    uint64_t num_distinct_values_o = m_ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
-                    //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
-                    return hash_map;
-                }
-                //Sixth case S ?P O
-                else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
-                {
-                    // Ring => Going from O to P.
-                    uint64_t num_distinct_values_p = m_ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
-                    //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
-                    return hash_map;
-                }
-                //Seventh case ?S P O
-                else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
-                {
-                    // Ring => Going from P to S.
-                    uint64_t num_distinct_values_s = m_ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
-                    //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_s.size() << std::endl;
-                    hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
-                    return hash_map;
-                }
-                return hash_map;
-            }
         public:
 
 
@@ -226,7 +136,7 @@ namespace ring {
                 for (const triple_pattern& triple_pattern : *m_ptr_triple_patterns) {
                     var_type var_s, var_p, var_o;
                     bool s = false, p = false, o = false;
-                    if(util::configuration.mode == util::execution_mode::sigmod21){
+                    if(util::configuration.uses_get_size_interval()){
                         size_type size = util::get_size_interval<ltj_iter_type>(m_ptr_iterators->at(i));
                         if(triple_pattern.s_is_variable()){
                             s = true;
@@ -243,8 +153,8 @@ namespace ring {
                             var_o = triple_pattern.term_o.value;
                             var_to_vector(var_o, size,hash_table_position, var_info);
                         }
-                    } else if(util::configuration.mode == util::execution_mode::one_ring_muthu_leap){
-                        auto var_size_map = get_num_diff_values<ltj_iter_type>(triple_pattern, m_ptr_iterators->at(i));
+                    } else if(util::configuration.uses_muthu()){
+                        auto var_size_map = util::get_num_diff_values<ring_type, ltj_iter_type>(m_ptr_ring, triple_pattern, m_ptr_iterators->at(i));
                         if(triple_pattern.s_is_variable()){
                             s = true;
                             var_s = (var_type) triple_pattern.term_s.value;

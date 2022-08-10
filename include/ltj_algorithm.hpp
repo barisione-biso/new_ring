@@ -47,6 +47,7 @@ namespace ring {
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
+        std::stack<var_type> gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
         var_to_iterators_type m_var_to_iterators;
@@ -107,7 +108,6 @@ namespace ring {
             }
 
             gao::gao_size<ring_type> gao_sv2(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
-
         }
 
         //! Copy constructor
@@ -196,11 +196,20 @@ namespace ring {
             //(Optional) Check limit
             if(limit_results > 0 && res.size() == limit_results) return false;
 
-            if(j == m_gao.size()){
+            if(j == m_gao.size()){//TODO: ADAPTIVE GAO COMMENT: Esto es el número total de variables. no el tamaño del gao.
                 //Report results
                 res.emplace_back(tuple);
             }else{
                 var_type x_j = m_gao[j];
+                //TODO: ADAPTIVE GAO COMMENT test code >>
+                if(!gao_test.empty()){
+                    if(gao_test.top() != x_j){
+                        gao_test.push(x_j);
+                    }
+                }else{
+                    gao_test.push(x_j);
+                }
+                //TODO: ADAPTIVE GAO COMMENT test code <<
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
                 bool ok;
                 if(itrs.size() == 1 && itrs[0]->in_last_level()) {//Lonely variables
@@ -216,6 +225,10 @@ namespace ring {
                         if(!ok) return false;
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
+                        //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
+                        if(!gao_test.empty()){
+                            gao_test.pop();
+                        }
                     }
                 }else {
                     value_type c = seek(x_j);
@@ -237,6 +250,10 @@ namespace ring {
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
+                        if(!gao_test.empty()){
+                            gao_test.pop();
+                        }
                     }
                 }
             }
