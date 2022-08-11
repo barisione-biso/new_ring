@@ -31,7 +31,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/build-index",
-            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat",
+            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated-red.dat",
                     "ring"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -30,7 +30,7 @@
 
 namespace ring {
 
-    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t>
+    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t, class gao = gao<>>
     class ltj_algorithm {
 
     public:
@@ -39,6 +39,7 @@ namespace ring {
         typedef var_t var_type;
         typedef ring_t ring_type;
         typedef cons_t const_type;
+        typedef gao gao_type;
         typedef ltj_iterator<ring_type, var_type, const_type> ltj_iter_type;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
         typedef std::vector<std::pair<var_type, value_type>> tuple_type;
@@ -48,6 +49,7 @@ namespace ring {
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
         std::stack<var_type> gao_test;
+        gao_type m_gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
         var_to_iterators_type m_var_to_iterators;
@@ -107,7 +109,8 @@ namespace ring {
                 ++i;
             }
 
-            gao::gao_size<ring_type> gao_sv2(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+            gao_size<ring_type> gao_sv2(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+            //m_gao_test = gao_type(m_ptr_triple_patterns, &m_iterators, m_ptr_ring);
         }
 
         //! Copy constructor
@@ -189,7 +192,7 @@ namespace ring {
             //(Optional) Check timeout
             if(timeout_seconds > 0){
                 time_point_type stop = std::chrono::high_resolution_clock::now();
-                auto sec = std::chrono::duration_cast<std::chrono::seconds>(stop-start).count();
+                size_type sec = std::chrono::duration_cast<std::chrono::seconds>(stop-start).count();
                 if(sec > timeout_seconds) return false;
             }
 
@@ -201,6 +204,7 @@ namespace ring {
                 res.emplace_back(tuple);
             }else{
                 var_type x_j = m_gao[j];
+                m_gao_test[j];
                 //TODO: ADAPTIVE GAO COMMENT test code >>
                 if(!gao_test.empty()){
                     if(gao_test.top() != x_j){
@@ -264,18 +268,18 @@ namespace ring {
         /**
          *
          * @param x_j   Variable
-         * @param c     Constant. If it is unknown the value is -1
+         * @param c     Constant. If it is unknown the value is -1UL
          * @return      The next constant that matches the intersection between the triples of x_j.
          *              If the intersection is empty, it returns 0.
          */
 
-        value_type seek(const var_type x_j, value_type c=-1){
+        value_type seek(const var_type x_j, value_type c=-1UL){
             value_type c_i, c_min = UINT64_MAX, c_max = 0;
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
             while (true){
                 //Compute leap for each triple that contains x_j
                 for(ltj_iter_type* iter : itrs){
-                    if(c == -1){
+                    if(c == -1UL){
                         c_i = iter->leap(x_j);
                     }else{
                         c_i = iter->leap(x_j, c);

@@ -33,7 +33,7 @@ namespace ring {
         /*Classes*/
         class configuration{
             private:
-                enum class execution_mode { sigmod21, one_ring_muthu_leap };
+                enum class execution_mode { sigmod21, one_ring_muthu_leap, one_ring_muthu_leap_adaptive };
                 std::unordered_map<execution_mode, string> mode_enum_to_str;
                 std::unordered_map<string, execution_mode> mode_str_to_enum;
                 execution_mode m_mode;
@@ -49,7 +49,7 @@ namespace ring {
                     }
                     return ex_mode;
                 }
-                std::string get_mode_label(){
+                std::string get_mode_label() {
                     std::unordered_map<execution_mode, std::string>::iterator item;
                     item = mode_enum_to_str.find(m_mode);
                     if(item != mode_enum_to_str.end()){
@@ -75,15 +75,17 @@ namespace ring {
                 configuration() : m_mode (execution_mode::sigmod21), m_print_gao(false), m_verbose(true) {
                     mode_enum_to_str = {
                                         {execution_mode::sigmod21, "sigmod21"},
-                                        {execution_mode::one_ring_muthu_leap, "one_ring_muthu_leap"}
+                                        {execution_mode::one_ring_muthu_leap, "one_ring_muthu_leap"},
+                                        {execution_mode::one_ring_muthu_leap_adaptive, "one_ring_muthu_leap_adaptive"}
                                     };
                     mode_str_to_enum = {
                                         {"sigmod21", execution_mode::sigmod21},
-                                        {"one_ring_muthu_leap", execution_mode::one_ring_muthu_leap}
+                                        {"one_ring_muthu_leap", execution_mode::one_ring_muthu_leap},
+                                        {"one_ring_muthu_leap_adaptive", execution_mode::one_ring_muthu_leap_adaptive}
                                     };
                 };
                 bool uses_muthu() const{
-                    return m_mode == execution_mode::one_ring_muthu_leap;
+                    return (m_mode == execution_mode::one_ring_muthu_leap || m_mode == execution_mode::one_ring_muthu_leap_adaptive);
                 }
                 bool print_gao() const{
                     return m_print_gao;
@@ -94,7 +96,7 @@ namespace ring {
                 bool uses_get_size_interval() const{
                     return m_mode == execution_mode::sigmod21;
                 }
-                void print_configuration() const{
+                void print_configuration() {//It cannot be declared as 'const' because 'get_mode_label' function uses 'm_mode' member, which is not const as well.
                     if(m_verbose){
                         std::cout << "Configuration" << std::endl << "=============" << std::endl;
                         std::cout << "Execution Mode: " << get_mode_label() << std::endl;
@@ -116,19 +118,19 @@ namespace ring {
         /*Functions*/
         template<class Iterator>
         uint64_t get_size_interval(const Iterator &iter) {
-            if(iter.cur_s == -1 && iter.cur_p == -1 && iter.cur_o == -1){
+            if(iter.cur_s == -1UL && iter.cur_p == -1UL && iter.cur_o == -1UL){
                 return iter.i_s.size(); //open
-            } else if (iter.cur_s == -1 && iter.cur_p != -1 && iter.cur_o == -1) {
+            } else if (iter.cur_s == -1UL && iter.cur_p != -1UL && iter.cur_o == -1UL) {
                 return iter.i_s.size(); //i_s = i_o
-            } else if (iter.cur_s == -1 && iter.cur_p == -1 && iter.cur_o != -1) {
+            } else if (iter.cur_s == -1UL && iter.cur_p == -1UL && iter.cur_o != -1UL) {
                 return iter.i_s.size(); //i_s = i_p
-            } else if (iter.cur_s != -1 && iter.cur_p == -1 && iter.cur_o == -1) {
+            } else if (iter.cur_s != -1UL && iter.cur_p == -1UL && iter.cur_o == -1UL) {
                 return iter.i_o.size(); //i_o = i_p
-            } else if (iter.cur_s != -1 && iter.cur_p != -1 && iter.cur_o == -1) {
+            } else if (iter.cur_s != -1UL && iter.cur_p != -1UL && iter.cur_o == -1UL) {
                 return iter.i_o.size();
-            } else if (iter.cur_s != -1 && iter.cur_p == -1 && iter.cur_o != -1) {
+            } else if (iter.cur_s != -1UL && iter.cur_p == -1UL && iter.cur_o != -1UL) {
                 return iter.i_p.size();
-            } else if (iter.cur_s == -1 && iter.cur_p != -1 && iter.cur_o != -1) {
+            } else if (iter.cur_s == -1UL && iter.cur_p != -1UL && iter.cur_o != -1UL) {
                 return iter.i_s.size();
             }
             return 0;

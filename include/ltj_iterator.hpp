@@ -87,9 +87,9 @@ namespace ring {
         ltj_iterator(const triple_pattern *triple, ring_type *ring) {
             m_ptr_triple_pattern = triple;
             m_ptr_ring = ring;
-            m_cur_s = -1;
-            m_cur_p = -1;
-            m_cur_o = -1;
+            m_cur_s = -1UL;
+            m_cur_p = -1UL;
+            m_cur_o = -1UL;
             m_i_p = m_ptr_ring->open_POS();
             m_i_s = m_ptr_ring->open_SPO();
             m_i_o = m_ptr_ring->open_OSP();
@@ -293,19 +293,19 @@ namespace ring {
 
         void down(var_type var, size_type c) { //Go down in the trie
             if (is_variable_subject(var)) {
-                if (m_cur_o != -1 && m_cur_p != -1){
+                if (m_cur_o != -1UL && m_cur_p != -1UL){
 #if VERBOSE
                     std::cout << "Nothing to do" << std::endl;
 #endif
                     return;
                 }
-                if (m_cur_o != -1) {
+                if (m_cur_o != -1UL) {
                     //OS->P
 #if VERBOSE
                     std::cout << "down_O_S" << std::endl;
 #endif
                     m_i_p = m_ptr_ring->down_O_S(m_i_s, m_cur_o, c);
-                } else if (m_cur_p != -1) {
+                } else if (m_cur_p != -1UL) {
                     //PS->O
 #if VERBOSE
                     std::cout << "down_P_S" << std::endl;
@@ -321,19 +321,19 @@ namespace ring {
                 //m_states.emplace(state_type::s);
                 m_cur_s = c;
             } else if (is_variable_predicate(var)) {
-                if (m_cur_s != -1 && m_cur_o != -1){
+                if (m_cur_s != -1UL && m_cur_o != -1UL){
 #if VERBOSE
                     std::cout << "Nothing to do" << std::endl;
 #endif
                     return;
                 }
-                if (m_cur_o != -1) {
+                if (m_cur_o != -1UL) {
                     //OP->S
 #if VERBOSE
                     std::cout << "down_O_P" << std::endl;
 #endif
                     m_i_s = m_ptr_ring->down_O_P(m_i_p, c);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //SP->O
 #if VERBOSE
                     std::cout << "down_S_P" << std::endl;
@@ -349,19 +349,19 @@ namespace ring {
                 //m_states.emplace(state_type::p);
                 m_cur_p = c;
             } else if (is_variable_object(var)) {
-                if (m_cur_s != -1 && m_cur_p != -1){
+                if (m_cur_s != -1UL && m_cur_p != -1UL){
 #if VERBOSE
                     std::cout << "Nothing to do" << std::endl;
 #endif
                     return;
                 }
-                if (m_cur_p != -1) {
+                if (m_cur_p != -1UL) {
                     //PO->S
 #if VERBOSE
                     std::cout << "down_P_O" << std::endl;
 #endif
                     m_i_s = m_ptr_ring->down_P_O(m_i_o, m_cur_p, c);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //SO->P
 #if VERBOSE
                     std::cout << "down_S_O" << std::endl;
@@ -383,17 +383,17 @@ namespace ring {
 
         void up(var_type var) { //Go up in the trie
             if (is_variable_subject(var)) {
-                m_cur_s = -1;
+                m_cur_s = -1UL;
 #if VERBOSE
                 std::cout << "Up in S" << std::endl;
 #endif
             } else if (is_variable_predicate(var)) {
-                m_cur_p = -1;
+                m_cur_p = -1UL;
 #if VERBOSE
                 std::cout << "Up in P" << std::endl;
 #endif
             } else if (is_variable_object(var)) {
-                m_cur_o = -1;
+                m_cur_o = -1UL;
 #if VERBOSE
                 std::cout << "Up in O" << std::endl;
 #endif
@@ -405,19 +405,19 @@ namespace ring {
             //0. Which term of our triple pattern is var
             if (is_variable_subject(var)) {
                 //1. We have to go down through s
-                if (m_cur_p != -1 && m_cur_o != -1) {
+                if (m_cur_p != -1UL && m_cur_o != -1UL) {
                     //PO->S
 #if VERBOSE
                     std::cout << "min_S_in_PO" << std::endl;
 #endif
                     return m_ptr_ring->min_S_in_PO(m_i_s);
-                } else if (m_cur_o != -1) {
+                } else if (m_cur_o != -1UL) {
                     //O->S
 #if VERBOSE
                     std::cout << "min_S_in_O" << std::endl;
 #endif
                     return m_ptr_ring->min_S_in_O(m_i_s, m_cur_o);
-                } else if (m_cur_p != -1) {
+                } else if (m_cur_p != -1UL) {
                     //P->S
 #if VERBOSE
                     std::cout << "min_S_in_P" << std::endl;
@@ -432,19 +432,19 @@ namespace ring {
                 }
             } else if (is_variable_predicate(var)) {
                 //1. We have to go down in the trie of p
-                if (m_cur_s != -1 && m_cur_o != -1) {
+                if (m_cur_s != -1UL && m_cur_o != -1UL) {
                     //SO->P
 #if VERBOSE
                     std::cout << "min_P_in_SO" << std::endl;
 #endif
                     return m_ptr_ring->min_P_in_SO(m_i_p);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //S->P
 #if VERBOSE
                     std::cout << "min_P_in_S" << std::endl;
 #endif
                     return m_ptr_ring->min_P_in_S(m_i_p, m_cur_s);
-                } else if (m_cur_o != -1) {
+                } else if (m_cur_o != -1UL) {
                     //O->P
 #if VERBOSE
                     std::cout << "min_P_in_O" << std::endl;
@@ -459,19 +459,19 @@ namespace ring {
                 }
             } else if (is_variable_object(var)) {
                 //1. We have to go down in the trie of o
-                if (m_cur_s != -1 && m_cur_p != -1) {
+                if (m_cur_s != -1UL && m_cur_p != -1UL) {
                     //SP->O
 #if VERBOSE
                     std::cout << "min_O_in_SP" << std::endl;
 #endif
                     return m_ptr_ring->min_O_in_SP(m_i_o);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //S->O
 #if VERBOSE
                     std::cout << "min_O_in_S" << std::endl;
 #endif
                     return m_ptr_ring->min_O_in_S(m_i_o);
-                } else if (m_cur_p != -1) {
+                } else if (m_cur_p != -1UL) {
                     //P->O
 #if VERBOSE
                     std::cout << "min_O_in_P" << std::endl;
@@ -492,19 +492,19 @@ namespace ring {
             //0. Which term of our triple pattern is var
             if (is_variable_subject(var)) {
                 //1. We have to go down through s
-                if (m_cur_p != -1 && m_cur_o != -1) {
+                if (m_cur_p != -1UL && m_cur_o != -1UL) {
                     //PO->S
 #if VERBOSE
                     std::cout << "next_S_in_PO" << std::endl;
 #endif
                     return m_ptr_ring->next_S_in_PO(m_i_s, c);
-                } else if (m_cur_o != -1) {
+                } else if (m_cur_o != -1UL) {
                     //O->S
 #if VERBOSE
                     std::cout << "next_S_in_O" << std::endl;
 #endif
                     return m_ptr_ring->next_S_in_O(m_i_s, m_cur_o, c);
-                } else if (m_cur_p != -1) {
+                } else if (m_cur_p != -1UL) {
                     //P->S
 #if VERBOSE
                     std::cout << "next_S_in_P" << std::endl;
@@ -519,19 +519,19 @@ namespace ring {
                 }
             } else if (is_variable_predicate(var)) {
                 //1. We have to go down in the trie of p
-                if (m_cur_s != -1 && m_cur_o != -1) {
+                if (m_cur_s != -1UL && m_cur_o != -1UL) {
                     //SO->P
 #if VERBOSE
                     std::cout << "next_P_in_SO" << std::endl;
 #endif
                     return m_ptr_ring->next_P_in_SO(m_i_p, c);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //S->P
 #if VERBOSE
                     std::cout << "next_P_in_S" << std::endl;
 #endif
                     return m_ptr_ring->next_P_in_S(m_i_p, m_cur_s, c);
-                } else if (m_cur_o != -1) {
+                } else if (m_cur_o != -1UL) {
                     //O->P
 #if VERBOSE
                     std::cout << "next_P_in_O" << std::endl;
@@ -546,19 +546,19 @@ namespace ring {
                 }
             } else if (is_variable_object(var)) {
                 //1. We have to go down in the trie of o
-                if (m_cur_s != -1 && m_cur_p != -1) {
+                if (m_cur_s != -1UL && m_cur_p != -1UL) {
                     //SP->O
 #if VERBOSE
                     std::cout << "next_O_in_SP" << std::endl;
 #endif
                     return m_ptr_ring->next_O_in_SP(m_i_o, c);
-                } else if (m_cur_s != -1) {
+                } else if (m_cur_s != -1UL) {
                     //S->O
 #if VERBOSE
                     std::cout << "next_O_in_S" << std::endl;
 #endif
                     return m_ptr_ring->next_O_in_S(m_i_o, c);
-                } else if (m_cur_p != -1) {
+                } else if (m_cur_p != -1UL) {
                     //P->O
 #if VERBOSE
                     std::cout << "next_O_in_P" << std::endl;
@@ -576,8 +576,8 @@ namespace ring {
         }
 
         bool in_last_level(){
-            return (m_cur_o !=-1 && m_cur_p != -1) || (m_cur_s !=-1 && m_cur_p != -1)
-                    || (m_cur_o !=-1 && m_cur_s != -1);
+            return (m_cur_o !=-1UL && m_cur_p != -1UL) || (m_cur_s !=-1UL && m_cur_p != -1UL)
+                    || (m_cur_o !=-1UL && m_cur_s != -1UL);
         }
 
         //Solo funciona en último nivel, en otro caso habría que reajustar
