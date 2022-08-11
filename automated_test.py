@@ -15,7 +15,8 @@ available_modes = ["sigmod21", "one_ring_muthu_leap"]
 print("Available modes : "+",".join(available_modes))
 for mode in available_modes:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
-    cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 > '+mode
+    cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 > tmp_'+mode+'.csv'
+    print(cmd)
     os.system(cmd)
 
 #SECOND PART
