@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #FIRST PART.
 rows = [[]] #A list of lists.
 #Wikidata filtered enumerated automated test.
-dataset="wikidata-filtered-enumerated.dat.ring"
+dataset="wikidata-filtered-enumerated.dat.ring" #wikidata.nt.enumerated.ring
 queries="Queries-wikidata-benchmark.txt"
 available_modes = ["sigmod21", "one_ring_muthu_leap"]
 

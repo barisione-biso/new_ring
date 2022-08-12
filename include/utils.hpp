@@ -39,6 +39,8 @@ namespace ring {
                 execution_mode m_mode;
                 bool m_print_gao;
                 bool m_verbose;
+                bool m_muthu;
+                bool m_adaptive;
 
                 execution_mode get_execution_mode(std::string &mode){
                     execution_mode ex_mode = execution_mode::sigmod21;
@@ -72,7 +74,12 @@ namespace ring {
                     return "";//Handle this better
                 }
             public:
-                configuration() : m_mode (execution_mode::sigmod21), m_print_gao(false), m_verbose(true) {
+                configuration() :
+                m_mode (execution_mode::sigmod21),
+                m_print_gao(false),
+                m_verbose(true),
+                m_muthu(false),
+                m_adaptive(false) {
                     mode_enum_to_str = {
                                         {execution_mode::sigmod21, "sigmod21"},
                                         {execution_mode::one_ring_muthu_leap, "one_ring_muthu_leap"},
@@ -84,8 +91,11 @@ namespace ring {
                                         {"one_ring_muthu_leap_adaptive", execution_mode::one_ring_muthu_leap_adaptive}
                                     };
                 };
+                bool is_adaptive() const{
+                    return m_adaptive;
+                }
                 bool uses_muthu() const{
-                    return (m_mode == execution_mode::one_ring_muthu_leap || m_mode == execution_mode::one_ring_muthu_leap_adaptive);
+                    return m_muthu;
                 }
                 bool print_gao() const{
                     return m_print_gao;
@@ -108,6 +118,13 @@ namespace ring {
                     m_mode = get_execution_mode(mode);
                     m_print_gao = print_gao;
                     m_verbose = verbose;
+                    if(m_mode == execution_mode::one_ring_muthu_leap || m_mode == execution_mode::one_ring_muthu_leap_adaptive){
+                        m_muthu = true;
+                    }
+
+                    if(m_mode == execution_mode::one_ring_muthu_leap_adaptive){
+                        m_adaptive = true;
+                    }
                 }
                 std::string get_configuration_options() const{
                     return "[execution_mode="+get_mode_options()+" default="+get_default_mode()+"] [print_gao=0|1 default=0] [verbose=0|1 default 1]";
