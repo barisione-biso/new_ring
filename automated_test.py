@@ -73,5 +73,5 @@ plot.get_figure().savefig('y_limit_plot.pdf', format='pdf')
 #https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
 
 #deleting tmp files.
-for mode in available_modes:
-    os.system("rm tmp_"+mode+".csv")
+#for mode in available_modes:
+#    os.system("rm tmp_"+mode+".csv")
