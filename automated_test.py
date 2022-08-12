@@ -20,23 +20,29 @@ for mode in available_modes:
     os.system(cmd)
 
 #SECOND PART
-
+success=True
 for mode_idx, mode in enumerate(available_modes):
     #Opening sigmod file.
     with open("tmp_"+mode+".csv", 'r') as csvfile:
+        mode_rows = []
         # creating a csv reader object
         csvreader = csv.reader(csvfile)
 
         # extracting each data row one by one
         for row in csvreader:
-            rows[mode_idx].append(row)
-
+            mode_rows.append(row)
+        rows.append(mode_rows)
         # get total number of rows
         print("Total # of "+mode+" rows: %d"%(csvreader.line_num))
+        if csvreader.line_num == 0:
+            success = False
+if not success:
+    print("An error has occured. Stoping the automated testing.")
+    exit()
 
 print("Checking for result correctness.")
 
-#TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED.
+#TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED. rows has to be renamed
 #rows[0] : SIGMOD21, rows[1]: muthu
 num_of_results_error = 0
 sigmod_performance = []

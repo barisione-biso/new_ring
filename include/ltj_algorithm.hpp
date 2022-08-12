@@ -204,7 +204,7 @@ namespace ring {
                 res.emplace_back(tuple);
             }else{
                 var_type x_j = m_gao[j];
-                m_gao_test[j];
+                //m_gao_test[j];
                 //TODO: ADAPTIVE GAO COMMENT test code >>
                 if(!gao_test.empty()){
                     if(gao_test.top() != x_j){

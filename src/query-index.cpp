@@ -224,8 +224,9 @@ int main(int argc, char* argv[])
     std::string type = get_type(index);
     //configuration: execution mode.
     std::string mode = "";
-    if(argv[3])
+    if(argv[3]){
         mode = argv[3];
+    }
     //configuration: print gao (yes / no).
     bool print_gao = false;
     if(argv[4]){
@@ -234,7 +235,7 @@ int main(int argc, char* argv[])
     //configuration: verbose (yes / no).
     bool verbose = false;
     if(argv[5]){
-        std::istringstream(argv[4]) >> verbose;
+        std::istringstream(argv[5]) >> verbose;
     }
     ring::util::configuration.configure(mode, print_gao, verbose);
     //print configuration.
