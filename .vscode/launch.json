@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/query-index",
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
                     "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt",
-                    "sigmod21"],
+                    "one_ring_muthu_leap_adaptive"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

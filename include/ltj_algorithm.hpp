@@ -30,7 +30,7 @@
 
 namespace ring {
 
-    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t, class gao = gao<>>
+    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t>//, class gao = gao_t<>
     class ltj_algorithm {
 
     public:
@@ -39,7 +39,7 @@ namespace ring {
         typedef var_t var_type;
         typedef ring_t ring_type;
         typedef cons_t const_type;
-        typedef gao gao_type;
+        //typedef gao_t gao_type;
         typedef ltj_iterator<ring_type, var_type, const_type> ltj_iter_type;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
         typedef std::vector<std::pair<var_type, value_type>> tuple_type;
@@ -48,14 +48,13 @@ namespace ring {
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
-        std::stack<var_type> gao_test;
-        gao_type m_gao_test;
+        std::stack<var_type> gao_stack;
+        //gao_type m_gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
         var_to_iterators_type m_var_to_iterators;
         bool m_is_empty = false;
-
-
+        gao_size<ring_type> m_gao_size;
         void copy(const ltj_algorithm &o) {
             m_ptr_triple_patterns = o.m_ptr_triple_patterns;
             m_gao = o.m_gao;
@@ -108,9 +107,7 @@ namespace ring {
                 }
                 ++i;
             }
-
-            gao_size<ring_type> gao_sv2(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
-            //m_gao_test = gao_type(m_ptr_triple_patterns, &m_iterators, m_ptr_ring);
+            m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
         }
 
         //! Copy constructor
@@ -175,7 +172,29 @@ namespace ring {
             }
             return str;
         }
+        var_type next(const size_type j) const{
+            if(util::configuration.is_adaptive()){
+                //First variable
+                if(j == 0){
+                    return m_gao[j];
+                }
+                //Second variable onwards
+                else{
+                    //var_type v = gao_stack.top();
+                    //std::cout << " v : " << v << std::endl;
+                    /*m_gao_size.var_info(v);
 
+                    for(const auto &e : m_gao_size.var_info(v).related){
+                        std::cout << "hmm" << std::endl;
+                        //util::get_num_diff_values<ring_type, ltj_iter_type>(m_ptr_ring, triple_pattern, m_ptr_iterators->at(i));
+                    }*/
+                    return m_gao[j];
+                }
+            }
+            else{
+                return m_gao[j];
+            }
+        }
         /**
          *
          * @param j                 Index of the variable
@@ -203,15 +222,16 @@ namespace ring {
                 //Report results
                 res.emplace_back(tuple);
             }else{
-                var_type x_j = m_gao[j];
+                //var_type x_j = m_gao[j];
+                var_type x_j = next(j);
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO COMMENT test code >>
-                if(!gao_test.empty()){
-                    if(gao_test.top() != x_j){
-                        gao_test.push(x_j);
+                if(!gao_stack.empty()){
+                    if(gao_stack.top() != x_j){
+                        gao_stack.push(x_j);
                     }
                 }else{
-                    gao_test.push(x_j);
+                    gao_stack.push(x_j);
                 }
                 //TODO: ADAPTIVE GAO COMMENT test code <<
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
@@ -230,8 +250,8 @@ namespace ring {
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_test.empty()){
-                            gao_test.pop();
+                        if(!gao_stack.empty()){
+                            gao_stack.pop();
                         }
                     }
                 }else {
@@ -255,8 +275,8 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_test.empty()){
-                            gao_test.pop();
+                        if(!gao_stack.empty()){
+                            gao_stack.pop();
                         }
                     }
                 }

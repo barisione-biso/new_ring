@@ -43,7 +43,7 @@ namespace ring {
             size_type n_triples;
             std::unordered_set<var_type> related;
         } info_var_type;
-
+        std::vector<info_var_type> var_info;
         typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
@@ -114,8 +114,14 @@ namespace ring {
                 return linfo.weight < rinfo.weight;
             }
         };
-    public:
 
+        void copy(const gao_size &o) {
+            m_ptr_triple_patterns = std::move(o.m_ptr_triple_patterns);
+            m_ptr_iterators = std::move(o.m_ptr_iterators);
+            m_ptr_ring = std::move(o.m_ptr_ring);
+        }
+    public:
+        gao_size() = default;
         //Used exclusively for fixed gao.
         gao_size(const std::vector<triple_pattern>* triple_patterns,
                     const std::vector<ltj_iter_type>* iterators,
@@ -128,7 +134,7 @@ namespace ring {
 
             //1. Filling var_info with data about each variable
             //std::cout << "Filling... " << std::flush;
-            std::vector<info_var_type> var_info;
+            //std::vector<info_var_type> var_info;
             std::unordered_map<var_type, size_type> hash_table_position;
             size_type i = 0;
             for (const triple_pattern& triple_pattern : *m_ptr_triple_patterns) {
@@ -221,9 +227,42 @@ namespace ring {
             }
             //std::cout << "Done. " << std::endl;
         }
+
+        //! Copy constructor
+        gao_size(const gao_size &o) {
+            copy(o);
+        }
+
+        //! Move constructor
+        gao_size(gao_size &&o) {
+            *this = std::move(o);
+        }
+
+        //! Copy Operator=
+        gao_size &operator=(const gao_size &o) {
+            if (this != &o) {
+                copy(o);
+            }
+            return *this;
+        }
+        //! Move Operator=
+        gao_size &operator=(gao_size &&o) {
+            if (this != &o) {
+                m_ptr_triple_patterns = std::move(o.m_ptr_triple_patterns);
+                m_ptr_iterators = std::move(o.m_ptr_iterators);
+                m_ptr_ring = std::move(o.m_ptr_ring);
+            }
+            return *this;
+        }
+
+        void swap(gao_size &o) {
+            std::swap(m_ptr_triple_patterns, o.m_ptr_triple_patterns);
+            std::swap(m_ptr_iterators, o.m_ptr_iterators);
+            std::swap(m_ptr_ring, o.m_ptr_ring);
+        }
     };
 
-
+    /*
     template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t >
     class gao{
         typedef var_t var_type;
@@ -264,7 +303,7 @@ namespace ring {
             var_type operator[](size_type i) const{
                 return m_gao[i];
             }
-    };
+    };*/
 }
 
 #endif //RING_GAO_HPP

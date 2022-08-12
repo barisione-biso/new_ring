@@ -6,19 +6,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #FIRST PART.
-rows = [[]] #A list of lists.
+lists_of_rows = [] #A list of lists.
 #Wikidata filtered enumerated automated test.
 dataset="wikidata-filtered-enumerated.dat.ring" #wikidata.nt.enumerated.ring
 queries="Queries-wikidata-benchmark.txt"
-available_modes = ["sigmod21", "one_ring_muthu_leap"]
-
+available_modes = ["sigmod21", "one_ring_muthu_leap"] #"one_ring_muthu_leap_adaptive"
+'''
 print("Available modes : "+",".join(available_modes))
 for mode in available_modes:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
     cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 > tmp_'+mode+'.csv'
     print(cmd)
     os.system(cmd)
-
+'''
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_modes):
@@ -31,7 +31,7 @@ for mode_idx, mode in enumerate(available_modes):
         # extracting each data row one by one
         for row in csvreader:
             mode_rows.append(row)
-        rows.append(mode_rows)
+        lists_of_rows.append(mode_rows)
         # get total number of rows
         print("Total # of "+mode+" rows: %d"%(csvreader.line_num))
         if csvreader.line_num == 0:
@@ -41,16 +41,15 @@ if not success:
     exit()
 
 print("Checking for result correctness.")
-
 #TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED. rows has to be renamed
 #rows[0] : SIGMOD21, rows[1]: muthu
 num_of_results_error = 0
 sigmod_performance = []
 one_ring_muthu_leap_performance = []
-for index, sigmod_row in enumerate(rows[0]):
+for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
     aux=sigmod_row[0].split(";")
-    aux2=rows[1][index][0].split(";")
+    aux2=lists_of_rows[1][index][0].split(";")
     if aux[1] != aux2[1]:
         num_of_results_error=num_of_results_error+1
 
@@ -66,7 +65,7 @@ d = {'Sigmod21': sigmod_performance, 'One Ring + Muthu + Leap': one_ring_muthu_l
 #print(d)
 df = pd.DataFrame(data = d)
 plot = df.boxplot(column=['Sigmod21', 'One Ring + Muthu + Leap'])
-plot.get_figure().savefig('global_plot.pdf', format='pdf')
+#plot.get_figure().savefig('global_plot.pdf', format='pdf')
 
 plot.set_ylim(0.0, 0.5)
 plot.get_figure().savefig('y_limit_plot.pdf', format='pdf')
