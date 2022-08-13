@@ -180,14 +180,15 @@ namespace ring {
                 }
                 //Second variable onwards
                 else{
-                    //var_type v = gao_stack.top();
-                    //std::cout << " v : " << v << std::endl;
-                    /*m_gao_size.var_info(v);
-
-                    for(const auto &e : m_gao_size.var_info(v).related){
-                        std::cout << "hmm" << std::endl;
+                    const var_type& v = gao_stack.top();
+                    std::cout << " v : " << v << std::endl;
+                    for(const auto &e : m_gao_size.m_var_info[v].related){
+                        std::cout << "e: " << e << std::endl;
+                        //vamos "bien", necesito obtener los triples de las variables relacionadas, el ptro al ring y los iteradores. :S
                         //util::get_num_diff_values<ring_type, ltj_iter_type>(m_ptr_ring, triple_pattern, m_ptr_iterators->at(i));
-                    }*/
+                        //Y las lonely? y las que ya fueron procesadas? Ejem: x1=>x2 y x3. asigno x2 y x2=>x1 Y x4. x1 ya fue usada. ¿Cómo la marco?
+                        //Pensar lo que me dijo Adrian primero. su algoritmo. :-)
+                    }
                     return m_gao[j];
                 }
             }

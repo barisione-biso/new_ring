@@ -149,6 +149,7 @@ void query(const std::string &file, const std::string &queries){
         }
         graph.load_crc_arrays(file);
     }
+    //graph.store_Ls();
     std::ifstream ifs;
     uint64_t nQ = 0;
 

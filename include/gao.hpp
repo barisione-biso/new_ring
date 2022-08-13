@@ -43,7 +43,7 @@ namespace ring {
             size_type n_triples;
             std::unordered_set<var_type> related;
         } info_var_type;
-        std::vector<info_var_type> var_info;
+        std::vector<info_var_type> m_var_info;
         typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
@@ -119,6 +119,7 @@ namespace ring {
             m_ptr_triple_patterns = std::move(o.m_ptr_triple_patterns);
             m_ptr_iterators = std::move(o.m_ptr_iterators);
             m_ptr_ring = std::move(o.m_ptr_ring);
+            m_var_info = std::move(o.var_info);
         }
     public:
         gao_size() = default;
@@ -145,44 +146,44 @@ namespace ring {
                     if(triple_pattern.s_is_variable()){
                         s = true;
                         var_s = (var_type) triple_pattern.term_s.value;
-                        var_to_vector(var_s, size,hash_table_position, var_info);
+                        var_to_vector(var_s, size,hash_table_position, m_var_info);
                     }
                     if(triple_pattern.p_is_variable()){
                         p = true;
                         var_p = (var_type) triple_pattern.term_p.value;
-                        var_to_vector(var_p, size,hash_table_position, var_info);
+                        var_to_vector(var_p, size,hash_table_position, m_var_info);
                     }
                     if(triple_pattern.o_is_variable()){
                         o = true;
                         var_o = triple_pattern.term_o.value;
-                        var_to_vector(var_o, size,hash_table_position, var_info);
+                        var_to_vector(var_o, size,hash_table_position, m_var_info);
                     }
                 } else if(util::configuration.uses_muthu()){
                     auto var_size_map = util::get_num_diff_values<ring_type, ltj_iter_type>(m_ptr_ring, triple_pattern, m_ptr_iterators->at(i));
                     if(triple_pattern.s_is_variable()){
                         s = true;
                         var_s = (var_type) triple_pattern.term_s.value;
-                        var_to_vector(var_s, var_size_map[var_s],hash_table_position, var_info);
+                        var_to_vector(var_s, var_size_map[var_s],hash_table_position, m_var_info);
                     }
                     if(triple_pattern.p_is_variable()){
                         p = true;
                         var_p = (var_type) triple_pattern.term_p.value;
-                        var_to_vector(var_p, var_size_map[var_p],hash_table_position, var_info);
+                        var_to_vector(var_p, var_size_map[var_p],hash_table_position, m_var_info);
                     }
                     if(triple_pattern.o_is_variable()){
                         o = true;
                         var_o = triple_pattern.term_o.value;
-                        var_to_vector(var_o, var_size_map[var_o],hash_table_position, var_info);
+                        var_to_vector(var_o, var_size_map[var_o],hash_table_position, m_var_info);
                     }
                 }
                 if(s && p){
-                    var_to_related(var_s, var_p, hash_table_position, var_info);
+                    var_to_related(var_s, var_p, hash_table_position, m_var_info);
                 }
                 if(s && o){
-                    var_to_related(var_s, var_o, hash_table_position, var_info);
+                    var_to_related(var_s, var_o, hash_table_position, m_var_info);
                 }
                 if(p && o){
-                    var_to_related(var_p, var_o, hash_table_position, var_info);
+                    var_to_related(var_p, var_o, hash_table_position, m_var_info);
                 }
                 ++i;
             }
@@ -190,11 +191,11 @@ namespace ring {
 
             //2. Sorting variables according to their weights.
             //std::cout << "Sorting... " << std::flush;
-            std::sort(var_info.begin(), var_info.end(), compare_var_info());
-            size_type lonely_start = var_info.size();
-            for(i = 0; i < var_info.size(); ++i){
-                hash_table_position[var_info[i].name] = i;
-                if(var_info[i].n_triples == 1 && i < lonely_start){
+            std::sort(m_var_info.begin(), m_var_info.end(), compare_var_info());
+            size_type lonely_start = m_var_info.size();
+            for(i = 0; i < m_var_info.size(); ++i){
+                hash_table_position[m_var_info[i].name] = i;
+                if(m_var_info[i].n_triples == 1 && i < lonely_start){
                     lonely_start = i;
                 }
             }
@@ -203,26 +204,26 @@ namespace ring {
             //3. Choosing the variables
             i = 0;
             //std::cout << "Choosing GAO ... " << std::flush;
-            std::vector<bool> checked(var_info.size(), false);
-            gao.reserve(var_info.size());
+            std::vector<bool> checked(m_var_info.size(), false);
+            gao.reserve(m_var_info.size());
             while(i < lonely_start){ //Related variables
                 if(!checked[i]){
-                    gao.push_back(var_info[i].name); //Adding var to gao
+                    gao.push_back(m_var_info[i].name); //Adding var to gao
                     checked[i] = true;
                     min_heap_type heap; //Stores the related variables that are related with the chosen ones
-                    auto var_name = var_info[i].name;
-                    fill_heap(var_name, hash_table_position, var_info, checked,heap);
+                    auto var_name = m_var_info[i].name;
+                    fill_heap(var_name, hash_table_position, m_var_info, checked,heap);
                     while(!heap.empty()){
                         var_name = heap.top().second;
                         heap.pop();
                         gao.push_back(var_name);
-                        fill_heap(var_name, hash_table_position, var_info, checked, heap);
+                        fill_heap(var_name, hash_table_position, m_var_info, checked, heap);
                     }
                 }
                 ++i;
             }
-            while(i < var_info.size()){ //Lonely variables
-                gao.push_back(var_info[i].name); //Adding var to gao
+            while(i < m_var_info.size()){ //Lonely variables
+                gao.push_back(m_var_info[i].name); //Adding var to gao
                 ++i;
             }
             //std::cout << "Done. " << std::endl;
@@ -251,6 +252,7 @@ namespace ring {
                 m_ptr_triple_patterns = std::move(o.m_ptr_triple_patterns);
                 m_ptr_iterators = std::move(o.m_ptr_iterators);
                 m_ptr_ring = std::move(o.m_ptr_ring);
+                m_var_info = std::move(o.m_var_info);
             }
             return *this;
         }
@@ -259,6 +261,7 @@ namespace ring {
             std::swap(m_ptr_triple_patterns, o.m_ptr_triple_patterns);
             std::swap(m_ptr_iterators, o.m_ptr_iterators);
             std::swap(m_ptr_ring, o.m_ptr_ring);
+            std::swap(m_var_info, o.m_var_info);
         }
     };
 

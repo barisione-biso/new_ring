@@ -316,7 +316,14 @@ namespace ring {
             sdsl::structure_tree::add_size(child, written_bytes);
             return written_bytes;
         }
-
+        void store_Ls () const{
+            auto L_s = m_bwt_s.get_L();
+            auto L_p = m_bwt_p.get_L();
+            auto L_o = m_bwt_o.get_L();
+            sdsl::store_to_file(L_s, "wm_s");
+            sdsl::store_to_file(L_p, "wm_p");
+            sdsl::store_to_file(L_o, "wm_o");
+        }
         void load(std::istream &in) {
             m_bwt_s.load(in);
             m_bwt_p.load(in);
