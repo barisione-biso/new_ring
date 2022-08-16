@@ -259,7 +259,7 @@ namespace ring {
                 //Report results
                 res.emplace_back(tuple);
             }else{
-                assert(gao_stack.size() == bound_vars.size())
+                assert(gao_stack.size() == bound_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j, tuple);
                 //m_gao_test[j];
