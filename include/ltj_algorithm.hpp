@@ -45,10 +45,14 @@ namespace ring {
         typedef std::vector<std::pair<var_type, value_type>> tuple_type;
         typedef std::chrono::high_resolution_clock::time_point time_point_type;
 
+        typedef std::pair<size_type, var_type> pair_type;
+        typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
+
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
         std::stack<var_type> gao_stack;
+        std::vector<var_type> bound_vars;
         //gao_type m_gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
@@ -108,6 +112,8 @@ namespace ring {
                 ++i;
             }
             m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+
+            bound_vars.reserve(m_gao.size());
         }
 
         //! Copy constructor
@@ -172,7 +178,7 @@ namespace ring {
             }
             return str;
         }
-        var_type next(const size_type j) const{
+        var_type next(const size_type j, tuple_type &tuple) const{
             if(util::configuration.is_adaptive()){
                 //First variable
                 if(j == 0){
@@ -180,21 +186,51 @@ namespace ring {
                 }
                 //Second variable onwards
                 else{
-                    const var_type& v = gao_stack.top();
-                    std::cout << " v : " << v << std::endl;
-                    for(const auto &e : m_gao_size.m_var_info[v].related){
-                        std::cout << "e: " << e << std::endl;
-                        //vamos "bien", necesito obtener los triples de las variables relacionadas, el ptro al ring y los iteradores. :S
-                        //util::get_num_diff_values<ring_type, ltj_iter_type>(m_ptr_ring, triple_pattern, m_ptr_iterators->at(i));
-                        //Y las lonely? y las que ya fueron procesadas? Ejem: x1=>x2 y x3. asigno x2 y x2=>x1 Y x4. x1 ya fue usada. ¿Cómo la marco?
-                        //Pensar lo que me dijo Adrian primero. su algoritmo. :-)
+                    const var_type& cur_var = gao_stack.top();
+                    const std::vector<var_type> & b_vars = bound_vars;
+                    bool processing_rel_vars = false;
+                    {
+                        min_heap_type heap;
+                        for(const auto &rel_var : m_gao_size.m_var_info[cur_var].related){
+                            if(!is_var_bound(rel_var, b_vars)){
+                                processing_rel_vars = true;
+                                //All iterators of rel_var
+                                auto iters =  m_var_to_iterators.find(rel_var);
+                                if(iters != m_var_to_iterators.end()){
+                                    std::vector<ltj_iter_type*> var_iters = iters->second;
+                                    for(ltj_iter_type* it : var_iters){
+                                        //The iterator has a reference to its triple pattern.
+                                        //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
+                                        const ltj_iter_type &iter = *it;
+                                        size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, cur_var, m_ptr_ring, iter);
+                                        heap.push({weight, rel_var});
+                                    }
+                                }
+                            }
+                        }
+                        assert(!heap.empty());
+                        var_type next_var = heap.top().second;
+                        return next_var;
                     }
+                    /*TODO: pending lonely variables.
+                    estan el gao.hpp, revisar i < lonely_start.
+                    if(!processing_rel_vars){
+                        //single vars
+                        for(single vars)
+                            if(!is_var_bound(rel_var, bound_vars))
+                    }*/
                     return m_gao[j];
                 }
             }
             else{
                 return m_gao[j];
             }
+        }
+        var_type is_var_bound(const size_type var, const std::vector<var_type> &bound_vars) const{
+            auto it = std::find(bound_vars.begin(), bound_vars.end(), var);
+            if (it != bound_vars.end())
+                return true;
+            return false;
         }
         /**
          *
@@ -223,16 +259,19 @@ namespace ring {
                 //Report results
                 res.emplace_back(tuple);
             }else{
+                assert(gao_stack.size() == bound_vars.size())
                 //var_type x_j = m_gao[j];
-                var_type x_j = next(j);
+                var_type x_j = next(j, tuple);
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO COMMENT test code >>
                 if(!gao_stack.empty()){
                     if(gao_stack.top() != x_j){
                         gao_stack.push(x_j);
+                        bound_vars.emplace_back(x_j);
                     }
                 }else{
                     gao_stack.push(x_j);
+                    bound_vars.emplace_back(x_j);
                 }
                 //TODO: ADAPTIVE GAO COMMENT test code <<
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
@@ -253,6 +292,7 @@ namespace ring {
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
                         if(!gao_stack.empty()){
                             gao_stack.pop();
+                            bound_vars.pop_back();
                         }
                     }
                 }else {
@@ -278,6 +318,7 @@ namespace ring {
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
                         if(!gao_stack.empty()){
                             gao_stack.pop();
+                            bound_vars.pop_back();
                         }
                     }
                 }

@@ -60,7 +60,7 @@ namespace ring {
             m_cur_o = o.m_cur_o;
             m_is_empty = o.m_is_empty;
         }
-
+    public:
         inline bool is_variable_subject(var_type var) {
             return m_ptr_triple_pattern->term_s.is_variable && var == m_ptr_triple_pattern->term_s.value;
         }
@@ -73,7 +73,6 @@ namespace ring {
             return m_ptr_triple_pattern->term_o.is_variable && var == m_ptr_triple_pattern->term_o.value;
         }
 
-    public:
         const bool &is_empty = m_is_empty;
         const bwt_interval &i_s = m_i_s;
         const bwt_interval &i_p = m_i_p;
@@ -243,7 +242,9 @@ namespace ring {
 
             }
         }
-
+        const triple_pattern* get_triple_pattern() const{
+            return m_ptr_triple_pattern;
+        }
         //! Copy constructor
         ltj_iterator(const ltj_iterator &o) {
             copy(o);

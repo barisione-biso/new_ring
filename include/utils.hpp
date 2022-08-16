@@ -30,6 +30,7 @@ namespace ring {
 
     namespace util {
         typedef uint64_t size_type;//TODO: shouldn't they all get their values from a single source?
+        typedef uint8_t var_type;
         /*Classes*/
         class configuration{
             private:
@@ -243,9 +244,45 @@ namespace ring {
             }
             return hash_map;
         }
+        template<class ring_type = ring<>,class Iterator>
+        size_type get_num_diff_values(var_type candidate_var, var_type last_var, ring_type* ptr_ring, const Iterator &iter){
+            //'candidate_var' is related to 'last_var' in current iter ( check iter.m_ptr_triple_pattern)
+            //Important: a range in i_* is equivalent for both SPO and SOP rings.
+            if(iter.is_variable_subject(last_var)){
+                if(iter.is_variable_predicate(candidate_var)){
+                    //S -> P using SOP ring.
+                    return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_s.left(), iter.i_s.right());
+                }
+                if(iter.is_variable_object(candidate_var)){
+                    //S -> O using SPO ring.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_s.left(), iter.i_s.right());
+                }
+            }
+            if(iter.is_variable_predicate(last_var)){
+                if(iter.is_variable_subject(candidate_var)){
+                    //P -> S using SPO ring.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_p.left(), iter.i_p.right());
+                }
+                if(iter.is_variable_object(candidate_var)){
+                    //P -> O using SOP ring.
+                    return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_p.left(), iter.i_p.right());
+                }
+            }
+            if(iter.is_variable_object(last_var)){
+                if(iter.is_variable_subject(candidate_var)){
+                    //O -> S using SOP ring.
+                    return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_o.left(), iter.i_o.right());
+                }
+                if(iter.is_variable_predicate(candidate_var)){
+                    //O -> P using SPO ring.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_o.left(), iter.i_o.right());
+                }
+            }
+            return -1ULL;
+        }
     }
 }
 
 
 
-#endif 
+#endif

@@ -64,10 +64,10 @@ print("Plotting the variants.")
 d = {'Sigmod21': sigmod_performance, 'One Ring + Muthu + Leap': one_ring_muthu_leap_performance}
 #print(d)
 df = pd.DataFrame(data = d)
-plot = df.boxplot(column=['Sigmod21', 'One Ring + Muthu + Leap'])
+plot = df.boxplot(column=['Sigmod21', 'One Ring + Muthu + Leap'], grid=True, return_type='axes')
 #plot.get_figure().savefig('global_plot.pdf', format='pdf')
 
-plot.set_ylim(0.0, 0.5)
+#plot.set_ylim(0.0, 100.0)
 plot.get_figure().savefig('y_limit_plot.pdf', format='pdf')
 #https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
 
