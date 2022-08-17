@@ -187,12 +187,12 @@ namespace ring {
                 else{
                     const var_type& cur_var = gao_stack.top();
                     const std::vector<var_type> & b_vars = bound_vars;
-                    bool processing_rel_vars = false;
+                    bool rel_var_processed = false;
                     {
                         min_heap_type heap;
                         for(const auto &rel_var : m_gao_size.get_related_variables(cur_var)){
                             if(!is_var_bound(rel_var, b_vars)){
-                                processing_rel_vars = true;
+                                rel_var_processed = true;
                                 //All iterators of rel_var
                                 auto iters =  m_var_to_iterators.find(rel_var);
                                 if(iters != m_var_to_iterators.end()){
@@ -207,16 +207,19 @@ namespace ring {
                                 }
                             }
                         }
-                        assert(!heap.empty());
-                        var_type next_var = heap.top().second;
-                        return next_var;
+                        if(rel_var_processed){
+                            assert(!heap.empty());
+                            var_type next_var = heap.top().second;
+                            return next_var;
+                        }
                     }
                     /*TODO: pending lonely variables.
                     estan el gao.hpp, revisar i < lonely_start.
-                    if(!processing_rel_vars){
+                    if(!rel_var_processed){
                         //single vars
                         for(single vars)
-                            if(!is_var_bound(rel_var, bound_vars))
+                            if(!is_var_bound(rel_var, b_vars)){
+                            }
                     }*/
                     return m_gao[j];
                 }
@@ -262,10 +265,10 @@ namespace ring {
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
                 //m_gao_test[j];
-                //TODO: ADAPTIVE GAO COMMENT test code >>
+                //TODO: ADAPTIVE GAO code >>
                 if(!gao_stack.empty()){
                     if(gao_stack.top() != x_j){
-                        //We only push a var into the stack if the variable does not exist already on top. 
+                        //We only push a var into the stack if the variable does not exist already on top.
                         //This happens when we are still looping in the same level.
                         gao_stack.push(x_j);
                         bound_vars.emplace_back(x_j);
@@ -274,7 +277,7 @@ namespace ring {
                     gao_stack.push(x_j);
                     bound_vars.emplace_back(x_j);
                 }
-                //TODO: ADAPTIVE GAO COMMENT test code <<
+                //TODO: ADAPTIVE GAO code <<
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
                 bool ok;
                 if(itrs.size() == 1 && itrs[0]->in_last_level()) {//Lonely variables
@@ -290,11 +293,12 @@ namespace ring {
                         if(!ok) return false;
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
-                        //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
+                        //TODO: ADAPTIVE GAO code >>
                         if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }
+                        //TODO: ADAPTIVE GAO code <<
                     }
                 }else {
                     value_type c = seek(x_j);
@@ -316,11 +320,12 @@ namespace ring {
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
                         std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                        //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
+                        //TODO: ADAPTIVE GAO code >>
                         if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }
+                        //TODO: ADAPTIVE GAO code <<
                     }
                 }
             }
