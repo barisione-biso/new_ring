@@ -12,7 +12,7 @@
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
                     "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt",
                     "one_ring_muthu_leap_adaptive",
-                    "1", "0"],
+                    "0", "0"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

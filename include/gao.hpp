@@ -47,7 +47,7 @@ namespace ring {
         typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
-
+        std::vector<var_type> m_lonely_variables;
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         const std::vector<ltj_iter_type>* m_ptr_iterators;
@@ -120,6 +120,7 @@ namespace ring {
             m_ptr_iterators = std::move(o.m_ptr_iterators);
             m_ptr_ring = std::move(o.m_ptr_ring);
             m_var_info = std::move(o.var_info);
+            m_lonely_variables = std::move(o.m_lonely_variables);
         }
     public:
         gao_size() = default;
@@ -222,7 +223,10 @@ namespace ring {
                 }
                 ++i;
             }
+
+            m_lonely_variables.reserve(m_var_info.size() - i);
             while(i < m_var_info.size()){ //Lonely variables
+                m_lonely_variables.emplace_back(m_var_info[i].name);
                 gao.push_back(m_var_info[i].name); //Adding var to gao
                 ++i;
             }
@@ -253,6 +257,7 @@ namespace ring {
                 m_ptr_iterators = std::move(o.m_ptr_iterators);
                 m_ptr_ring = std::move(o.m_ptr_ring);
                 m_var_info = std::move(o.m_var_info);
+                m_lonely_variables = std::move(o.m_lonely_variables);
             }
             return *this;
         }
@@ -262,6 +267,7 @@ namespace ring {
             std::swap(m_ptr_iterators, o.m_ptr_iterators);
             std::swap(m_ptr_ring, o.m_ptr_ring);
             std::swap(m_var_info, o.m_var_info);
+            std::swap(m_lonely_variables, o.m_lonely_variables);
         }
         std::unordered_set<var_type> get_related_variables(const var_type& var){
             std::unordered_set<var_type> r;
@@ -272,7 +278,9 @@ namespace ring {
                 r = it->related;
             }
             return r;
-            //m_var_info[var].related;
+        }
+        std::vector<var_type> get_lonely_variables() const{
+            return m_lonely_variables;
         }
     };
 

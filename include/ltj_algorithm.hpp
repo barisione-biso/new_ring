@@ -190,7 +190,9 @@ namespace ring {
                     bool rel_var_processed = false;
                     {
                         min_heap_type heap;
-                        for(const auto &rel_var : m_gao_size.get_related_variables(cur_var)){
+                        const auto& rel_vars = m_gao_size.get_related_variables(cur_var);
+                        //Lonely vars are excluded.
+                        for(const auto &rel_var : rel_vars){
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
                                 //All iterators of rel_var
@@ -211,17 +213,20 @@ namespace ring {
                             assert(!heap.empty());
                             var_type next_var = heap.top().second;
                             return next_var;
+                        }else{
+                            //Lonely variables.
+                            const auto & lonely_vars = m_gao_size.get_lonely_variables();
+                            var_type next_var = -1;
+                            for(const var_type& var : lonely_vars){
+                                if(!is_var_bound(var, b_vars)){
+                                    next_var = var;
+                                    break;
+                                }
+                            }
+                            assert(next_var != -1);
+                            return next_var;
                         }
                     }
-                    /*TODO: pending lonely variables.
-                    estan el gao.hpp, revisar i < lonely_start.
-                    if(!rel_var_processed){
-                        //single vars
-                        for(single vars)
-                            if(!is_var_bound(rel_var, b_vars)){
-                            }
-                    }*/
-                    return m_gao[j];
                 }
             }
             else{
