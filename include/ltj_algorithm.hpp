@@ -47,7 +47,6 @@ namespace ring {
 
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
-
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
@@ -191,7 +190,7 @@ namespace ring {
                     bool processing_rel_vars = false;
                     {
                         min_heap_type heap;
-                        for(const auto &rel_var : m_gao_size.m_var_info[cur_var].related){
+                        for(const auto &rel_var : m_gao_size.get_related_variables(cur_var)){
                             if(!is_var_bound(rel_var, b_vars)){
                                 processing_rel_vars = true;
                                 //All iterators of rel_var
@@ -290,14 +289,14 @@ namespace ring {
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_stack.empty()){
+                        if(!gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -314,9 +313,9 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_stack.empty()){
+                        if(!gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }

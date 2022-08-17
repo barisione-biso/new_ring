@@ -263,6 +263,17 @@ namespace ring {
             std::swap(m_ptr_ring, o.m_ptr_ring);
             std::swap(m_var_info, o.m_var_info);
         }
+        std::unordered_set<var_type> get_related_variables(const var_type& var){
+            std::unordered_set<var_type> r;
+            const auto& it =std::find_if(m_var_info.begin(), m_var_info.end(),
+                                                        [&var](const info_var_type& info_var)
+                                                        { return info_var.name == var; });
+            if(it != m_var_info.end()){
+                r = it->related;
+            }
+            return r;
+            //m_var_info[var].related;
+        }
     };
 
     /*
