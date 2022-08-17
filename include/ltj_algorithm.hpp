@@ -265,6 +265,8 @@ namespace ring {
                 //TODO: ADAPTIVE GAO COMMENT test code >>
                 if(!gao_stack.empty()){
                     if(gao_stack.top() != x_j){
+                        //We only push a var into the stack if the variable does not exist already on top. 
+                        //This happens when we are still looping in the same level.
                         gao_stack.push(x_j);
                         bound_vars.emplace_back(x_j);
                     }
@@ -289,7 +291,7 @@ namespace ring {
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_stack.empty() && gao_stack.size() > 1){
+                        if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }
@@ -315,7 +317,7 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //TODO: ADAPTIVE GAO COMMENT: SHOULD I ALWAYS REPLACE STACK.TOP HERE?
-                        if(!gao_stack.empty() && gao_stack.size() > 1){
+                        if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();
                             bound_vars.pop_back();
                         }

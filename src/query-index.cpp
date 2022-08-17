@@ -199,7 +199,7 @@ void query(const std::string &file, const std::string &queries){
             if(!ring::util::configuration.print_gao()){
                 cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
             } else{
-                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;
+                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;//Adaptive can have a diff. gao per tuple reported.
             }
             nQ++;
 
