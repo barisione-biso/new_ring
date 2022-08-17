@@ -245,20 +245,21 @@ namespace ring {
             return hash_map;
         }
         template<class ring_type = ring<>,class Iterator>
-        size_type get_num_diff_values(var_type candidate_var, var_type last_var, ring_type* ptr_ring, const Iterator &iter){
+        size_type get_num_diff_values(var_type candidate_var, ring_type* ptr_ring, const Iterator &iter){
             //'candidate_var' is related to 'last_var' in current iter ( check iter.m_ptr_triple_pattern)
             //Important: a range in i_* is equivalent for both SPO and SOP rings.
             //-1ULL = Max ULL value.
             if(iter.is_variable_subject(candidate_var)){
                 if(iter.cur_p != -1ULL && iter.cur_o != -1ULL){//p and o are set in the iterator.
                     //P -> S
-                    return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_p.left(), iter.i_p.right());
+                    auto& it = iter.i_s.size() < iter.i_o.size() ? iter.i_s : iter.i_o;
+                    return ptr_ring->get_number_distinct_values_spo_BWT_S(it.left(), it.right());
                 } else if(iter.cur_p != -1ULL){//only p is currently set.
-                    //P -> S
-                    return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_p.left(), iter.i_p.right());
+                    //P -> S: i_s = i_o = m_ptr_ring->down_P(cur_p)
+                    return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
                 } else if(iter.cur_o != -1ULL){//only o is currently set.
-                    //O -> S
-                    return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_o.left(), iter.i_o.right());
+                    //O -> S: i_s = i_p = m_ptr_ring->down_O(cur_o)
+                    return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_s.left(), iter.i_s.right());
                 } else{
                     //neither p nor o are set.
                     return iter.i_s.size();
@@ -267,13 +268,14 @@ namespace ring {
             if(iter.is_variable_predicate(candidate_var)){
                 if(iter.cur_s != -1ULL && iter.cur_o != -1ULL){//s and o are set in the iterator.
                     //O -> P
-                    return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_o.left(), iter.i_o.right());
+                    auto& it = iter.i_p.size() < iter.i_o.size() ? iter.i_p : iter.i_o;
+                    return ptr_ring->get_number_distinct_values_spo_BWT_P(it.left(), it.right());
                 } else if(iter.cur_s != -1ULL){//only s is currently set.
-                    //S -> P
-                    return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_s.left(), iter.i_s.right());
+                    //S -> P: i_p = i_o = m_ptr_ring->down_S(cur_s)
+                    return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
                 } else if(iter.cur_o != -1ULL){//only o is currently set.
-                    //O -> P
-                    return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_o.left(), iter.i_o.right());
+                    //O -> P: i_p = i_o = m_ptr_ring->down_O(cur_s)
+                    return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_p.left(), iter.i_p.right());
                 } else{
                     //neither s nor o are set.
                     return iter.i_p.size();
@@ -282,13 +284,14 @@ namespace ring {
             if(iter.is_variable_object(candidate_var)){
                 if(iter.cur_s != -1ULL && iter.cur_p != -1ULL){//s and p are set in the iterator.
                     //S -> O
-                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_s.left(), iter.i_s.right());
+                    auto& it = iter.i_s.size() < iter.i_p.size() ? iter.i_s : iter.i_p;
+                    return ptr_ring->get_number_distinct_values_spo_BWT_O(it.left(), it.right());
                 } else if(iter.cur_s != -1ULL){//only s is currently set.
-                    //S -> O
-                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_s.left(), iter.i_s.right());
+                    //S -> O: i_p = i_o = m_ptr_ring->down_S(cur_s)
+                    return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_o.left(), iter.i_o.right());
                 } else if(iter.cur_p != -1ULL){//only p is currently set.
-                    //P -> O
-                    return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_p.left(), iter.i_p.right());
+                    //P -> O: i_s = i_o = m_ptr_ring->down_P(cur_s)
+                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
                 } else{
                     //neither s nor p are set.
                     return iter.i_o.size();

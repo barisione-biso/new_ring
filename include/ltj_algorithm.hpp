@@ -178,7 +178,7 @@ namespace ring {
             }
             return str;
         }
-        var_type next(const size_type j, tuple_type &tuple) const{
+        var_type next(const size_type j) const{
             if(util::configuration.is_adaptive()){
                 //First variable
                 if(j == 0){
@@ -202,7 +202,7 @@ namespace ring {
                                         //The iterator has a reference to its triple pattern.
                                         //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
                                         const ltj_iter_type &iter = *it;
-                                        size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, cur_var, m_ptr_ring, iter);
+                                        size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
                                         heap.push({weight, rel_var});
                                     }
                                 }
@@ -261,7 +261,7 @@ namespace ring {
             }else{
                 assert(gao_stack.size() == bound_vars.size());
                 //var_type x_j = m_gao[j];
-                var_type x_j = next(j, tuple);
+                var_type x_j = next(j);
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO COMMENT test code >>
                 if(!gao_stack.empty()){
