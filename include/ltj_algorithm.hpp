@@ -191,7 +191,7 @@ namespace ring {
                     {
                         min_heap_type heap;
                         const auto& rel_vars = m_gao_size.get_related_variables(cur_var);
-                        //Lonely vars are excluded.
+                        //1. Related variables (Lonely vars are implicitly excluded) TODO: are they?
                         for(const auto &rel_var : rel_vars){
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
@@ -213,19 +213,18 @@ namespace ring {
                             assert(!heap.empty());
                             var_type next_var = heap.top().second;
                             return next_var;
-                        }else{
-                            //Lonely variables.
-                            const auto & lonely_vars = m_gao_size.get_lonely_variables();
-                            var_type next_var = -1;
-                            for(const var_type& var : lonely_vars){
-                                if(!is_var_bound(var, b_vars)){
-                                    next_var = var;
-                                    break;
-                                }
-                            }
-                            assert(next_var != -1);
-                            return next_var;
                         }
+                        //2. Lonely variables.
+                        const auto & lonely_vars = m_gao_size.get_lonely_variables();
+                        var_type next_var = -1;
+                        for(const var_type& var : lonely_vars){
+                            if(!is_var_bound(var, b_vars)){
+                                next_var = var;
+                                break;
+                            }
+                        }
+                        assert(next_var != -1);
+                        return next_var;
                     }
                 }
             }
@@ -269,6 +268,7 @@ namespace ring {
                 assert(gao_stack.size() == bound_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
+                std::cout << "next var : " << (int) x_j << std::endl;
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO code >>
                 if(!gao_stack.empty()){
@@ -308,6 +308,9 @@ namespace ring {
                 }else {
                     value_type c = seek(x_j);
                     std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    if(c == 30536764){//21425499){
+                        std::cout << "aha..." << std::endl;
+                    }
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};

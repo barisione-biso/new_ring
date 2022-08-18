@@ -37,3 +37,9 @@ plots/
 
 build/
 dat/
+CMakeCache.txt 
+CMakeFiles/ 
+CTestTestfile.cmake 
+DartConfiguration.tcl 
+Makefile 
+cmake_install.cmake
