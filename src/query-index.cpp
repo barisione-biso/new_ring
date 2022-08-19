@@ -145,7 +145,7 @@ void query(const std::string &file, const std::string &queries){
     }
     if(ring::util::configuration.uses_muthu()){
         if(ring::util::configuration.is_verbose()){
-            cout << " Loading the wavelet matrices that support Muthukrishnan's Colored range counting algorithm.";
+            std::cout << " Loading the wavelet matrices that support Muthukrishnan's Colored range counting algorithm." << std::endl;
         }
         graph.load_crc_arrays(file);
     }

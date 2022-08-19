@@ -268,7 +268,7 @@ namespace ring {
                 assert(gao_stack.size() == bound_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
-                std::cout << "next var : " << (int) x_j << std::endl;
+                //std::cout << "next var : " << (int) x_j << std::endl;
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO code >>
                 if(!gao_stack.empty()){
@@ -307,10 +307,7 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                    if(c == 30536764){//21425499){
-                        std::cout << "aha..." << std::endl;
-                    }
+                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -327,7 +324,7 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //TODO: ADAPTIVE GAO code >>
                         if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
                             gao_stack.pop();

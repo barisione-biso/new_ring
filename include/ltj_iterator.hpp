@@ -380,20 +380,57 @@ namespace ring {
             }
 
         };
-
-
+        void up_iter_sub(){
+            if(m_cur_p != -1UL && m_cur_o != -1UL){
+                return;
+            }else if(m_cur_p != -1UL){
+                m_i_o = m_i_s;
+            }else if(m_cur_o != -1UL){
+                m_i_p = m_i_s;
+            }else{
+                m_i_p = m_ptr_ring->open_POS();
+                m_i_o = m_ptr_ring->open_OSP();
+            }
+        }
+        void up_iter_pred(){
+            if(m_cur_s != -1UL && m_cur_o != -1UL){
+                return;
+            }else if(m_cur_s != -1UL){
+                m_i_o = m_i_p;
+            }else if(m_cur_o != -1UL){
+                m_i_s = m_i_p;
+            }else{
+                m_i_s = m_ptr_ring->open_SPO();
+                m_i_o = m_ptr_ring->open_OSP();
+            }
+        }
+        void up_iter_obj(){
+            if(m_cur_s != -1UL && m_cur_p != -1UL){
+                return;
+            }else if(m_cur_s != -1UL){
+                m_i_p = m_i_o;
+            }else if(m_cur_p != -1UL){
+                m_i_s = m_i_o;
+            }else{
+                m_i_s = m_ptr_ring->open_SPO();
+                m_i_p = m_ptr_ring->open_POS();
+            }
+        }
         void up(var_type var) { //Go up in the trie
             if (is_variable_subject(var)) {
+                up_iter_sub();
                 m_cur_s = -1UL;
 #if VERBOSE
                 std::cout << "Up in S" << std::endl;
 #endif
             } else if (is_variable_predicate(var)) {
+                up_iter_pred();
                 m_cur_p = -1UL;
 #if VERBOSE
                 std::cout << "Up in P" << std::endl;
 #endif
             } else if (is_variable_object(var)) {
+                up_iter_obj();
                 m_cur_o = -1UL;
 #if VERBOSE
                 std::cout << "Up in O" << std::endl;
