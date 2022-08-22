@@ -48,6 +48,7 @@ namespace ring {
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
         std::vector<var_type> m_lonely_variables;
+        std::vector<var_type> m_linked_variables; //Not-lonely vars
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         const std::vector<ltj_iter_type>* m_ptr_iterators;
@@ -121,6 +122,7 @@ namespace ring {
             m_ptr_ring = std::move(o.m_ptr_ring);
             m_var_info = std::move(o.var_info);
             m_lonely_variables = std::move(o.m_lonely_variables);
+            m_linked_variables = std::move(o.m_linked_variables);
         }
     public:
         gao_size() = default;
@@ -207,9 +209,11 @@ namespace ring {
             //std::cout << "Choosing GAO ... " << std::flush;
             std::vector<bool> checked(m_var_info.size(), false);
             gao.reserve(m_var_info.size());
+            m_linked_variables.reserve(m_var_info.size());
             while(i < lonely_start){ //Related variables
                 if(!checked[i]){
                     gao.push_back(m_var_info[i].name); //Adding var to gao
+                    m_linked_variables.emplace_back(m_var_info[i].name);
                     checked[i] = true;
                     min_heap_type heap; //Stores the related variables that are related with the chosen ones
                     auto var_name = m_var_info[i].name;
@@ -218,6 +222,7 @@ namespace ring {
                         var_name = heap.top().second;
                         heap.pop();
                         gao.push_back(var_name);
+                        m_linked_variables.emplace_back(var_name);
                         fill_heap(var_name, hash_table_position, m_var_info, checked, heap);
                     }
                 }
@@ -230,6 +235,7 @@ namespace ring {
                 gao.push_back(m_var_info[i].name); //Adding var to gao
                 ++i;
             }
+            assert(gao.size() == (m_linked_variables.size() + m_lonely_variables.size()));
             //std::cout << "Done. " << std::endl;
         }
 
@@ -258,6 +264,7 @@ namespace ring {
                 m_ptr_ring = std::move(o.m_ptr_ring);
                 m_var_info = std::move(o.m_var_info);
                 m_lonely_variables = std::move(o.m_lonely_variables);
+                m_linked_variables = std::move(o.m_linked_variables);
             }
             return *this;
         }
@@ -268,6 +275,7 @@ namespace ring {
             std::swap(m_ptr_ring, o.m_ptr_ring);
             std::swap(m_var_info, o.m_var_info);
             std::swap(m_lonely_variables, o.m_lonely_variables);
+            std::swap(m_linked_variables, o.m_linked_variables);
         }
         std::unordered_set<var_type> get_related_variables(const var_type& var){
             std::unordered_set<var_type> r;
@@ -281,6 +289,9 @@ namespace ring {
         }
         std::vector<var_type> get_lonely_variables() const{
             return m_lonely_variables;
+        }
+        std::vector<var_type> get_linked_variables() const{
+            return m_linked_variables;
         }
     };
 

@@ -50,8 +50,9 @@ namespace ring {
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
-        std::stack<var_type> gao_stack;
-        std::vector<var_type> bound_vars;
+        std::stack<var_type> m_gao_stack;
+        //m_gao_vars is a 1:1 vector representation the m_gao_stack.
+        std::vector<var_type> m_gao_vars;
         //gao_type m_gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
@@ -112,7 +113,7 @@ namespace ring {
             }
             m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
 
-            bound_vars.reserve(m_gao.size());
+            m_gao_vars.reserve(m_gao.size());
         }
 
         //! Copy constructor
@@ -177,6 +178,20 @@ namespace ring {
             }
             return str;
         }
+        void get_heap_diff_values(const var_type& var, min_heap_type& heap) const{
+            //All iterators of 'var'
+            auto iters =  m_var_to_iterators.find(var);
+            if(iters != m_var_to_iterators.end()){
+                std::vector<ltj_iter_type*> var_iters = iters->second;
+                for(ltj_iter_type* it : var_iters){
+                    //The iterator has a reference to its triple pattern.
+                    //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
+                    const ltj_iter_type &iter = *it;
+                    size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(var, m_ptr_ring, iter);
+                    heap.push({weight, var});
+                }
+            }
+        }
         var_type next(const size_type j) const{
             if(util::configuration.is_adaptive()){
                 //First variable
@@ -185,18 +200,19 @@ namespace ring {
                 }
                 //Second variable onwards
                 else{
-                    const var_type& cur_var = gao_stack.top();
-                    const std::vector<var_type> & b_vars = bound_vars;
+                    const var_type& cur_var = m_gao_stack.top();
+                    const std::vector<var_type> & b_vars = m_gao_vars;
                     bool rel_var_processed = false;
                     {
                         min_heap_type heap;
                         const auto& rel_vars = m_gao_size.get_related_variables(cur_var);
-                        //1. Related variables (Lonely vars are implicitly excluded) TODO: are they?
+                        //(1). Linked / Related variables (Lonely vars are implicitly excluded).
                         for(const auto &rel_var : rel_vars){
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
+                                get_heap_diff_values(rel_var, heap);
                                 //All iterators of rel_var
-                                auto iters =  m_var_to_iterators.find(rel_var);
+                                /*auto iters =  m_var_to_iterators.find(rel_var);
                                 if(iters != m_var_to_iterators.end()){
                                     std::vector<ltj_iter_type*> var_iters = iters->second;
                                     for(ltj_iter_type* it : var_iters){
@@ -206,15 +222,26 @@ namespace ring {
                                         size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
                                         heap.push({weight, rel_var});
                                     }
+                                }*/
+                            }
+                        }
+                        //(2). Linked / Related variables that are not reachable by (1).
+                        if (!rel_var_processed){
+                            const auto& linked_vars = m_gao_size.get_linked_variables();
+                            for(auto &v : linked_vars){
+                                if(!is_var_bound(v, b_vars)){
+                                    rel_var_processed = true;
+                                    get_heap_diff_values(v, heap);
                                 }
                             }
                         }
+                        //(3). Get next_var from heap, see (1) or (2).
                         if(rel_var_processed){
                             assert(!heap.empty());
                             var_type next_var = heap.top().second;
                             return next_var;
                         }
-                        //2. Lonely variables.
+                        //(4). Lonely variables.
                         const auto & lonely_vars = m_gao_size.get_lonely_variables();
                         var_type next_var = -1;
                         for(const var_type& var : lonely_vars){
@@ -232,9 +259,9 @@ namespace ring {
                 return m_gao[j];
             }
         }
-        var_type is_var_bound(const size_type var, const std::vector<var_type> &bound_vars) const{
-            auto it = std::find(bound_vars.begin(), bound_vars.end(), var);
-            if (it != bound_vars.end())
+        var_type is_var_bound(const size_type var, const std::vector<var_type> &m_gao_vars) const{
+            auto it = std::find(m_gao_vars.begin(), m_gao_vars.end(), var);
+            if (it != m_gao_vars.end())
                 return true;
             return false;
         }
@@ -265,22 +292,22 @@ namespace ring {
                 //Report results
                 res.emplace_back(tuple);
             }else{
-                assert(gao_stack.size() == bound_vars.size());
+                assert(m_gao_stack.size() == m_gao_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
                 //std::cout << "next var : " << (int) x_j << std::endl;
                 //m_gao_test[j];
                 //TODO: ADAPTIVE GAO code >>
-                if(!gao_stack.empty()){
-                    if(gao_stack.top() != x_j){
+                if(!m_gao_stack.empty()){
+                    if(m_gao_stack.top() != x_j){
                         //We only push a var into the stack if the variable does not exist already on top.
                         //This happens when we are still looping in the same level.
-                        gao_stack.push(x_j);
-                        bound_vars.emplace_back(x_j);
+                        m_gao_stack.push(x_j);
+                        m_gao_vars.emplace_back(x_j);
                     }
                 }else{
-                    gao_stack.push(x_j);
-                    bound_vars.emplace_back(x_j);
+                    m_gao_stack.push(x_j);
+                    m_gao_vars.emplace_back(x_j);
                 }
                 //TODO: ADAPTIVE GAO code <<
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
@@ -299,9 +326,9 @@ namespace ring {
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
                         //TODO: ADAPTIVE GAO code >>
-                        if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
-                            gao_stack.pop();
-                            bound_vars.pop_back();
+                        if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
+                            m_gao_stack.pop();
+                            m_gao_vars.pop_back();
                         }
                         //TODO: ADAPTIVE GAO code <<
                     }
@@ -326,9 +353,9 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //TODO: ADAPTIVE GAO code >>
-                        if(gao_stack.top() != x_j && !gao_stack.empty() && gao_stack.size() > 1){
-                            gao_stack.pop();
-                            bound_vars.pop_back();
+                        if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
+                            m_gao_stack.pop();
+                            m_gao_vars.pop_back();
                         }
                         //TODO: ADAPTIVE GAO code <<
                     }
