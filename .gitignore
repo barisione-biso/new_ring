@@ -33,7 +33,7 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/osx
 cmake-build-debug/
 .idea/
-plots/
+plots/*.*
 
 build/
 dat/
@@ -44,3 +44,7 @@ DartConfiguration.tcl
 Makefile 
 cmake_install.cmake
 wm_*
+plots/experiment_output/*.csv
+plots/box-plot-sigmod21/output/*
+plots/full_set
+plots/small_set
