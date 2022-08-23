@@ -1,24 +1,48 @@
 import os
 import csv
 
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+import argparse
+
+# Initialize parser
+parser = argparse.ArgumentParser()
+ 
+# Adding optional argument
+parser.add_argument("-i", "--Index", help = "Index file [.ring | .cring].", required=True)
+parser.add_argument("-q", "--Queries", help = "Queries file.", required=True)
+parser.add_argument("-r", "--Results", help = "Number of results.")
+parser.add_argument("-t", "--Timeout", help = "Query Timeout.")
+# Read arguments from command line
+args = parser.parse_args()
 
 #FIRST PART.
 lists_of_rows = [] #A list of lists.
 #Wikidata filtered enumerated automated test.
-dataset="wikidata-filtered-enumerated.dat.ring" #wikidata.nt.enumerated.ring
-queries="Queries-wikidata-benchmark.txt"
+#dataset="wikidata-filtered-enumerated.dat.ring" #wikidata.nt.enumerated.ring
+#queries="Queries-wikidata-benchmark.txt"
+dataset_full_path=args.Index
+dataset = os.path.basename(dataset_full_path)
+queries_full_path=args.Queries
+queries = os.path.basename(queries_full_path)
+number_of_results = "1000"
+timeout = "600"
+if args.Results:
+    number_of_results = args.Results
+if args.Timeout:
+    timeout = args.Timeout
+print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_path))
+print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive"]
-'''
+
 print("Available modes : "+",".join(available_modes))
 for mode in available_modes:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
-    cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 > tmp_'+mode+'.csv'
+    cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > tmp_'+mode+'.csv'
     print(cmd)
     os.system(cmd)
-'''
+
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_modes):
@@ -64,18 +88,14 @@ print("Number of different results: ", num_of_results_error)
 #THIRD PART
 print("Plotting the variants.")
 
-d = {'Sigmod21': sigmod_performance, 
-    'One Ring + Muthu + Leap': one_ring_muthu_leap_performance,
-    'One Ring + Muthu + Leap adaptative': one_ring_muthu_adaptative_leap_performance}
-#print(d)
+d = {'Sigmod21': sigmod_performance,
+    '1 Ring Muthu': one_ring_muthu_leap_performance,
+    '1 Ring Muthu adaptive': one_ring_muthu_adaptative_leap_performance}
+
 df = pd.DataFrame(data = d)
-plot = df.boxplot(column=['Sigmod21', 'One Ring + Muthu + Leap', 'One Ring + Muthu + Leap adaptative'], grid=True, return_type='axes')
-#plot.get_figure().savefig('global_plot.pdf', format='pdf')
+plt.ylim(10000, 100000000)
+df.boxplot()
 
-#plot.set_ylim(0.0, 100.0)
-plot.get_figure().savefig('y_limit_plot.pdf', format='pdf')
+plt.show()
+#plot.get_figure().savefig('plot.pdf', format='pdf')
 #https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
-
-#deleting tmp files.
-#for mode in available_modes:
-#    os.system("rm tmp_"+mode+".csv")

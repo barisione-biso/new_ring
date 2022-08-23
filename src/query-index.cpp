@@ -130,7 +130,7 @@ std::string get_type(const std::string &file){
 }
 
 template<class ring_type>
-void query(const std::string &file, const std::string &queries){
+void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_millis = 600){
     vector<string> dummy_queries;
     bool result = get_file_content(queries, dummy_queries);
 
@@ -148,6 +148,10 @@ void query(const std::string &file, const std::string &queries){
             std::cout << " Loading the wavelet matrices that support Muthukrishnan's Colored range counting algorithm." << std::endl;
         }
         graph.load_crc_arrays(file);
+    }
+
+    if(ring::util::configuration.is_verbose()){
+        std::cout << "Max number of results: " << number_of_results << "Timeout : " << timeout_in_millis << "." << std::endl;
     }
     //graph.store_Ls();
     std::ifstream ifs;
@@ -184,7 +188,7 @@ void query(const std::string &file, const std::string &queries){
             typedef std::vector<typename ring::ltj_algorithm<>::tuple_type> results_type;
             results_type res;
 
-            ltj.join(res, 1000, 600);
+            ltj.join(res, number_of_results, timeout_in_millis);
             //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
             stop = high_resolution_clock::now();
@@ -215,7 +219,7 @@ void query(const std::string &file, const std::string &queries){
 int main(int argc, char* argv[])
 {
     //typedef ring::c_ring ring_type;
-    if(argc < 3 || argc > 6){
+    if(argc < 3 || argc > 8){
         std::cout << "Usage: " << argv[0] << "<index> <queries> "+ ring::util::configuration.get_configuration_options() << std::endl;
         return 0;
     }
@@ -225,18 +229,26 @@ int main(int argc, char* argv[])
     std::string type = get_type(index);
     //configuration: execution mode.
     std::string mode = "";
-    if(argv[3]){
+    if(argc >= 3 && argv[3]){
         mode = argv[3];
     }
     //configuration: print gao (yes / no).
     bool print_gao = false;
-    if(argv[4]){
+    if(argc >= 4 && argv[4]){
         std::istringstream(argv[4]) >> print_gao;
     }
     //configuration: verbose (yes / no).
     bool verbose = false;
-    if(argv[5]){
+    if(argc >= 5 && argv[5]){
         std::istringstream(argv[5]) >> verbose;
+    }
+    uint64_t number_of_results = 1000;
+    if(argc >= 6 && argv[6]){
+        number_of_results = std::stoull(argv[6]);
+    }
+    uint64_t timeout = 600;
+    if(argc >= 7 && argv[7]){
+        timeout = std::stoull(argv[7]);
     }
     ring::util::configuration.configure(mode, print_gao, verbose);
     //print configuration.
@@ -244,9 +256,9 @@ int main(int argc, char* argv[])
 
     //Starting quering the index.
     if(type == "ring"){
-        query<ring::ring<>>(index, queries);
+        query<ring::ring<>>(index, queries, number_of_results, timeout);
     }else if (type == "c-ring"){
-        query<ring::c_ring>(index, queries);
+        query<ring::c_ring>(index, queries, number_of_results, timeout);
     }else{
         std::cout << "Type of index: " << type << " is not supported." << std::endl;
     }

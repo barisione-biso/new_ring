@@ -132,7 +132,7 @@ namespace ring {
                     }
                 }
                 std::string get_configuration_options() const{
-                    return "[execution_mode="+get_mode_options()+" default="+get_default_mode()+"] [print_gao=0|1 default=0] [verbose=0|1 default 1]";
+                    return "[execution_mode="+get_mode_options()+" default="+get_default_mode()+"] [print_gao=0|1 default=0] [verbose=0|1 (default) ] [number_of_results=1000 (default)] [timeout=600 (default)]";
                 }
         };
         static configuration configuration;

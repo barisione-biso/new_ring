@@ -211,18 +211,6 @@ namespace ring {
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
                                 get_heap_diff_values(rel_var, heap);
-                                //All iterators of rel_var
-                                /*auto iters =  m_var_to_iterators.find(rel_var);
-                                if(iters != m_var_to_iterators.end()){
-                                    std::vector<ltj_iter_type*> var_iters = iters->second;
-                                    for(ltj_iter_type* it : var_iters){
-                                        //The iterator has a reference to its triple pattern.
-                                        //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
-                                        const ltj_iter_type &iter = *it;
-                                        size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
-                                        heap.push({weight, rel_var});
-                                    }
-                                }*/
                             }
                         }
                         //(2). Linked / Related variables that are not reachable by (1).
