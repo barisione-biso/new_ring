@@ -48,3 +48,5 @@ plots/experiment_output/*.csv
 plots/box-plot-sigmod21/output/*
 plots/full_set
 plots/small_set
+workplace
+generate_output
