@@ -50,3 +50,4 @@ plots/full_set
 plots/small_set
 workplace
 generate_output
+experiment_output/*

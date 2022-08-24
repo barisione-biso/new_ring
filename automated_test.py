@@ -107,7 +107,7 @@ d = {'Sigmod21': sigmod_performance,
     '1 Ring Muthu adaptive': one_ring_muthu_adaptative_leap_performance}
 
 df = pd.DataFrame(data = d)
-plt.ylim(10000, 100000000)
+plt.ylim(10000, 10000000)
 df.boxplot()
 
 plt.show()
