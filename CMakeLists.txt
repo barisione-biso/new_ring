@@ -23,7 +23,7 @@ else()
 endif()
 if( CMAKE_COMPILER_IS_GNUCXX )
     append_cxx_compiler_flags("-fpermissive -std=c++11 -Wall -Wextra " "GCC" CMAKE_CXX_FLAGS)
-    append_cxx_compiler_flags("-msse4.2 -03 -ffast-math -funroll-loops -fno-omit-frame-pointer" "GCC" CMAKE_CXX_FLAGS_RELEASE) #-g or -03
+    append_cxx_compiler_flags("-msse4.2 -O3 -ffast-math -funroll-loops -fno-omit-frame-pointer" "GCC" CMAKE_CXX_FLAGS_RELEASE) #-g or -O3
 else()
     append_cxx_compiler_flags("-fpermissive -std=c++11" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-stdlib=libc++" "CLANG" CMAKE_CXX_FLAGS)

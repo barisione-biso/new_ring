@@ -187,7 +187,12 @@ namespace ring {
                     //The iterator has a reference to its triple pattern.
                     //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
                     const ltj_iter_type &iter = *it;
-                    size_type weight = util::get_num_diff_values<ring_type, ltj_iter_type>(var, m_ptr_ring, iter);
+                    size_type weight = 0;
+                    if(util::configuration.uses_muthu()){
+                        weight = util::get_num_diff_values<ring_type, ltj_iter_type>(var, m_ptr_ring, iter);
+                    } else {
+                        weight = util::get_size_interval<ltj_iter_type>(iter);
+                    }
                     heap.push({weight, var});
                 }
             }
@@ -283,8 +288,6 @@ namespace ring {
                 assert(m_gao_stack.size() == m_gao_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
-                //std::cout << "next var : " << (int) x_j << std::endl;
-                //m_gao_test[j];
                 //TODO: ADAPTIVE GAO code >>
                 if(!m_gao_stack.empty()){
                     if(m_gao_stack.top() != x_j){

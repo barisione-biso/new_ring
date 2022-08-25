@@ -151,7 +151,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
     }
 
     if(ring::util::configuration.is_verbose()){
-        std::cout << "Max number of results: " << number_of_results << "Timeout : " << timeout_in_millis << "." << std::endl;
+        std::cout << "Max number of results: " << number_of_results << " Timeout : " << timeout_in_millis << "." << std::endl;
     }
     //graph.store_Ls();
     std::ifstream ifs;
