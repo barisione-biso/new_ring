@@ -77,7 +77,7 @@ print("****** Checking for result correctness.")
 num_of_results_error = 0
 sigmod21_performance = []
 one_ring_muthu_leap_performance = []
-one_ring_muthu_adaptative_leap_performance = []
+one_ring_muthu_adaptive_leap_performance = []
 sigmod21_adaptive_performance = []
 for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
@@ -90,7 +90,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
 
     sigmod21_performance.append(int(aux[2]))
     one_ring_muthu_leap_performance.append(int(aux2[2]))
-    one_ring_muthu_adaptative_leap_performance.append(int(aux3[2]))
+    one_ring_muthu_adaptive_leap_performance.append(int(aux3[2]))
     sigmod21_adaptive_performance.append(int(aux4[2]))
 
 print("****** Number of different results: ", num_of_results_error)
@@ -107,7 +107,7 @@ print("****** Plotting variants using matplotlib.")
 
 d = {'Sigmod21': sigmod21_performance,
     '1 Ring Muthu': one_ring_muthu_leap_performance,
-    '1 Ring Muthu adaptive': one_ring_muthu_adaptative_leap_performance,
+    '1 Ring Muthu adaptive': one_ring_muthu_adaptive_leap_performance,
     'Sigmod21_adaptive': sigmod21_adaptive_performance}
 
 df = pd.DataFrame(data = d)

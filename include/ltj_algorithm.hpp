@@ -258,6 +258,27 @@ namespace ring {
                 return true;
             return false;
         }
+
+        void push_var_to_stack(const var_type& x_j){
+                if(!m_gao_stack.empty()){
+                    if(m_gao_stack.top() != x_j){
+                        //We only push a var into the stack if the variable does not exist already on top.
+                        //This happens when we are still looping in the same level.
+                        m_gao_stack.push(x_j);
+                        m_gao_vars.emplace_back(x_j);
+                    }
+                }else{
+                    m_gao_stack.push(x_j);
+                    m_gao_vars.emplace_back(x_j);
+                }
+        }
+
+        void pop_var_of_stack(const var_type& x_j){
+            if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
+                m_gao_stack.pop();
+                m_gao_vars.pop_back();
+            }
+        }
         /**
          *
          * @param j                 Index of the variable
@@ -281,26 +302,14 @@ namespace ring {
             //(Optional) Check limit
             if(limit_results > 0 && res.size() == limit_results) return false;
 
-            if(j == m_gao.size()){//TODO: ADAPTIVE GAO COMMENT: Esto es el número total de variables. no el tamaño del gao.
+            if(j == m_gao.size()){//This should be the total number of variables, not m_gao.size(), it only works cause m_gao always have the total number of vars.
                 //Report results
                 res.emplace_back(tuple);
             }else{
                 assert(m_gao_stack.size() == m_gao_vars.size());
                 //var_type x_j = m_gao[j];
                 var_type x_j = next(j);
-                //TODO: ADAPTIVE GAO code >>
-                if(!m_gao_stack.empty()){
-                    if(m_gao_stack.top() != x_j){
-                        //We only push a var into the stack if the variable does not exist already on top.
-                        //This happens when we are still looping in the same level.
-                        m_gao_stack.push(x_j);
-                        m_gao_vars.emplace_back(x_j);
-                    }
-                }else{
-                    m_gao_stack.push(x_j);
-                    m_gao_vars.emplace_back(x_j);
-                }
-                //TODO: ADAPTIVE GAO code <<
+                push_var_to_stack(x_j);
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
                 bool ok;
                 if(itrs.size() == 1 && itrs[0]->in_last_level()) {//Lonely variables
@@ -316,12 +325,7 @@ namespace ring {
                         if(!ok) return false;
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
-                        //TODO: ADAPTIVE GAO code >>
-                        if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
-                            m_gao_stack.pop();
-                            m_gao_vars.pop_back();
-                        }
-                        //TODO: ADAPTIVE GAO code <<
+                        pop_var_of_stack(x_j);
                     }
                 }else {
                     value_type c = seek(x_j);
@@ -343,12 +347,7 @@ namespace ring {
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                        //TODO: ADAPTIVE GAO code >>
-                        if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
-                            m_gao_stack.pop();
-                            m_gao_vars.pop_back();
-                        }
-                        //TODO: ADAPTIVE GAO code <<
+                        pop_var_of_stack(x_j);
                     }
                 }
             }
