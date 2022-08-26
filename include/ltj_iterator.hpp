@@ -380,6 +380,7 @@ namespace ring {
             }
 
         };
+        //Reverses intevals affected by a previous 'down' for subjects.
         void up_iter_sub(){
             if(m_cur_p != -1UL && m_cur_o != -1UL){
                 return;
@@ -392,6 +393,7 @@ namespace ring {
                 m_i_o = m_ptr_ring->open_OSP();
             }
         }
+        //Reverses intevals affected by a previous 'down' for predicates.
         void up_iter_pred(){
             if(m_cur_s != -1UL && m_cur_o != -1UL){
                 return;
@@ -404,6 +406,7 @@ namespace ring {
                 m_i_o = m_ptr_ring->open_OSP();
             }
         }
+        //Reverses intevals affected by a previous 'down' for objects.
         void up_iter_obj(){
             if(m_cur_s != -1UL && m_cur_p != -1UL){
                 return;
