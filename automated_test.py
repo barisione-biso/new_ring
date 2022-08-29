@@ -115,6 +115,7 @@ plt.ylim(10000, 10000000)
 df.boxplot()
 
 plt.show()
+plt.savefig('plot.pdf', format='pdf')
 #plot.get_figure().savefig('plot.pdf', format='pdf')
 #https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
 
