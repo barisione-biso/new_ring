@@ -209,17 +209,40 @@ namespace ring {
                     const std::vector<var_type> & b_vars = m_gao_vars;
                     bool rel_var_processed = false;
                     {
-                        min_heap_type heap;
+                        //min_heap_type heap;
                         const auto& rel_vars = m_gao_size.get_related_variables(cur_var);
                         //(1). Linked / Related variables (Lonely vars are implicitly excluded).
+                        size_type selected_var = "";
+                        size_type min_weight = -1ULL;
                         for(const auto &rel_var : rel_vars){
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
-                                get_heap_diff_values(rel_var, heap);
+                                //get_heap_diff_values(rel_var, heap);
+                                //All iterators of 'var'
+                                auto iters =  m_var_to_iterators.find(rel_var);
+                                if(iters != m_var_to_iterators.end()){
+                                    std::vector<ltj_iter_type*> var_iters = iters->second;
+                                    for(ltj_iter_type* it : var_iters){
+                                        //The iterator has a reference to its triple pattern.
+                                        //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
+                                        const ltj_iter_type &iter = *it;
+                                        size_type weight = 0;
+                                        if(util::configuration.uses_muthu()){
+                                            weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
+                                        } else {
+                                            weight = util::get_size_interval<ltj_iter_type>(iter);
+                                        }
+                                        if(weight < min_weight){
+                                            min_weight = weight;
+                                            selected_var = rel_var;
+                                        }
+                                        //heap.push({weight, var});
+                                    }
+                                }
                             }
                         }
                         //(2). Linked / Related variables that are not reachable by (1).
-                        if (!rel_var_processed){
+                        /*if (!rel_var_processed){
                             const auto& linked_vars = m_gao_size.get_linked_variables();
                             for(auto &v : linked_vars){
                                 if(!is_var_bound(v, b_vars)){
@@ -227,12 +250,13 @@ namespace ring {
                                     get_heap_diff_values(v, heap);
                                 }
                             }
-                        }
+                        }*/
                         //(3). Get next_var from heap, see (1) or (2).
                         if(rel_var_processed){
-                            assert(!heap.empty());
-                            var_type next_var = heap.top().second;
-                            return next_var;
+                            //assert(!heap.empty());
+                            //var_type next_var = heap.top().second;
+                            //return next_var;
+                            return selected_var;
                         }
                         //(4). Lonely variables.
                         const auto & lonely_vars = m_gao_size.get_lonely_variables();
