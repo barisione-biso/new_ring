@@ -50,5 +50,6 @@ plots/full_set
 plots/small_set
 workplace/*.csv
 workplace/*/
+workspace/fetch_files_from_dichato.sh 
 generate_output
 experiment_output/*
