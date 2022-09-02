@@ -48,13 +48,14 @@ namespace ring {
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
         std::vector<var_type> m_lonely_variables;
-        std::vector<var_type> m_linked_variables; //Non-lonely vars
         std::unordered_map<var_type, size_type> m_hash_table_position;
         size_type m_number_of_variables;
+        typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         const std::vector<ltj_iter_type>* m_ptr_iterators;
         ring_type* m_ptr_ring;
+        size_type m_lonely_start;
 
 
         void var_to_vector(const var_type var, const size_type size,
@@ -124,13 +125,13 @@ namespace ring {
             m_ptr_ring = std::move(o.m_ptr_ring);
             m_var_info = std::move(o.var_info);
             m_lonely_variables = std::move(o.m_lonely_variables);
-            m_linked_variables = std::move(o.m_linked_variables);
             m_hash_table_position = std::move(o.m_hash_table_position);
             m_number_of_variables = std::move(o.m_number_of_variables);
+            m_lonely_start = std::move(o.m_lonely_start);
         }
     public:
         gao_size() = default;
-        //Used exclusively for fixed gao.
+
         gao_size(const std::vector<triple_pattern>* triple_patterns,
                     const std::vector<ltj_iter_type>* iterators,
                     ring_type* r,
@@ -199,27 +200,33 @@ namespace ring {
             //2. Sorting variables according to their weights.
             //std::cout << "Sorting... " << std::flush;
             std::sort(m_var_info.begin(), m_var_info.end(), compare_var_info());
-            size_type lonely_start = m_var_info.size();
+            m_lonely_start = m_var_info.size();
             m_number_of_variables = m_var_info.size();
-            m_linked_variables.reserve(m_var_info.size());
-            m_lonely_variables.reserve(m_var_info.size());
             for(i = 0; i < m_var_info.size(); ++i){
                 m_hash_table_position[m_var_info[i].name] = i;
-                if(m_var_info[i].n_triples == 1 && i < lonely_start){
-                    lonely_start = i;
-                    m_lonely_variables.emplace_back(m_var_info[i].name);
-                }else{
-                    m_linked_variables.emplace_back(m_var_info[i].name);
+                if(m_var_info[i].n_triples == 1 && i < m_lonely_start){
+                    m_lonely_start = i;
                 }
             }
+            gao.reserve(m_var_info.size());
+            m_lonely_variables.reserve(m_var_info.size() - m_lonely_start);
             //std::cout << "Done. " << std::endl;
-            if(!util::configuration.uses_muthu()){
+            i = 0;
+            if(util::configuration.is_adaptive()){
+                while(i < m_lonely_start){ //Related variables
+                    gao.push_back(m_var_info[i].name); //Adding var to gao
+                    ++i;
+                }
+                while(i < m_var_info.size()){ //Lonely variables
+                    m_lonely_variables.emplace_back(m_var_info[i].name);
+                    gao.push_back(m_var_info[i].name); //Adding var to gao
+                    ++i;
+                }
+            }else{
                 //3. Choosing the variables
-                i = 0;
                 //std::cout << "Choosing GAO ... " << std::flush;
                 std::vector<bool> checked(m_var_info.size(), false);
-                gao.reserve(m_var_info.size());
-                while(i < lonely_start){ //Related variables
+                while(i < m_lonely_start){ //Related variables
                     if(!checked[i]){
                         gao.push_back(m_var_info[i].name); //Adding var to gao
                         checked[i] = true;
@@ -237,10 +244,10 @@ namespace ring {
                 }
 
                 while(i < m_var_info.size()){ //Lonely variables
+                    m_lonely_variables.emplace_back(m_var_info[i].name);
                     gao.push_back(m_var_info[i].name); //Adding var to gao
                     ++i;
                 }
-                assert(gao.size() == (m_linked_variables.size() + m_lonely_variables.size()));
             }
             //std::cout << "Done. " << std::endl;
         }
@@ -270,9 +277,9 @@ namespace ring {
                 m_ptr_ring = std::move(o.m_ptr_ring);
                 m_var_info = std::move(o.m_var_info);
                 m_lonely_variables = std::move(o.m_lonely_variables);
-                m_linked_variables = std::move(o.m_linked_variables);
                 m_hash_table_position = std::move(o.m_hash_table_position);
                 m_number_of_variables = std::move(o.m_number_of_variables);
+                m_lonely_start = std::move(o.m_lonely_start);
             }
             return *this;
         }
@@ -283,9 +290,9 @@ namespace ring {
             std::swap(m_ptr_ring, o.m_ptr_ring);
             std::swap(m_var_info, o.m_var_info);
             std::swap(m_lonely_variables, o.m_lonely_variables);
-            std::swap(m_linked_variables, o.m_linked_variables);
             std::swap(m_hash_table_position, o.m_hash_table_position);
             std::swap(m_number_of_variables, o.m_number_of_variables);
+            std::swap(m_lonely_start, o.m_lonely_start);
         }
         std::unordered_set<var_type> get_related_variables(const var_type& var){
             std::unordered_set<var_type> r;
@@ -301,53 +308,79 @@ namespace ring {
         std::vector<var_type> get_lonely_variables() const{
             return m_lonely_variables;
         }
-        std::vector<var_type> get_linked_variables() const{
-            return m_linked_variables;
+        /*Updates weights of related vars of ´cur_var´*/
+        bool update_weights(const size_type& j, const var_type& cur_var, std::vector<var_type> &gao, const std::unordered_map<var_type, bool> &gao_vars,const var_to_iterators_type &m_var_to_iterators){
+            //Lonely vars are excluded of this process.
+            if(j >= m_lonely_start)
+                return false;
+            //Non-lonely vars.
+            const auto& rel_vars = get_related_variables(cur_var);
+            for(const auto &rel_var : rel_vars){
+                if(!is_var_bound(rel_var, gao_vars)){
+                    
+                    size_type min_weight = -1ULL;
+                    //All iterators of 'var'
+                    auto iters =  m_var_to_iterators.find(rel_var);
+                    if(iters != m_var_to_iterators.end()){
+                        std::vector<ltj_iter_type*> var_iters = iters->second;
+                        for(ltj_iter_type* it : var_iters){
+                            //The iterator has a reference to its triple pattern.
+                            //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
+                            const ltj_iter_type &iter = *it;
+                            size_type weight = 0;
+                            if(util::configuration.uses_muthu()){
+                                weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
+                            } else {
+                                weight = util::get_size_interval<ltj_iter_type>(iter);
+                            }
+                            if(weight < min_weight){
+                                min_weight = weight;
+                            }
+                        }
+                    }
+                    if(min_weight != -1ULL){
+                        //Updating the weight in m_var_info if another weight less than the former is found.
+                        size_type index = m_hash_table_position[rel_var];
+                        m_var_info[index].weight = min_weight;//TODO: almacenar el valor que eliminé PENDING!
+                    }
+                }
+                /*
+                if(rel_var_processed){
+                    //assert(!heap.empty());
+                    //var_type next_var = heap.top().second;
+                    //return next_var;
+                    return selected_var;
+                }
+                //(4). Lonely variables.
+                const auto & lonely_vars = m_gao_size.get_lonely_variables();
+                var_type next_var = -1;
+                for(const var_type& var : lonely_vars){
+                    if(!is_var_bound(var, b_vars)){
+                        next_var = var;
+                        break;
+                    }
+                }*/
+            }
+
+            //Finally we sort the range [jth variable, end) of m_var_info and then update the gao vector.
+            std::sort(m_var_info.begin() + j, m_var_info.end(), compare_var_info());
+            int i = 0;//TODO: puede partir de j, o no?
+            while(i < m_var_info.size()){
+                gao[i] = m_var_info[i].name;
+                i++;
+            }
+            return true;
+        }
+        var_type is_var_bound(const size_type& var, const std::unordered_map<var_type,bool> &m_gao_vars) const{
+            auto it = m_gao_vars.find(var);
+            //auto it = std::find(m_gao_vars.begin(), m_gao_vars.end(), var);
+            if (it != m_gao_vars.end())
+                if(it->second)
+                    return true;
+            return false;
         }
     };
 
-    /*
-    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t >
-    class gao{
-        typedef var_t var_type;
-        typedef cons_t cons_type;
-        typedef uint64_t size_type;
-        typedef ring_t ring_type;
-        typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
-        private:
-            std::vector<var_type> m_gao;
-            const std::vector<triple_pattern>* m_ptr_triple_patterns;
-            const std::vector<ltj_iter_type>* m_ptr_iterators;
-            ring_type* m_ptr_ring;
-        public:
-            gao(){}
-            gao(const std::vector<triple_pattern>* triple_patterns,
-                    const std::vector<ltj_iter_type>* iterators,
-                    ring_type* r) {
-                m_ptr_triple_patterns = triple_patterns;
-                m_ptr_iterators = iterators;
-                m_ptr_ring = r;
-                //Calculates gao.
-                gao_size<ring_type> gao_sv2(triple_patterns, r, m_ptr_ring, m_gao);
-            }
-            var_type next() const{
-                return 1;
-            }
-            std::string get_gao(std::unordered_map<uint8_t, std::string>& ht) const{
-                std::string str = "";
-                for(const auto& var : m_gao){
-                    str += "?" + ht[var] + " ";
-                }
-                return str;
-            }
-            var_type size() const{
-                //returns number of variables not m_gao.size()
-                return 1;
-            }
-            var_type operator[](size_type i) const{
-                return m_gao[i];
-            }
-    };*/
 }
 
 #endif //RING_GAO_HPP

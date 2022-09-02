@@ -178,77 +178,20 @@ namespace ring {
             }
             return str;
         }
-        var_type next(const size_type j) const{
+        var_type next(const size_type j) {
             if(util::configuration.is_adaptive()){
                 if(j == 0){
-                    push_var_to_stack(m_gao_size.m_var_info[0].name);
-                    return m_gao_size.m_var_info[0].name;
+                    return m_gao[0];
                 } else {
                     const var_type& cur_var = m_gao_stack.top();
                     const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
-                    bool rel_var_processed = false;
-                    {
-                        //min_heap_type heap;
-                        const auto& rel_vars = m_gao_size.get_related_variables(cur_var);
-                        //(1). Linked / Related variables (Lonely vars are implicitly excluded).
-                        size_type selected_var = "";
-                        size_type min_weight = -1ULL;
-                        for(const auto &rel_var : rel_vars){
-                            if(!is_var_bound(rel_var, b_vars)){
-                                rel_var_processed = true;
-                                //All iterators of 'var'
-                                auto iters =  m_var_to_iterators.find(rel_var);
-                                if(iters != m_var_to_iterators.end()){
-                                    std::vector<ltj_iter_type*> var_iters = iters->second;
-                                    for(ltj_iter_type* it : var_iters){
-                                        //The iterator has a reference to its triple pattern.
-                                        //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
-                                        const ltj_iter_type &iter = *it;
-                                        size_type weight = 0;
-                                        if(util::configuration.uses_muthu()){
-                                            weight = util::get_num_diff_values<ring_type, ltj_iter_type>(rel_var, m_ptr_ring, iter);
-                                        } else {
-                                            weight = util::get_size_interval<ltj_iter_type>(iter);
-                                        }
-                                        if(weight < min_weight){
-                                            min_weight = weight;
-                                            selected_var = rel_var;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if(rel_var_processed){
-                            //assert(!heap.empty());
-                            //var_type next_var = heap.top().second;
-                            //return next_var;
-                            return selected_var;
-                        }
-                        //(4). Lonely variables.
-                        const auto & lonely_vars = m_gao_size.get_lonely_variables();
-                        var_type next_var = -1;
-                        for(const var_type& var : lonely_vars){
-                            if(!is_var_bound(var, b_vars)){
-                                next_var = var;
-                                break;
-                            }
-                        }
-                        assert(next_var != -1);
-                        return next_var;
-                    }
+                    m_gao_size.update_weights(j, cur_var, m_gao, b_vars, m_var_to_iterators);
+                    return m_gao[j];
                 }
             }
             else{
                 return m_gao[j];
             }
-        }
-        var_type is_var_bound(const size_type var, const std::unordered_map<var_type,bool> &m_gao_vars) const{
-            auto it = m_gao_vars.find(var);
-            //auto it = std::find(m_gao_vars.begin(), m_gao_vars.end(), var);
-            if (it != m_gao_vars.end())
-                if(it->second)
-                    return true;
-            return false;
         }
 
         void push_var_to_stack(const var_type& x_j){
@@ -257,7 +200,7 @@ namespace ring {
             m_gao_vars[x_j]=true;
         }
 
-        void pop_var_of_stack(const var_type& x_j){
+        void pop_var_of_stack(){
             if(!m_gao_stack.empty() && m_gao_stack.size() > 1){
                 auto v = m_gao_stack.top();
                 m_gao_stack.pop();
@@ -334,7 +277,7 @@ namespace ring {
                         //pop_var_of_stack(x_j);
                     }
                 }
-                pop_var_of_stack(x_j);
+                pop_var_of_stack();
             }
             return true;
         };
