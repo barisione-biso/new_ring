@@ -44,12 +44,12 @@ print("Output folder: ", output_folder)
 available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "sigmod21_adaptive"]
 
 print("Available modes : "+",".join(available_modes))
+
 for mode in available_modes:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
     cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_modes):

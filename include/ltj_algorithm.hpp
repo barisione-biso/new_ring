@@ -51,8 +51,8 @@ namespace ring {
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
         std::stack<var_type> m_gao_stack;
-        //m_gao_vars is a 1:1 vector representation the m_gao_stack.
-        std::vector<var_type> m_gao_vars;
+        //m_gao_vars is a 1:1 umap representation the m_gao_stack, everything in m_gao_stack is true in this structure.
+        std::unordered_map<var_type, bool> m_gao_vars;
         //gao_type m_gao_test;
         ring_type* m_ptr_ring;
         std::vector<ltj_iter_type> m_iterators;
@@ -113,7 +113,7 @@ namespace ring {
             }
             m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
 
-            m_gao_vars.reserve(m_gao.size());
+            m_gao_vars.reserve(m_gao_size.m_number_of_variables);
         }
 
         //! Copy constructor
@@ -167,7 +167,7 @@ namespace ring {
                   const size_type limit_results = 0, const size_type timeout_seconds = 0){
             if(m_is_empty) return;
             time_point_type start = std::chrono::high_resolution_clock::now();
-            tuple_type t(m_gao.size());
+            tuple_type t(m_gao_size.m_number_of_variables);
             search(0, t, res, start, limit_results, timeout_seconds);
         };
 
@@ -178,35 +178,14 @@ namespace ring {
             }
             return str;
         }
-        void get_heap_diff_values(const var_type& var, min_heap_type& heap) const{
-            //All iterators of 'var'
-            auto iters =  m_var_to_iterators.find(var);
-            if(iters != m_var_to_iterators.end()){
-                std::vector<ltj_iter_type*> var_iters = iters->second;
-                for(ltj_iter_type* it : var_iters){
-                    //The iterator has a reference to its triple pattern.
-                    //const triple_pattern& triple_pattern = *(it->get_triple_pattern());
-                    const ltj_iter_type &iter = *it;
-                    size_type weight = 0;
-                    if(util::configuration.uses_muthu()){
-                        weight = util::get_num_diff_values<ring_type, ltj_iter_type>(var, m_ptr_ring, iter);
-                    } else {
-                        weight = util::get_size_interval<ltj_iter_type>(iter);
-                    }
-                    heap.push({weight, var});
-                }
-            }
-        }
         var_type next(const size_type j) const{
             if(util::configuration.is_adaptive()){
-                //First variable
                 if(j == 0){
-                    return m_gao[j];
-                }
-                //Second variable onwards
-                else{
+                    push_var_to_stack(m_gao_size.m_var_info[0].name);
+                    return m_gao_size.m_var_info[0].name;
+                } else {
                     const var_type& cur_var = m_gao_stack.top();
-                    const std::vector<var_type> & b_vars = m_gao_vars;
+                    const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
                     bool rel_var_processed = false;
                     {
                         //min_heap_type heap;
@@ -217,7 +196,6 @@ namespace ring {
                         for(const auto &rel_var : rel_vars){
                             if(!is_var_bound(rel_var, b_vars)){
                                 rel_var_processed = true;
-                                //get_heap_diff_values(rel_var, heap);
                                 //All iterators of 'var'
                                 auto iters =  m_var_to_iterators.find(rel_var);
                                 if(iters != m_var_to_iterators.end()){
@@ -236,22 +214,10 @@ namespace ring {
                                             min_weight = weight;
                                             selected_var = rel_var;
                                         }
-                                        //heap.push({weight, var});
                                     }
                                 }
                             }
                         }
-                        //(2). Linked / Related variables that are not reachable by (1).
-                        /*if (!rel_var_processed){
-                            const auto& linked_vars = m_gao_size.get_linked_variables();
-                            for(auto &v : linked_vars){
-                                if(!is_var_bound(v, b_vars)){
-                                    rel_var_processed = true;
-                                    get_heap_diff_values(v, heap);
-                                }
-                            }
-                        }*/
-                        //(3). Get next_var from heap, see (1) or (2).
                         if(rel_var_processed){
                             //assert(!heap.empty());
                             //var_type next_var = heap.top().second;
@@ -276,31 +242,26 @@ namespace ring {
                 return m_gao[j];
             }
         }
-        var_type is_var_bound(const size_type var, const std::vector<var_type> &m_gao_vars) const{
-            auto it = std::find(m_gao_vars.begin(), m_gao_vars.end(), var);
+        var_type is_var_bound(const size_type var, const std::unordered_map<var_type,bool> &m_gao_vars) const{
+            auto it = m_gao_vars.find(var);
+            //auto it = std::find(m_gao_vars.begin(), m_gao_vars.end(), var);
             if (it != m_gao_vars.end())
-                return true;
+                if(it->second)
+                    return true;
             return false;
         }
 
         void push_var_to_stack(const var_type& x_j){
-                if(!m_gao_stack.empty()){
-                    if(m_gao_stack.top() != x_j){
-                        //We only push a var into the stack if the variable does not exist already on top.
-                        //This happens when we are still looping in the same level.
-                        m_gao_stack.push(x_j);
-                        m_gao_vars.emplace_back(x_j);
-                    }
-                }else{
-                    m_gao_stack.push(x_j);
-                    m_gao_vars.emplace_back(x_j);
-                }
+            //assert (m_gao_stack.top() == x_j);
+            m_gao_stack.push(x_j);
+            m_gao_vars[x_j]=true;
         }
 
         void pop_var_of_stack(const var_type& x_j){
-            if(m_gao_stack.top() != x_j && !m_gao_stack.empty() && m_gao_stack.size() > 1){
+            if(!m_gao_stack.empty() && m_gao_stack.size() > 1){
+                auto v = m_gao_stack.top();
                 m_gao_stack.pop();
-                m_gao_vars.pop_back();
+                m_gao_vars[v]=false;
             }
         }
         /**
@@ -326,12 +287,11 @@ namespace ring {
             //(Optional) Check limit
             if(limit_results > 0 && res.size() == limit_results) return false;
 
-            if(j == m_gao.size()){//This should be the total number of variables, not m_gao.size(), it only works cause m_gao always have the total number of vars.
+            if(j == m_gao_size.m_number_of_variables){
                 //Report results
                 res.emplace_back(tuple);
             }else{
-                assert(m_gao_stack.size() == m_gao_vars.size());
-                //var_type x_j = m_gao[j];
+                //assert(m_gao_stack.size() == m_gao_vars.size());
                 var_type x_j = next(j);
                 push_var_to_stack(x_j);
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
@@ -349,7 +309,7 @@ namespace ring {
                         if(!ok) return false;
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
-                        pop_var_of_stack(x_j);
+                        //pop_var_of_stack(x_j);
                     }
                 }else {
                     value_type c = seek(x_j);
@@ -371,9 +331,10 @@ namespace ring {
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                        pop_var_of_stack(x_j);
+                        //pop_var_of_stack(x_j);
                     }
                 }
+                pop_var_of_stack(x_j);
             }
             return true;
         };
