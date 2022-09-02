@@ -47,15 +47,16 @@ namespace ring {
         typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
-        std::vector<var_type> m_lonely_variables;
-        std::unordered_map<var_type, size_type> m_hash_table_position;
-        size_type m_number_of_variables;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
+        size_type m_number_of_variables;
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         const std::vector<ltj_iter_type>* m_ptr_iterators;
+        std::unordered_map<var_type, size_type> m_hash_table_position;
         ring_type* m_ptr_ring;
         size_type m_lonely_start;
+        std::vector<var_type> m_lonely_variables;
+        std::stack<std::vector<std::pair<var_type, size_type>>> m_previous_values_stack;
 
 
         void var_to_vector(const var_type var, const size_type size,
@@ -79,6 +80,18 @@ namespace ring {
             }
         }
 
+        void update_hash_var_index(typename std::vector<info_var_type>::iterator it_start, typename std::vector<info_var_type>::iterator it_end, std::unordered_map<var_type, size_type> &hash_table){
+            int i=0;
+            typename std::vector<info_var_type>::iterator it = it_start;
+            while(it != it_end){
+                auto hash_it = hash_table.find(it->name);
+                if(hash_it != hash_table.end()){
+                    hash_it->second = i;
+                    i++;
+                }
+                it = std::next(it);
+            }
+        }
         void var_to_related(const var_type var, const var_type rel,
                             std::unordered_map<var_type, size_type> &hash_table,
                             std::vector<info_var_type> &vec){
@@ -200,6 +213,7 @@ namespace ring {
             //2. Sorting variables according to their weights.
             //std::cout << "Sorting... " << std::flush;
             std::sort(m_var_info.begin(), m_var_info.end(), compare_var_info());
+            update_hash_var_index(m_var_info.begin(), m_var_info.end(), m_hash_table_position);
             m_lonely_start = m_var_info.size();
             m_number_of_variables = m_var_info.size();
             for(i = 0; i < m_var_info.size(); ++i){
@@ -316,6 +330,7 @@ namespace ring {
             //Non-lonely vars.
             const auto& rel_vars = get_related_variables(cur_var);
             bool weight_updated = false;
+            std::vector<std::pair<var_type, size_type>> previous_values;
             for(const auto &rel_var : rel_vars){
                 if(!is_var_bound(rel_var, gao_vars)){
                     size_type min_weight = -1ULL;
@@ -341,22 +356,21 @@ namespace ring {
                     if(min_weight != -1ULL){
                         //Updating the weight in m_var_info if another weight less than the former is found.
                         size_type index = m_hash_table_position[rel_var];
-                        m_var_info[index].weight = min_weight;//TODO: almacenar el valor que eliminé PENDING!
+                        m_var_info[index].weight = min_weight;
                         weight_updated = true;
+
+                        std::pair<var_type, size_type> p{rel_var, min_weight};
+                        previous_values.emplace_back(p);
+
                     }
                 }
             }
 
             if(weight_updated){
-                //Finally we sort the range [jth variable, end) of m_var_info and then update the gao vector.
-                std::sort(m_var_info.begin() + j, m_var_info.end(), compare_var_info());
-                size_type i = j;
-                while(i < m_var_info.size()){
-                    gao[i] = m_var_info[i].name;
-                    i++;
-                }
-            }
-            return true;
+                m_previous_values_stack.push(previous_values);
+                return true;
+            } 
+            return false;
         }
         var_type is_var_bound(const size_type& var, const std::unordered_map<var_type,bool> &m_gao_vars) const{
             auto it = m_gao_vars.find(var);
@@ -365,6 +379,24 @@ namespace ring {
                 if(it->second)
                     return true;
             return false;
+        }
+        bool update_gao(const size_type& j, std::vector<var_type> &gao, bool pop_stack = false){
+            if(pop_stack && !m_previous_values_stack.empty()){
+                auto& vec = m_previous_values_stack.top();
+                for(auto &pair: vec){
+                    size_type index = m_hash_table_position[pair.first];
+                    m_var_info[index].weight = pair.second;
+                }
+                m_previous_values_stack.pop();
+            }
+            //Sorting the range [jth variable, end) of m_var_info and then update the gao vector.
+            std::sort(m_var_info.begin() + j, m_var_info.end(), compare_var_info());
+            update_hash_var_index(m_var_info.begin(), m_var_info.end(), m_hash_table_position);
+            size_type i = j;
+            while(i < m_var_info.size()){
+                gao[i] = m_var_info[i].name;
+                i++;
+            }
         }
     };
 
