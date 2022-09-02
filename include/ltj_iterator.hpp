@@ -380,7 +380,7 @@ namespace ring {
             }
 
         };
-        //Reverses intevals affected by a previous 'down' for subjects.
+        //Reverses the intevals changed by a previous 'down' for subjects.
         void up_iter_sub(){
             if(m_cur_p != -1UL && m_cur_o != -1UL){
                 return;
@@ -393,7 +393,7 @@ namespace ring {
                 m_i_o = m_ptr_ring->open_OSP();
             }
         }
-        //Reverses intevals affected by a previous 'down' for predicates.
+        //Reverses the intevals changed by a previous 'down' for predicates.
         void up_iter_pred(){
             if(m_cur_s != -1UL && m_cur_o != -1UL){
                 return;
@@ -406,7 +406,7 @@ namespace ring {
                 m_i_o = m_ptr_ring->open_OSP();
             }
         }
-        //Reverses intevals affected by a previous 'down' for objects.
+        //Reverses the intevals changed by a previous 'down' for objects.
         void up_iter_obj(){
             if(m_cur_s != -1UL && m_cur_p != -1UL){
                 return;
@@ -419,6 +419,7 @@ namespace ring {
                 m_i_p = m_ptr_ring->open_POS();
             }
         }
+        //Reverses the intervals and variable weights. Also resets the current value.
         void up(var_type var) { //Go up in the trie
             if (is_variable_subject(var)) {
                 up_iter_sub();

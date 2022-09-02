@@ -308,16 +308,16 @@ namespace ring {
         std::vector<var_type> get_lonely_variables() const{
             return m_lonely_variables;
         }
-        /*Updates weights of related vars of ´cur_var´*/
+        /*Updates weights of the related vars of ´cur_var´*/
         bool update_weights(const size_type& j, const var_type& cur_var, std::vector<var_type> &gao, const std::unordered_map<var_type, bool> &gao_vars,const var_to_iterators_type &m_var_to_iterators){
             //Lonely vars are excluded of this process.
             if(j >= m_lonely_start)
                 return false;
             //Non-lonely vars.
             const auto& rel_vars = get_related_variables(cur_var);
+            bool weight_updated = false;
             for(const auto &rel_var : rel_vars){
                 if(!is_var_bound(rel_var, gao_vars)){
-                    
                     size_type min_weight = -1ULL;
                     //All iterators of 'var'
                     auto iters =  m_var_to_iterators.find(rel_var);
@@ -342,32 +342,19 @@ namespace ring {
                         //Updating the weight in m_var_info if another weight less than the former is found.
                         size_type index = m_hash_table_position[rel_var];
                         m_var_info[index].weight = min_weight;//TODO: almacenar el valor que eliminé PENDING!
+                        weight_updated = true;
                     }
                 }
-                /*
-                if(rel_var_processed){
-                    //assert(!heap.empty());
-                    //var_type next_var = heap.top().second;
-                    //return next_var;
-                    return selected_var;
-                }
-                //(4). Lonely variables.
-                const auto & lonely_vars = m_gao_size.get_lonely_variables();
-                var_type next_var = -1;
-                for(const var_type& var : lonely_vars){
-                    if(!is_var_bound(var, b_vars)){
-                        next_var = var;
-                        break;
-                    }
-                }*/
             }
 
-            //Finally we sort the range [jth variable, end) of m_var_info and then update the gao vector.
-            std::sort(m_var_info.begin() + j, m_var_info.end(), compare_var_info());
-            int i = 0;//TODO: puede partir de j, o no?
-            while(i < m_var_info.size()){
-                gao[i] = m_var_info[i].name;
-                i++;
+            if(weight_updated){
+                //Finally we sort the range [jth variable, end) of m_var_info and then update the gao vector.
+                std::sort(m_var_info.begin() + j, m_var_info.end(), compare_var_info());
+                size_type i = j;
+                while(i < m_var_info.size()){
+                    gao[i] = m_var_info[i].name;
+                    i++;
+                }
             }
             return true;
         }
