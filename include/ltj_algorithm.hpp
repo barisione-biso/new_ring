@@ -186,7 +186,7 @@ namespace ring {
                     const var_type& cur_var = m_gao_stack.top();
                     const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
                     m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
-                    return m_gao_size.get_next_var(m_gao_vars);
+                    return m_gao_size.get_next_var(j, m_gao_vars);
                 }
             }
             else{

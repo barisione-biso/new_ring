@@ -371,7 +371,7 @@ namespace ring {
                 }
             }
 
-            if(previous_values.size()){
+            if(previous_values.size() > 0){
                 m_previous_values_stack.push(previous_values);
                 return true;
             } 
@@ -386,15 +386,25 @@ namespace ring {
             return false;
         }
         //Linear search on 'm_var_info' for the non-bound variable with minimum weight.
-        var_type get_next_var(const std::unordered_map<var_type,bool> &m_gao_vars){
+        var_type get_next_var(const size_type& j, const std::unordered_map<var_type,bool> &m_gao_vars){
             size_type min_weight = -1ULL;
-            var_type min_var;
+            var_type min_var = '\0';
             for(const auto& v : m_var_info){
                 if(!is_var_bound(v.name, m_gao_vars)){
-                    if(v.weight < min_weight){
-                        min_weight = v.weight;
-                        min_var = v.name;
+                    //Non-lonely first.
+                    if(j < m_lonely_start){
+                        if(v.n_triples > 1 && v.weight < min_weight){
+                            min_weight = v.weight;
+                            min_var = v.name;
+                        }
+                    }else{
+                        //Lonely variables after all the non-lonely are instantiated.
+                        if(v.n_triples == 1){
+                            min_var = v.name;
+                            break;
+                        }
                     }
+
                 }
             }
             return min_var;
