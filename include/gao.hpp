@@ -215,7 +215,7 @@ namespace ring {
             //2. Sorting variables according to their weights.
             //std::cout << "Sorting... " << std::flush;
             std::sort(m_var_info.begin(), m_var_info.end(), compare_var_info());
-            //update_hash_var_index(m_var_info.begin(), m_var_info.end(), m_hash_table_position);
+            update_hash_var_index(m_var_info.begin(), m_var_info.end(), m_hash_table_position);
             m_lonely_start = m_var_info.size();
             m_number_of_variables = m_var_info.size();
             for(i = 0; i < m_var_info.size(); ++i){

@@ -90,11 +90,11 @@ d = {'Orig': sigmod21_performance,
     'Muthu adaptive': one_ring_muthu_adaptive_leap_performance}
 
 df = pd.DataFrame(data = d)
-#plt.ylim(10000, 10000000)
+plt.ylim(10000, 10000000)
 df.boxplot()
 
 #plt.show()
-plt.savefig('plot.pdf', format='pdf')
+plt.savefig('plot_zoomed.pdf', format='pdf')
 #https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
 
 
