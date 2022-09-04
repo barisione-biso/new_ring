@@ -42,7 +42,7 @@ namespace ring {
                 bool m_verbose;
                 bool m_muthu;
                 bool m_adaptive;
-                int m_threshold;
+                size_type m_threshold;
                 execution_mode get_execution_mode(std::string &mode){
                     execution_mode ex_mode = execution_mode::sigmod21;
                     std::unordered_map<std::string,execution_mode>::iterator item;
@@ -95,7 +95,7 @@ namespace ring {
                                         {"sigmod21_adaptive", execution_mode::sigmod21_adaptive},
                                     };
                 };
-                int get_threshold() const{
+                size_type get_threshold() const{
                     return m_threshold;
                 }
                 bool is_adaptive() const{

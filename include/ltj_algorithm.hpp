@@ -181,14 +181,12 @@ namespace ring {
         var_type next(const size_type j) {
             if(util::configuration.is_adaptive()){
                 if(j == 0){
-                    return m_gao[0];
+                    return m_gao_size.m_starting_var;
                 } else {
                     const var_type& cur_var = m_gao_stack.top();
                     const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
-                    if(m_gao_size.update_weights(j, cur_var, m_gao, b_vars, m_var_to_iterators)){
-                        m_gao_size.update_gao(j, m_gao);
-                    }
-                    return m_gao[j];
+                    m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
+                    return m_gao_size.get_next_var(m_gao_vars);
                 }
             }
             else{
@@ -276,8 +274,8 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
-                }        
-                m_gao_size.update_gao(j, m_gao, true);
+                }     
+                m_gao_size.set_previous_weight();
                 pop_var_of_stack();
             }
             return true;

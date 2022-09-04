@@ -49,6 +49,6 @@ int main(int argc, char* argv[])
     std::cout << string(argv[2]) << std::endl;
     wm_runs<> wm = wm_runs<>(string(argv[1]));
     auto runs = wm.get_number_of_runs();
-    //std::cout << "Number of runs : " << runs << std::endl;
+    std::cout << "Number of runs : " << runs << std::endl;
     return 1;
 }
