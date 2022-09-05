@@ -144,6 +144,7 @@ namespace ring {
             m_number_of_variables = std::move(o.m_number_of_variables);
             m_lonely_start = std::move(o.m_lonely_start);
             m_starting_var = std::move(o.m_starting_var);
+            m_previous_values_added = std::move(o.m_previous_values_added);
         }
     public:
         gao_size() = default;
@@ -301,6 +302,7 @@ namespace ring {
                 m_number_of_variables = std::move(o.m_number_of_variables);
                 m_lonely_start = std::move(o.m_lonely_start);
                 m_starting_var = std::move(o.m_starting_var);
+                m_previous_values_added = std::move(o.m_previous_values_added);
             }
             return *this;
         }
@@ -315,6 +317,8 @@ namespace ring {
             std::swap(m_number_of_variables, o.m_number_of_variables);
             std::swap(m_lonely_start, o.m_lonely_start);
             std::swap(m_starting_var, o.m_starting_var);
+            std::swap(m_previous_values_added, o.m_previous_values_added);
+            
         }
         std::unordered_set<var_type> get_related_variables(const var_type& var){
             return m_var_info[m_hash_table_position[var]].related;
