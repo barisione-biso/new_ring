@@ -410,14 +410,16 @@ namespace ring {
         }
         //Sets back previous weight value in constant time*.
         void set_previous_weight(){
+            //if(!m_previous_values_stack.empty()){
             if(m_previous_values_added){
+                m_previous_values_added = false;
                 auto& vec = m_previous_values_stack.top();
                 for(auto &pair: vec){
                     size_type index = m_hash_table_position[pair.first];
                     //std::cout << "replacing weight : " << m_var_info[index].weight << " with previous value : " << pair.second << std::endl;
                     m_var_info[index].weight = pair.second;
                 }
-                m_previous_values_stack.pop();                
+                m_previous_values_stack.pop();     
             }
         }
     };
