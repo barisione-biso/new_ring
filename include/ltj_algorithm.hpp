@@ -180,14 +180,12 @@ namespace ring {
         }
         var_type next(const size_type j) {
             if(util::configuration.is_adaptive()){
-                if(j == 0){
-                    return m_gao_size.m_starting_var;
-                } else {
-                    const var_type& cur_var = m_gao_stack.top();
-                    const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
-                    m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
-                    return m_gao_size.get_next_var(j, m_gao_vars);
-                }
+                var_type var = '\0';
+                const var_type& cur_var = m_gao_stack.top();
+                const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
+                m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
+                var = m_gao_size.get_next_var(j, m_gao_vars);
+                return var;
             }
             else{
                 return m_gao[j];
