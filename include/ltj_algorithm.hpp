@@ -271,7 +271,9 @@ namespace ring {
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                 }     
-                m_gao_size.set_previous_weight();
+                if(util::configuration.is_adaptive()){
+                    m_gao_size.set_previous_weight();
+                }
                 pop_var_of_stack();
             }
             return true;
