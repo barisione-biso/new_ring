@@ -58,6 +58,7 @@ namespace ring {
         size_type m_lonely_start;
         std::vector<var_type> m_lonely_variables;
         std::stack<std::vector<std::pair<var_type, size_type>>> m_previous_values_stack;
+        bool m_previous_values_added;
 
 
         void var_to_vector(const var_type var, const size_type size,
@@ -150,7 +151,7 @@ namespace ring {
         gao_size(const std::vector<triple_pattern>* triple_patterns,
                     const std::vector<ltj_iter_type>* iterators,
                     ring_type* r,
-                    std::vector<var_type> &gao) : m_number_of_variables(0){
+                    std::vector<var_type> &gao) : m_number_of_variables(0), m_previous_values_added(false){
             m_ptr_triple_patterns = triple_patterns;
             m_ptr_iterators = iterators;
             m_ptr_ring = r;
@@ -316,21 +317,14 @@ namespace ring {
             std::swap(m_starting_var, o.m_starting_var);
         }
         std::unordered_set<var_type> get_related_variables(const var_type& var){
-            std::unordered_set<var_type> r;
-            const auto& iter = m_hash_table_position.find(var);
-            if(iter != m_hash_table_position.end()){
-                size_type index = iter->second;
-                const auto& v = m_var_info[index];
-                r = v.related;
-            }
-            
-            return r;
+            return m_var_info[m_hash_table_position[var]].related;
         }
         std::vector<var_type> get_lonely_variables() const{
             return m_lonely_variables;
         }
         /*Updates weights of the related vars of ´cur_var´*/
         bool update_weights(const size_type& j, const var_type& cur_var, const std::unordered_map<var_type, bool> &gao_vars,const var_to_iterators_type &m_var_to_iterators){
+            m_previous_values_added = false;
             //Lonely vars are excluded of this process.
             if(j >= m_lonely_start)
                 return false;
@@ -373,6 +367,7 @@ namespace ring {
 
             if(previous_values.size() > 0){
                 m_previous_values_stack.push(previous_values);
+                m_previous_values_added = true;
                 return true;
             } 
             return false;
@@ -411,7 +406,7 @@ namespace ring {
         }
         //Sets back previous weight value in constant time*.
         void set_previous_weight(){
-            if(!m_previous_values_stack.empty()){
+            if(m_previous_values_added){
                 auto& vec = m_previous_values_stack.top();
                 for(auto &pair: vec){
                     size_type index = m_hash_table_position[pair.first];

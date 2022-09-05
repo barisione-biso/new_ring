@@ -201,11 +201,9 @@ namespace ring {
         }
 
         void pop_var_of_stack(){
-            if(!m_gao_stack.empty() && m_gao_stack.size() > 1){
-                auto v = m_gao_stack.top();
-                m_gao_stack.pop();
-                m_gao_vars[v]=false;
-            }
+            auto v = m_gao_stack.top();
+            m_gao_stack.pop();
+            m_gao_vars[v]=false;
         }
         /**
          *
