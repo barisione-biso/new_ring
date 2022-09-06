@@ -53,3 +53,6 @@ workplace/*/
 workspace/fetch_files_from_dichato.sh 
 generate_output
 experiment_output/*
+workplace/*.pdf
+workplace/*.ods
+*.out
