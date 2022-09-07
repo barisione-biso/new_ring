@@ -314,7 +314,8 @@ namespace ring {
                     }
                 } else{
                     //neither p nor o are set.
-                    return iter.i_s.size();
+                    //return iter.i_s.size();
+                    return ptr_ring->get_sigma_s();
                 }
             }
             if(iter.is_variable_predicate(candidate_var)){
@@ -332,18 +333,19 @@ namespace ring {
                     if(iter.i_p.size() < configuration.get_threshold()){
                         return iter.i_p.size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                        return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_p.left(), iter.i_p.right());
                     }
                 } else if(iter.cur_o != -1ULL){//only o is currently set.
                     //O -> P: i_p = i_o = m_ptr_ring->down_O(cur_s)
                     if(iter.i_p.size() < configuration.get_threshold()){
                         return iter.i_p.size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_p.left(), iter.i_p.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
                     }
                 } else{
                     //neither s nor o are set.
-                    return iter.i_p.size();
+                    //return iter.i_p.size();
+                    return ptr_ring->get_sigma_p();
                 }
             }
             if(iter.is_variable_object(candidate_var)){
@@ -362,18 +364,19 @@ namespace ring {
                     if(iter.i_o.size() < configuration.get_threshold()){
                         return iter.i_o.size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_o.left(), iter.i_o.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
                     }
                 } else if(iter.cur_p != -1ULL){//only p is currently set.
                     //P -> O: i_s = i_o = m_ptr_ring->down_P(cur_s)
                     if(iter.i_o.size() < configuration.get_threshold()){
                         return iter.i_o.size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                        return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_o.left(), iter.i_o.right());
                     }
                 } else{
                     //neither s nor p are set.
-                    return iter.i_o.size();
+                    //return iter.i_o.size();
+                    return ptr_ring->get_sigma_o();
                 }
             }
             return -1ULL;

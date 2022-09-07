@@ -916,7 +916,15 @@ namespace ring {
         value_type get_number_distinct_values_sop_BWT_O(value_type l, value_type r) const{
             return m_crc_arrays.get_number_distinct_values_sop_BWT_O(l, r);
         }
-
+        size_type get_sigma_s() const{
+            return m_sigma_s;
+        }
+        size_type get_sigma_p() const{
+            return m_sigma_p;
+        }
+        size_type get_sigma_o() const{
+            return m_sigma_o;
+        }
     };
 
     typedef ring<bwt<sdsl::rrr_vector<15>>> c_ring;
