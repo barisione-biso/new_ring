@@ -113,8 +113,6 @@ namespace ring {
                 assert(l > 0);
                 // std::cout << "Calling get_number_distinct_values with range : [" << l << ", " << r << "]." << std::endl;
                 value_type num_dist_values = 0;
-                // Build the crc wm for the entire original WT
-                //bool result = build_crc_wm(l, r);
                 value_type rng_s = 0;
                 value_type rng_e = (l == 0) ? 0 : l - 1;
 
