@@ -111,8 +111,11 @@ namespace ring {
             */
             value_type get_number_distinct_values(value_type l, value_type r){
                 assert(l > 0);
+                assert(l < r);
                 // std::cout << "Calling get_number_distinct_values with range : [" << l << ", " << r << "]." << std::endl;
                 value_type num_dist_values = 0;
+                l = l - 1;
+                r = r - 1;
                 value_type rng_s = 0;
                 value_type rng_e = (l == 0) ? 0 : l - 1;
 

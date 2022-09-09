@@ -62,6 +62,7 @@ namespace ring {
             sop_BWT_S = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_s_L)});
             sop_BWT_O = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_o_L)});
             sop_BWT_P = std::move(std::unique_ptr<crc<>>{new crc<>(sop_bwt_p_L)});
+            //print_arrays();
         }
         void print_arrays()
         {
@@ -193,7 +194,7 @@ namespace ring {
                 written_bytes += spo_BWT_O->serialize(out, child, "spo_BWT_O");
             }
             //SOP (Reverse Ring)
-            if(sop_BWT_S && sop_BWT_P && sop_BWT_O){
+            if(sop_BWT_S && sop_BWT_O && sop_BWT_P){
                 written_bytes += sop_BWT_S->serialize(out, child, "sop_BWT_S");
                 written_bytes += sop_BWT_O->serialize(out, child, "sop_BWT_O");
                 written_bytes += sop_BWT_P->serialize(out, child, "sop_BWT_P");

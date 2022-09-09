@@ -66,8 +66,11 @@ set(sources ${SRCS})
 add_library(ringlib STATIC ${sources})
 set(TEST_TARGETS
     test_ring_spo
+    test_colored_range_counting_wm
     test_colored_range_counting_wm_parameter
     wavelet_matrices_runs
+    test_colored_range_counting_wm_2
+    test_colored_range_counting_wm_3
 )
 
 add_test(NAME test_vm COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build/test_wm)

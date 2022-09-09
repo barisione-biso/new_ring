@@ -24,4 +24,10 @@ int main(int argc, char* argv[])
     for(auto &subject: subjects){
         std::cout << "object: " << object << ", subject_id: " << subject << "\n";
     }
+
+    object = 2;
+    predicates = graph_spo.get_O_given_P(object);
+    for(auto &predicate: predicates){
+        std::cout << "predicate: " << predicate << ", object_id: " << object << "\n";
+    }
 }

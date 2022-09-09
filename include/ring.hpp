@@ -242,6 +242,10 @@ namespace ring {
 
                 m_bwt_p = bwt_type(P, C_P);
             }
+    
+            /*std::cout << "bwt_L_o : " << m_bwt_o.get_L() << std::endl;
+            std::cout << "bwt_L_p : " << m_bwt_p.get_L() << std::endl;
+            std::cout << "bwt_L_s : " << m_bwt_s.get_L() << std::endl;*/
             cout << "-- Index constructed successfully" << endl;
             fflush(stdout);
         };
