@@ -185,6 +185,7 @@ namespace ring {
                 const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
                 m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
                 var = m_gao_size.get_next_var(j, m_gao_vars);
+                std::cout << "next var: " << int(var) << std::endl;
                 return var;
             }
             else{
@@ -241,6 +242,7 @@ namespace ring {
                     for (const auto &c : results) {
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
+                        std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the trie by setting x_j = c (\mu(t_i) in paper)
                         itrs[0]->down(x_j, c);
                         //2. Search with the next variable x_{j+1}
@@ -255,6 +257,7 @@ namespace ring {
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
+                        std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
                         for (ltj_iter_type* iter : itrs) {
                             iter->down(x_j, c);
@@ -270,11 +273,12 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
-                }     
+                }
                 if(util::configuration.is_adaptive()){
                     m_gao_size.set_previous_weight();
                 }
                 pop_var_of_stack();
+                std::cout << " pop. " << std::endl;
             }
             return true;
         };

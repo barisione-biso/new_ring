@@ -1,0 +1,48 @@
+Configuration
+=============
+Execution Mode: one_ring_muthu_leap_adaptive
+Print gao: false
+Verbose: true
+Adaptive gao : true
+Uses Muthu : true
+ Loading the index...
+ Index loaded 1033851318 bytes
+ Loading the wavelet matrices that support Muthukrishnan's Colored range counting algorithm.
+Max number of results: 1000 Timeout : 600.
+Num of distinct values : 1961 vs. Interval size : 1961 l : 62692796 r : 62694756
+Num of distinct values : 1961 vs. Interval size : 1961 l : 62692796 r : 62694756
+Num of distinct values : 10368 vs. Interval size : 10374 l : 43990204 r : 44000577
+Num of distinct values : 10301 vs. Interval size : 10374 l : 43990204 r : 44000577
+Num of distinct values : 528991 vs. Interval size : 528995 l : 74940825 r : 75469819
+Num of distinct values : 528989 vs. Interval size : 528995 l : 74940825 r : 75469819
+Num of distinct values : 92123 vs. Interval size : 92123 l : 16261354 r : 16353476
+Num of distinct values : 10 vs. Interval size : 92123 l : 16261354 r : 16353476
+next var: 0
+current var: 0 = 8918806
+next var: 4
+current var: 4 = 6317017
+next var: 1
+current var: 1 = 10548270
+next var: 2
+current var: 2 = 10534268
+next var: 3
+current var: 3 = 19093461
+ pop. 
+ pop. 
+ pop. 
+ pop. 
+current var: 0 = 9024188
+next var: 4
+current var: 4 = 15936924
+next var: 1
+current var: 1 = 10545496
+next var: 2
+current var: 2 = 10033040
+next var: 3
+current var: 3 = 15412048
+ pop. 
+ pop. 
+ pop. 
+ pop. 
+ pop. 
+0;2;12653000

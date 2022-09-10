@@ -111,7 +111,7 @@ namespace ring {
             */
             value_type get_number_distinct_values(value_type l, value_type r){
                 assert(l > 0);
-                assert(l < r);
+                assert(l <= r);
                 // std::cout << "Calling get_number_distinct_values with range : [" << l << ", " << r << "]." << std::endl;
                 value_type num_dist_values = 0;
                 l = l - 1;
@@ -121,7 +121,8 @@ namespace ring {
 
                 num_dist_values = get_number_distinct_values_on_range(l, r, rng_s, rng_e);
                 //num_dist_values = get_number_distinct_values_on_range(0, crc_L.size() - 1, 0, 0);
-                //std::cout << "Num of distinct values : " << num_dist_values << std::endl;
+                std::cout << "Num of distinct values : " << num_dist_values <<  " vs. Interval size : " << (r - l + 1) << " l : " << l << " r : " << r << std::endl;
+                assert(num_dist_values > 0);
                 return num_dist_values;
             }
             void print(){
