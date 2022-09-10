@@ -35,7 +35,7 @@ namespace ring {
         private:
             wm_type m_L;//Reference to BWT's L, useful for crc WM creation.
             wm_type m_crc_L;
-
+            std::unordered_map<std::string,uint64_t> weight_cache;//Used to cache CRC calculations with key='range.l+_+range.r'
             void copy(const crc &o) {
                 m_L = o.m_L;
                 m_crc_L = o.m_crc_L;
@@ -100,8 +100,20 @@ namespace ring {
                     build_crc_wm(0, m_L.size() - 1);
                 }
             }
+            /*
+            Includes previously weight cache.
+            */
             value_type get_number_distinct_values_on_range(value_type x_s, value_type x_e, value_type rng_s, value_type rng_e){
-                return m_crc_L.count_range_search_2d(x_s, x_e, rng_s, rng_e);
+                uint64_t diff_vals = 0;
+                std::string key = std::to_string(x_s)+"_"+std::to_string(x_e);
+                auto it=weight_cache.find(key);
+                if(it != weight_cache.end()){
+                    diff_vals = it->second;
+                }else{
+                    diff_vals = m_crc_L.count_range_search_2d(x_s, x_e, rng_s, rng_e);
+                    weight_cache[key]=diff_vals;
+                }
+                return diff_vals;
             }
             //! Calculates the number of different values on range [l,r).
             /*!
@@ -121,8 +133,8 @@ namespace ring {
 
                 num_dist_values = get_number_distinct_values_on_range(l, r, rng_s, rng_e);
                 //num_dist_values = get_number_distinct_values_on_range(0, crc_L.size() - 1, 0, 0);
-                std::cout << "Num of distinct values : " << num_dist_values <<  " vs. Interval size : " << (r - l + 1) << " l : " << l << " r : " << r << std::endl;
-                assert(num_dist_values > 0);
+                //std::cout << "Num of distinct values : " << num_dist_values <<  " vs. Interval size : " << (r - l + 1) << " l : " << l << " r : " << r << std::endl;
+                //assert(num_dist_values > 0);
                 return num_dist_values;
             }
             void print(){
