@@ -230,16 +230,7 @@ namespace ring {
             i = 0;
             if(util::configuration.is_adaptive()){
                 m_starting_var = m_var_info[0].name;
-                /*
-                while(i < m_lonely_start){ //Related variables
-                    gao.push_back(m_var_info[i].name); //Adding var to gao
-                    ++i;
-                }
-                while(i < m_var_info.size()){ //Lonely variables
-                    m_lonely_variables.emplace_back(m_var_info[i].name);
-                    gao.push_back(m_var_info[i].name); //Adding var to gao
-                    ++i;
-                }*/
+                //m_ptr_ring->clear_cache();
             }else{
                 //3. Choosing the variables
                 //std::cout << "Choosing GAO ... " << std::flush;

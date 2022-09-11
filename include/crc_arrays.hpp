@@ -51,6 +51,11 @@ namespace ring {
         std::unique_ptr<crc<>> sop_BWT_P;
         std::unique_ptr<crc<>> sop_BWT_O;
         crc_arrays() = default;
+        void clear_cache(){
+            sop_BWT_S->clear_cache();
+            sop_BWT_P->clear_cache();
+            sop_BWT_O->clear_cache();
+        }
         void build_spo_arrays(const wm_type &spo_bwt_s_L,const wm_type &spo_bwt_p_L,const wm_type &spo_bwt_o_L)
         {
             spo_BWT_S = std::move(std::unique_ptr<crc<>>{new crc<>(spo_bwt_s_L)});

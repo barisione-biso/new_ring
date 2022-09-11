@@ -929,6 +929,9 @@ namespace ring {
         size_type get_sigma_o() const{
             return m_sigma_o;
         }
+        void clear_cache(){
+            m_crc_arrays.clear_cache();
+        }
     };
 
     typedef ring<bwt<sdsl::rrr_vector<15>>> c_ring;

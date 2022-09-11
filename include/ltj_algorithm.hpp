@@ -179,7 +179,7 @@ namespace ring {
             return str;
         }
         var_type next(const size_type j) {
-            if(util::configuration.is_adaptive()){
+            if(util::configuration.is_adaptive()){r
                 var_type var = '\0';
                 const var_type& cur_var = m_gao_stack.top();
                 const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;

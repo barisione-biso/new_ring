@@ -92,7 +92,9 @@ namespace ring {
                 }
             }
         public:
-            crc() = default;
+            crc(){
+                weight_cache.reserve(100);
+            };
             crc(const wm_type &wm_l, bool build_index = true){
                 m_L = wm_l;
                 if (build_index)
@@ -100,18 +102,24 @@ namespace ring {
                     build_crc_wm(0, m_L.size() - 1);
                 }
             }
+            void clear_cache(){
+                weight_cache.clear();
+            }
             /*
             Includes previously weight cache.
             */
             value_type get_number_distinct_values_on_range(value_type x_s, value_type x_e, value_type rng_s, value_type rng_e){
                 uint64_t diff_vals = 0;
                 std::string key = std::to_string(x_s)+"_"+std::to_string(x_e);
+                //uint64_t key = x_s+x_e;
                 auto it=weight_cache.find(key);
                 if(it != weight_cache.end()){
+                    //std::cout << "Using cache..." << std::endl;
                     diff_vals = it->second;
                 }else{
+                    //std::cout << "Counting..." << std::endl;
                     diff_vals = m_crc_L.count_range_search_2d(x_s, x_e, rng_s, rng_e);
-                    weight_cache[key]=diff_vals;
+                    weight_cache.emplace(key,diff_vals);
                 }
                 return diff_vals;
             }
@@ -121,10 +129,10 @@ namespace ring {
             * \param value_type r : right
             * \returns number of distinct values on range [l,r) the WMs.
             */
-            value_type get_number_distinct_values(value_type l, value_type r){
+        value_type get_number_distinct_values(value_type l, value_type r){
                 assert(l > 0);
                 assert(l <= r);
-                // std::cout << "Calling get_number_distinct_values with range : [" << l << ", " << r << "]." << std::endl;
+                //std::cout << "Calling get_number_distinct_values with range : [" << l << ", " << r << "] length : " <<  (r - l) << std::endl;
                 value_type num_dist_values = 0;
                 l = l - 1;
                 r = r - 1;
