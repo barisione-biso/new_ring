@@ -43,24 +43,24 @@ namespace ring {
     private:
 
         size_type m_max_s;
-        size_type m_max_p;
         size_type m_max_o;
+        size_type m_max_p;
         size_type m_n_triples;  // number of triples
         size_type m_sigma_s;
-        size_type m_sigma_p;
         size_type m_sigma_o;
+        size_type m_sigma_p;
 
         void copy(const reverse_ring &o) {
             m_bwt_s = o.m_bwt_s;
-            m_bwt_p = o.m_bwt_p;
             m_bwt_o = o.m_bwt_o;
+            m_bwt_p = o.m_bwt_p;
             m_max_s = o.m_max_s;
-            m_max_p = o.m_max_p;
             m_max_o = o.m_max_o;
+            m_max_p = o.m_max_p;
             m_n_triples = o.m_n_triples;
             m_sigma_s = o.m_sigma_s;
-            m_sigma_p = o.m_sigma_p;
             m_sigma_o = o.m_sigma_o;
+            m_sigma_p = o.m_sigma_p;
         }
 
     public:
@@ -212,7 +212,7 @@ namespace ring {
             }
 
             //cout << "  > Building m_bwt_o" << endl; fflush(stdout);
-            // Then P
+            // Then O
             {
                 sdsl::int_vector<> O(n + 1);
                 uint64_t j = 1, c;
@@ -265,15 +265,15 @@ namespace ring {
         reverse_ring &operator=(reverse_ring &&o) {
             if (this != &o) {
                 m_bwt_s = std::move(o.m_bwt_s);
-                m_bwt_p = std::move(o.m_bwt_p);
                 m_bwt_o = std::move(o.m_bwt_o);
+                m_bwt_p = std::move(o.m_bwt_p);
                 m_max_s = o.m_max_s;
-                m_max_p = o.m_max_p;
                 m_max_o = o.m_max_o;
+                m_max_p = o.m_max_p;
                 m_n_triples = o.m_n_triples;
                 m_sigma_s = o.m_sigma_s;
-                m_sigma_p = o.m_sigma_p;
                 m_sigma_o = o.m_sigma_o;
+                m_sigma_p = o.m_sigma_p;
             }
             return *this;
         }
@@ -281,15 +281,15 @@ namespace ring {
         void swap(reverse_ring &o) {
             // m_bp.swap(bp_support.m_bp); use set_vector to set the supported bit_vector
             std::swap(m_bwt_s, o.m_bwt_s);
-            std::swap(m_bwt_p, o.m_bwt_p);
             std::swap(m_bwt_o, o.m_bwt_o);
+            std::swap(m_bwt_p, o.m_bwt_p);
             std::swap(m_max_s, o.m_max_s);
-            std::swap(m_max_p, o.m_max_p);
             std::swap(m_max_o, o.m_max_o);
+            std::swap(m_max_p, o.m_max_p);
             std::swap(m_n_triples, o.m_n_triples);
             std::swap(m_sigma_s, o.m_sigma_s);
-            std::swap(m_sigma_p, o.m_sigma_p);
             std::swap(m_sigma_o, o.m_sigma_o);
+            std::swap(m_sigma_p, o.m_sigma_p);
         }
 
         //! Serializes the data structure into the given ostream
@@ -297,30 +297,30 @@ namespace ring {
             sdsl::structure_tree_node *child = sdsl::structure_tree::add_child(v, name, sdsl::util::class_name(*this));
             size_type written_bytes = 0;
             written_bytes += m_bwt_s.serialize(out, child, "bwt_s");
-            written_bytes += m_bwt_p.serialize(out, child, "bwt_p");
             written_bytes += m_bwt_o.serialize(out, child, "bwt_o");
+            written_bytes += m_bwt_p.serialize(out, child, "bwt_p");
             written_bytes += sdsl::write_member(m_max_s, out, child, "max_s");
-            written_bytes += sdsl::write_member(m_max_p, out, child, "max_p");
             written_bytes += sdsl::write_member(m_max_o, out, child, "max_o");
+            written_bytes += sdsl::write_member(m_max_p, out, child, "max_p");
             written_bytes += sdsl::write_member(m_n_triples, out, child, "n_triples");
             written_bytes += sdsl::write_member(m_sigma_s, out, child, "sigma_s");
-            written_bytes += sdsl::write_member(m_sigma_p, out, child, "sigma_p");
             written_bytes += sdsl::write_member(m_sigma_o, out, child, "sigma_o");
+            written_bytes += sdsl::write_member(m_sigma_p, out, child, "sigma_p");
             sdsl::structure_tree::add_size(child, written_bytes);
             return written_bytes;
         }
 
         void load(std::istream &in) {
             m_bwt_s.load(in);
-            m_bwt_p.load(in);
             m_bwt_o.load(in);
+            m_bwt_p.load(in);
             sdsl::read_member(m_max_s, in);
-            sdsl::read_member(m_max_p, in);
             sdsl::read_member(m_max_o, in);
+            sdsl::read_member(m_max_p, in);
             sdsl::read_member(m_n_triples, in);
             sdsl::read_member(m_sigma_s, in);
-            sdsl::read_member(m_sigma_p, in);
             sdsl::read_member(m_sigma_o, in);
+            sdsl::read_member(m_sigma_p, in);
         }
 
         // The following init funtions work with suffix array positions
@@ -329,7 +329,7 @@ namespace ring {
             return {1, 3 * m_n_triples};
         }
 
-        //Given a Suffix returns its range in BWT O
+        //Given a Subject returns its range in BWT O
         pair<uint64_t, uint64_t> init_S(uint64_t S) const {
             return m_bwt_o.backward_search_1_interval(S);
         }
@@ -347,73 +347,55 @@ namespace ring {
         }
 
 
-        //POS m_bwt_s
-        //OSP m_bwt_p
-        //SPO m_bwt_o
-
-        //POS -> SPO
-        pair<uint64_t, uint64_t> init_SP(uint64_t S, uint64_t P) const {
-            auto I = m_bwt_s.backward_search_1_rank(P, S); //POS
-            return m_bwt_o.backward_search_2_interval(S, I); //SPO
-        }
-
-        //SPO -> OSP
-        pair<uint64_t, uint64_t> init_SO(uint64_t S, uint64_t O) const {
-            auto I = m_bwt_o.backward_search_1_rank(S, O); //SPO
-            return m_bwt_p.backward_search_2_interval(O, I); //OSP
-           // return {I.first + 2 * m_n_triples, I.second + 2 * m_n_triples};
-        }
-
-
-        //OSP -> POS
-        pair<uint64_t, uint64_t> init_PO(uint64_t P, uint64_t O) const {
-            auto I = m_bwt_p.backward_search_1_rank(O, P); //OSP
-            return m_bwt_s.backward_search_2_interval(P, I); //POS
-            //return {I.first + m_n_triples, I.second + m_n_triples};
-        }
-
-        //OSP -> POS -> SPO
-        pair<uint64_t, uint64_t> init_SPO(uint64_t S, uint64_t P, uint64_t O) const {
-            auto I = m_bwt_p.backward_search_1_rank(O, P); //OSP
-            I = m_bwt_s.backward_search_2_rank(P, S, I); //POS
-            return m_bwt_o.backward_search_2_interval(S, I); //SPO
-        }
+        //OPS m_bwt_s
+        //SOP m_bwt_p
+        //PSO m_bwt_o
 
         /**********************************/
         // Functions for PSO
         //
-        /*
-        bwt_interval open_PSO() {
-            //return bwt_interval(2 * m_n_triples + 1, 3 * m_n_triples);
-            return bwt_interval( 1, m_n_triples);
-        }
 
-        // P->S  (simulates going down in the trie)
+        // P->S  (simulates going down in the trie, for the order PSO)
         // Returns an interval within m_bwt_o
-        bwt_interval down_P_S(bwt_interval &p_int, uint64_t s) {
-            auto I = m_bwt_s.backward_step(p_int.left(), p_int.right(), s);
-            uint64_t c = m_bwt_o.get_C(s);
-            return bwt_interval(I.first + c, I.second + c);
+        bwt_interval down_P_S(bwt_interval &p_int, uint64_t p_value, uint64_t s_value) {
+            std::pair<uint64_t, uint64_t> q = p_int.get_stored_values();
+            uint64_t b = q.first;
+            if (q.first == (uint64_t) -1) {
+                q = m_bwt_p.select_next(s_value, p_value, m_bwt_o.nElems(p_value));
+                b = m_bwt_p.bsearch_C(q.first) - 1;
+            }
+            uint64_t nE = m_bwt_p.rank(b + 1, p_value) - m_bwt_p.rank(b, p_value);
+            uint64_t start = q.second;
+
+            return bwt_interval(p_int.left() + start, p_int.left() + start + nE - 1);
         }
-
-        uint64_t min_O_in_S(bwt_interval &I) {
-            return I.begin(m_bwt_o);
+    
+        uint64_t min_O_in_S(bwt_interval &s_int, uint64_t s_value) {
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_s.select_next(1, s_value, m_bwt_p.nElems(s_value));
+            uint64_t b = m_bwt_s.bsearch_C(q.first) - 1;
+            s_int.set_stored_values(b, q.second);
+            return b;
         }
+   
+        uint64_t next_O_in_S(bwt_interval &I, uint64_t s_value, uint64_t o_value) {
+            if (o_value > m_max_o) return 0;
 
-        uint64_t next_O_in_S(bwt_interval &I, uint64_t O) {
-            if (O > m_max_o) return 0;
-
-            uint64_t nextv = I.next_value(O, m_bwt_o);
-            if (nextv == 0)
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_s.select_next(o_value, s_value, m_bwt_p.nElems(s_value));
+            if (q.first == 0 && q.second == 0)
                 return 0;
-            else
-                return nextv;
+
+            uint64_t b = m_bwt_s.bsearch_C(q.first) - 1;
+            I.set_stored_values(b, q.second);
+            return b;
         }
 
-        bool there_are_O_in_S(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
+        std::vector<uint64_t>
+        all_O_in_range(bwt_interval &I) {
+            return m_bwt_o.values_in_range(I.left(), I.right());
         }
-
+        
         uint64_t min_O_in_PS(bwt_interval &I) {
             return I.begin(m_bwt_o);
         }
@@ -428,29 +410,25 @@ namespace ring {
                 return nextv;
         }
 
-        bool there_are_O_in_PS(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
-        */
-        std::vector<uint64_t>
-        all_O_in_range(bwt_interval &I) {
-            return m_bwt_o.values_in_range(I.left(), I.right());
-        }
         /**********************************/
         // Functions for OPS
         //
-        /*
-        bwt_interval open_OPS() {
-            return bwt_interval(1, m_n_triples);
-        }
 
         // O->P  (simulates going down in the trie)
         // Returns an interval within m_bwt_s
-        bwt_interval down_O_P(bwt_interval &o_int, uint64_t p) {
-            auto I = m_bwt_p.backward_step(o_int.left(), o_int.right(), p);
-            uint64_t c = m_bwt_s.get_C(p);
-            return bwt_interval(I.first + c, I.second + c);
+        bwt_interval down_O_P(bwt_interval &o_int, uint64_t o_value, uint64_t p_value) {
+            std::pair<uint64_t, uint64_t> q = o_int.get_stored_values();
+            uint64_t b = q.first;
+            if (q.first == (uint64_t) -1) {
+                q = m_bwt_o.select_next(p_value, o_value, m_bwt_s.nElems(o_value));
+                b = m_bwt_o.bsearch_C(q.first) - 1;
+            }
+            uint64_t nE = m_bwt_o.rank(b + 1, o_value) - m_bwt_o.rank(b, o_value);
+            uint64_t start = q.second;
+            
+            return bwt_interval(o_int.left() + start, o_int.left() + start + nE - 1);
         }
+
 
         uint64_t min_S_in_OP(bwt_interval &I) {
             return I.begin(m_bwt_s);
@@ -466,50 +444,53 @@ namespace ring {
                 return nextv;
         }
 
-        bool there_are_S_in_OP(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
 
-        uint64_t min_S_in_P(bwt_interval &I) {
-            return I.begin(m_bwt_s);
+        uint64_t min_S_in_P(bwt_interval &p_int, uint64_t p_value) {
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_p.select_next(1, p_value, m_bwt_o.nElems(p_value));
+            uint64_t b = m_bwt_p.bsearch_C(q.first) - 1;
+            p_int.set_stored_values(b, q.second);
+            return b;
         }
-
-        uint64_t next_S_in_P(bwt_interval &I, uint64_t s_value) {
+        
+        uint64_t next_S_in_P(bwt_interval &I, uint64_t p_value, uint64_t s_value) {
             if (s_value > m_max_s) return 0;
 
-            uint64_t nextv = I.next_value(s_value, m_bwt_s);
-            if (nextv == 0)
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_p.select_next(s_value, p_value, m_bwt_o.nElems(s_value));
+            if (q.first == 0 && q.second == 0) {
                 return 0;
-            else
-                return nextv;
-        }
+            }
 
-        bool there_are_S_in_P(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
+            uint64_t b = m_bwt_p.bsearch_C(q.first) - 1;
+            I.set_stored_values(b, q.second);
+            return b;
         }
 
         std::vector<uint64_t>
         all_S_in_range(bwt_interval &I) {
             return m_bwt_s.values_in_range(I.left(), I.right());
         }
-        */
 
         /**********************************/
         // Function for SOP
         //
-        /*
-        bwt_interval open_SOP() {
-            return bwt_interval(1,  m_n_triples);
-        }
 
         // S->O  (simulates going down in the trie)
         // Returns an interval within m_bwt_p
-        bwt_interval down_S_O(bwt_interval &s_int, uint64_t o) {
-            pair<uint64_t, uint64_t> I = m_bwt_o.backward_step(s_int.left(), s_int.right(), o);
-            uint64_t c = m_bwt_p.get_C(o);
-            return bwt_interval(I.first + c, I.second + c);
-        }
+        bwt_interval down_S_O(bwt_interval &s_int, uint64_t s_value, uint64_t o_value) {
+            std::pair<uint64_t, uint64_t> q = s_int.get_stored_values();
+            uint64_t b = q.first;
+            if (q.first == (uint64_t) -1) {
+                q = m_bwt_s.select_next(o_value, s_value, m_bwt_p.nElems(s_value));
+                b = m_bwt_s.bsearch_C(q.first) - 1;
+            }
+            uint64_t nE = m_bwt_p.rank(b + 1, s_value) - m_bwt_p.rank(b, s_value);
+            uint64_t start = q.second;
 
+            return bwt_interval(s_int.left() + start, s_int.left() + start + nE - 1);
+        }
+        
         uint64_t min_P_in_SO(bwt_interval &I) {
             return I.begin(m_bwt_p);
         }
@@ -524,12 +505,12 @@ namespace ring {
                 return nextv;
         }
 
-        bool there_are_P_in_SO(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
-
-        uint64_t min_P_in_O(bwt_interval &I) {
-            return I.begin(m_bwt_p);
+        uint64_t min_P_in_O(bwt_interval &o_int, uint64_t o_value) {
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_o.select_next(1, o_value, m_bwt_s.nElems(o_value));
+            uint64_t b = m_bwt_o.bsearch_C(q.first) - 1;
+            o_int.set_stored_values(b, q.second);
+            return b;
         }
 
         uint64_t next_P_in_O(bwt_interval &I, uint64_t p_value) {
@@ -541,11 +522,19 @@ namespace ring {
             else
                 return nextv;
         }
+        uint64_t next_P_in_O(bwt_interval &I, uint64_t o_value, uint64_t p_value) {
+            if (p_value > m_max_p) return 0;
 
-        bool there_are_P_in_O(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
+            std::pair<uint64_t, uint64_t> q;
+            q = m_bwt_o.select_next(p_value, o_value, m_bwt_s.nElems(o_value));
+            if (q.first == 0 && q.second == 0)
+                return 0;
+            
+            uint64_t b = m_bwt_o.bsearch_C(q.first) - 1;
+            I.set_stored_values(b, q.second);
+            return b;
         }
-        */
+
         std::vector<uint64_t>
         all_P_in_range(bwt_interval &I) {
             return m_bwt_p.values_in_range(I.left(), I.right());
@@ -553,11 +542,6 @@ namespace ring {
         /**********************************/
         // Functions for SPO
         //
-        /*
-        bwt_interval open_SPO() {
-            return bwt_interval(1, m_n_triples);
-        }
-
         uint64_t min_S(bwt_interval &I) {
             return I.begin(m_bwt_s);
         }
@@ -575,20 +559,13 @@ namespace ring {
 
 
         // S->P  (simulates going down in the trie, for the order SPO)
-        // Returns an interval within m_bwt_p
-        bwt_interval down_S_P(bwt_interval &s_int, uint64_t s_value, uint64_t p_value) {
-            std::pair<uint64_t, uint64_t> q = s_int.get_stored_values();
-            uint64_t b = q.first;
-            if (q.first == (uint64_t) -1) {
-                q = m_bwt_s.select_next(p_value, s_value, m_bwt_o.nElems(s_value));
-                b = m_bwt_s.bsearch_C(q.first) - 1;
-            }
-            uint64_t nE = m_bwt_s.rank(b + 1, s_value) - m_bwt_s.rank(b, s_value);
-            uint64_t start = q.second;
-
-            return bwt_interval(s_int.left() + start, s_int.left() + start + nE - 1);
+        // Returns an interval within m_bwt_p    
+        bwt_interval down_S_P(bwt_interval &s_int, uint64_t p) {
+            auto I = m_bwt_p.backward_step(s_int.left(), s_int.right(), p);
+            uint64_t c = m_bwt_o.get_C(s);
+            return bwt_interval(I.first + c, I.second + c);
         }
-
+        /*
         uint64_t min_P_in_S(bwt_interval &I, uint64_t s_value) {
             std::pair<uint64_t, uint64_t> q;
             q = m_bwt_s.select_next(1, s_value, m_bwt_o.nElems(s_value));
@@ -626,18 +603,11 @@ namespace ring {
                 return next_v;
         }
 
-        bool there_are_O_in_SP(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
         */
         /**********************************/
         // Functions for POS
         //
-        /*
-        bwt_interval open_POS() {
-            return bwt_interval( 1, m_n_triples);
-        }
-
+        
         uint64_t min_P(bwt_interval &I) {
             //bwt_interval I_aux(I.left() - 2 * m_n_triples, I.right() - 2 * m_n_triples);
             //return I_aux.begin(m_bwt_p);
@@ -660,7 +630,7 @@ namespace ring {
             pair<uint64_t, uint64_t> i = init_P(p_value);
             return bwt_interval(i.first, i.second);
         }
-
+        
         // P->O  (simulates going down in the trie, for the order POS)
         // Returns an interval within m_bwt_p
         bwt_interval down_P_O(bwt_interval &p_int, uint64_t p_value, uint64_t o_value) {
@@ -675,7 +645,12 @@ namespace ring {
 
             return bwt_interval(p_int.left() + start, p_int.left() + start + nE - 1);
         }
-
+        bwt_interval down_P_O(bwt_interval &p_int, uint64_t o) {
+            auto I = m_bwt_o.backward_step(p_int.left(), p_int.right(), o);
+            uint64_t c = m_bwt_s.get_C(s);
+            return bwt_interval(I.first + c, I.second + c);
+        }
+        /*
         uint64_t min_O_in_P(bwt_interval &p_int, uint64_t p_value) {
             std::pair<uint64_t, uint64_t> q;
             q = m_bwt_p.select_next(1, p_value, m_bwt_s.nElems(p_value));
@@ -711,18 +686,11 @@ namespace ring {
             return I.next_value(s_value, m_bwt_s);
         }
 
-        bool there_are_S_in_PO(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
         */
         /**********************************/
         // Functions for OSP
         //
-        /*
-        bwt_interval open_OSP() {
-            return bwt_interval(1, m_n_triples);
-        }
-
+        
         uint64_t min_O(bwt_interval &I) {
             return I.begin(m_bwt_o);
         }
@@ -742,40 +710,26 @@ namespace ring {
 
         // P->O  (simulates going down in the trie, for the order OSP)
         // Returns an interval within m_bwt_p
-        bwt_interval down_O_S(bwt_interval &o_int, uint64_t o_value, uint64_t s_value) {
-            std::pair<uint64_t, uint64_t> q = o_int.get_stored_values();
-            uint64_t b = q.first;
-            if (q.first == (uint64_t) -1) {
-                q = m_bwt_o.select_next(s_value, o_value, m_bwt_p.nElems(o_value));
-                b = m_bwt_o.bsearch_C(q.first) - 1;
-            }
-            uint64_t nE = m_bwt_o.rank(b + 1, o_value) - m_bwt_o.rank(b, o_value);
-            uint64_t start = q.second;
-
-            return bwt_interval(o_int.left() + start, o_int.left() + start + nE - 1);
+        //bwt_interval down_O_S(bwt_interval &o_int, uint64_t o_value, uint64_t s_value) {
+        bwt_interval down_O_S(bwt_interval &o_int, uint64_t s){
+            auto I = m_bwt_s.backward_step(o_int.left(), o_int.right(), s);
+            uint64_t c = m_bwt_p.get_C(s);
+            return bwt_interval(I.first + c, I.second + c);
         }
-
-        uint64_t min_S_in_O(bwt_interval &o_int, uint64_t o_value) {
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_o.select_next(1, o_value, m_bwt_p.nElems(o_value));
-            uint64_t b = m_bwt_o.bsearch_C(q.first) - 1;
-            o_int.set_stored_values(b, q.second);
-            return b;
+/*
+        uint64_t min_S_in_O(bwt_interval &I) {
+            return I.begin(m_bwt_s);
         }
+        uint64_t next_S_in_O(bwt_interval &I, uint64_t S) {
+            if (S > m_max_s) return 0;
 
-        uint64_t next_S_in_O(bwt_interval &I, uint64_t o_value, uint64_t s_value) {
-            if (s_value > m_max_s) return 0;
-
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_o.select_next(s_value, o_value, m_bwt_p.nElems(o_value));
-            if (q.first == 0 && q.second == 0)
+            uint64_t nextv = I.next_value(S, m_bwt_s);
+            if (nextv == 0)
                 return 0;
-
-            uint64_t b = m_bwt_o.bsearch_C(q.first) - 1;
-            I.set_stored_values(b, q.second);
-            return b;
+            else
+                return nextv;
         }
-
+/*
         uint64_t min_P_in_OS(bwt_interval &I) {
             return I.begin(m_bwt_p);
         }
@@ -789,22 +743,18 @@ namespace ring {
             else
                 return nextv;
         }
-
-        bool there_are_P_in_OS(bwt_interval &I) {
-            return I.get_cur_value() != I.end();
-        }
         */
 
         bwt_type get_m_bwt_s() const{
             return m_bwt_s;
         }
 
-        bwt_type get_m_bwt_p() const{
-            return m_bwt_p;
-        }
-
         bwt_type get_m_bwt_o() const{
             return m_bwt_o;
+        }
+
+        bwt_type get_m_bwt_p() const{
+            return m_bwt_p;
         }
 
         size_type get_n_triples() const{
