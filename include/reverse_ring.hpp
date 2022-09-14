@@ -354,6 +354,10 @@ namespace ring {
         /**********************************/
         // Functions for PSO
         //
+        bwt_interval open_PSO() {
+            //return bwt_interval(2 * m_n_triples + 1, 3 * m_n_triples);
+            return bwt_interval( 1, m_n_triples);
+        }
 
         // P->S  (simulates going down in the trie, for the order PSO)
         // Returns an interval within m_bwt_o
@@ -413,7 +417,9 @@ namespace ring {
         /**********************************/
         // Functions for OPS
         //
-
+        bwt_interval open_OPS() {
+            return bwt_interval(1, m_n_triples);
+        }
         // O->P  (simulates going down in the trie)
         // Returns an interval within m_bwt_s
         bwt_interval down_O_P(bwt_interval &o_int, uint64_t o_value, uint64_t p_value) {
@@ -473,9 +479,11 @@ namespace ring {
         }
 
         /**********************************/
-        // Function for SOP
+        // Functions for SOP
         //
-
+        bwt_interval open_SOP() {
+            return bwt_interval(1,  m_n_triples);
+        }
         // S->O  (simulates going down in the trie)
         // Returns an interval within m_bwt_p
         bwt_interval down_S_O(bwt_interval &s_int, uint64_t s_value, uint64_t o_value) {
@@ -542,6 +550,10 @@ namespace ring {
         /**********************************/
         // Functions for SPO
         //
+        bwt_interval open_SPO() {
+            return bwt_interval(1, m_n_triples);
+        }
+        
         uint64_t min_S(bwt_interval &I) {
             return I.begin(m_bwt_s);
         }
@@ -562,32 +574,23 @@ namespace ring {
         // Returns an interval within m_bwt_p    
         bwt_interval down_S_P(bwt_interval &s_int, uint64_t p) {
             auto I = m_bwt_p.backward_step(s_int.left(), s_int.right(), p);
-            uint64_t c = m_bwt_o.get_C(s);
+            uint64_t c = m_bwt_o.get_C(p);
             return bwt_interval(I.first + c, I.second + c);
         }
-        /*
-        uint64_t min_P_in_S(bwt_interval &I, uint64_t s_value) {
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_s.select_next(1, s_value, m_bwt_o.nElems(s_value));
-            uint64_t b = m_bwt_s.bsearch_C(q.first) - 1;
-            I.set_stored_values(b, q.second);
-            return b;
+        
+        uint64_t min_P_in_S(bwt_interval &I) {
+            return I.begin(m_bwt_p);
         }
+    
+        uint64_t next_P_in_S(bwt_interval &I, uint64_t P) {
+            if (P > m_max_p) return 0;
 
-        uint64_t next_P_in_S(bwt_interval &I, uint64_t s_value, uint64_t p_value) {
-            if (p_value > m_max_p) return 0;
-
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_s.select_next(p_value, s_value, m_bwt_o.nElems(s_value));
-            if (q.first == 0 && q.second == 0) {
+            uint64_t nextv = I.next_value(P, m_bwt_p);
+            if (nextv == 0)
                 return 0;
-            }
-
-            uint64_t b = m_bwt_s.bsearch_C(q.first) - 1;
-            I.set_stored_values(b, q.second);
-            return b;
+            else
+                return nextv;
         }
-
 
         uint64_t min_O_in_SP(bwt_interval &I) {
             return I.begin(m_bwt_o);
@@ -603,11 +606,14 @@ namespace ring {
                 return next_v;
         }
 
-        */
+        
         /**********************************/
         // Functions for POS
         //
-        
+        bwt_interval open_POS() {
+            return bwt_interval( 1, m_n_triples);
+        }
+
         uint64_t min_P(bwt_interval &I) {
             //bwt_interval I_aux(I.left() - 2 * m_n_triples, I.right() - 2 * m_n_triples);
             //return I_aux.begin(m_bwt_p);
@@ -645,31 +651,25 @@ namespace ring {
 
             return bwt_interval(p_int.left() + start, p_int.left() + start + nE - 1);
         }
+        
         bwt_interval down_P_O(bwt_interval &p_int, uint64_t o) {
             auto I = m_bwt_o.backward_step(p_int.left(), p_int.right(), o);
-            uint64_t c = m_bwt_s.get_C(s);
+            uint64_t c = m_bwt_s.get_C(o);
             return bwt_interval(I.first + c, I.second + c);
         }
-        /*
-        uint64_t min_O_in_P(bwt_interval &p_int, uint64_t p_value) {
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_p.select_next(1, p_value, m_bwt_s.nElems(p_value));
-            uint64_t b = m_bwt_p.bsearch_C(q.first) - 1;
-            p_int.set_stored_values(b, q.second);
-            return b;
+
+        uint64_t min_O_in_P(bwt_interval &I) {
+            return I.begin(m_bwt_o);
         }
+        
+        uint64_t next_O_in_P(bwt_interval &I, uint64_t O) {
+            if (O > m_max_o) return 0;
 
-        uint64_t next_O_in_P(bwt_interval &I, uint64_t p_value, uint64_t o_value) {
-            if (o_value > m_max_o) return 0;
-
-            std::pair<uint64_t, uint64_t> q;
-            q = m_bwt_p.select_next(o_value, p_value, m_bwt_s.nElems(p_value));
-            if (q.first == 0 && q.second == 0)
+            uint64_t nextv = I.next_value(O, m_bwt_o);
+            if (nextv == 0)
                 return 0;
-
-            uint64_t b = m_bwt_p.bsearch_C(q.first) - 1;
-            I.set_stored_values(b, q.second);
-            return b;
+            else
+                return nextv;
         }
 
         uint64_t min_S_in_PO(bwt_interval &I) {
@@ -686,11 +686,13 @@ namespace ring {
             return I.next_value(s_value, m_bwt_s);
         }
 
-        */
         /**********************************/
         // Functions for OSP
         //
-        
+        bwt_interval open_OSP() {
+            return bwt_interval(1, m_n_triples);
+        }
+
         uint64_t min_O(bwt_interval &I) {
             return I.begin(m_bwt_o);
         }
@@ -716,10 +718,11 @@ namespace ring {
             uint64_t c = m_bwt_p.get_C(s);
             return bwt_interval(I.first + c, I.second + c);
         }
-/*
+
         uint64_t min_S_in_O(bwt_interval &I) {
             return I.begin(m_bwt_s);
         }
+
         uint64_t next_S_in_O(bwt_interval &I, uint64_t S) {
             if (S > m_max_s) return 0;
 
@@ -729,7 +732,7 @@ namespace ring {
             else
                 return nextv;
         }
-/*
+
         uint64_t min_P_in_OS(bwt_interval &I) {
             return I.begin(m_bwt_p);
         }
@@ -743,7 +746,6 @@ namespace ring {
             else
                 return nextv;
         }
-        */
 
         bwt_type get_m_bwt_s() const{
             return m_bwt_s;
@@ -760,58 +762,31 @@ namespace ring {
         size_type get_n_triples() const{
             return m_n_triples;
         }
-        /*
+        //Used for testing purposes exclusively.
         std::vector<uint64_t> get_P_given_S(uint64_t symbol_id){
             std::vector<u_int64_t> results;
-            //auto num_elems = BWT_P.nElems(symbol_id);
-            bwt_interval aux_i = bwt_interval(BWT_P.get_C(symbol_id) , BWT_P.get_C(symbol_id + 1) -1);
-            auto values = all_P_in_range(aux_i);
-            for (auto& value : values) {
-                //std::cout<< value.first << " - " << value.second << std::endl;
-                results.push_back(value.second);
-            }
-        }
-
-        std::vector<uint64_t> get_S_given_O(uint64_t symbol_id){
-            std::vector<u_int64_t> results;
-            //based on ring query debugging. check getPGivenS
-            auto num_elems = BWT_P.nElems(symbol_id);
-            bwt_interval aux_i = bwt_interval(symbol_id, num_elems);
-            auto current_p = min_S_in_O(aux_i, symbol_id);
-            uint64_t old_p = 0;
-            results.push_back(current_p);
-            for(int q=0; q < num_elems; q++){
-                current_p = next_S_in_O(aux_i, symbol_id, ++current_p);
-                if(current_p <= old_p){
-                    break;
-                }
-                old_p = current_p;
-                results.push_back(current_p);
-            }
-            results.shrink_to_fit();
+            pair<uint64_t, uint64_t> i = {m_bwt_p.get_C(symbol_id), m_bwt_p.get_C(symbol_id + 1) - 1};//Returns C_p[symbol_id], C_p[symbol_id] + 1
+            auto interval = bwt_interval(i.first, i.second);
+            results = all_P_in_range(interval);
             return results;
         }
-
-
+        //Used for testing purposes exclusively.
         std::vector<uint64_t> get_O_given_P(uint64_t symbol_id){
             std::vector<u_int64_t> results;
-            //based on ring query debugging. check getPGivenS
-            auto num_elems = BWT_S.nElems(symbol_id);
-            bwt_interval aux_i = bwt_interval(symbol_id, num_elems);
-            auto current_p = min_O_in_P(aux_i, symbol_id);
-            uint64_t old_p = 0;
-            results.push_back(current_p);
-            for(int q=0; q < num_elems; q++){
-                current_p = next_O_in_P(aux_i, symbol_id, ++current_p);
-                if(current_p <= old_p){
-                    break;
-                }
-                old_p = current_p;
-                results.push_back(current_p);
-            }
-            results.shrink_to_fit();
+            pair<uint64_t, uint64_t> i = {m_bwt_o.get_C(symbol_id), m_bwt_o.get_C(symbol_id + 1) - 1};//Returns C_o[symbol_id], C_o[symbol_id] + 1
+            auto interval = bwt_interval(i.first, i.second);
+            results = all_O_in_range(interval);
             return results;
-        }*/
+        }
+        //Used for testing purposes exclusively.
+        std::vector<uint64_t> get_S_given_O(uint64_t symbol_id){
+            std::vector<u_int64_t> results;
+            pair<uint64_t, uint64_t> i = {m_bwt_s.get_C(symbol_id), m_bwt_s.get_C(symbol_id + 1) - 1};//Returns C_o[symbol_id], C_o[symbol_id] + 1
+            auto interval = bwt_interval(i.first, i.second);
+            results = all_S_in_range(interval);
+            return results;
+        }
+        
     };
 }
 
