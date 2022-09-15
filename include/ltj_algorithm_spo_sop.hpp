@@ -110,14 +110,15 @@ namespace ring {
         ltj_algorithm_spo_sop() = default;
 
         ltj_algorithm_spo_sop(const std::vector<triple_pattern>* triple_patterns, ring_type* ring, reverse_ring_type* reverse_ring){
-
+            
             m_ptr_triple_patterns = triple_patterns;
             m_ptr_ring = ring;
+
             m_ptr_reverse_ring = reverse_ring;
             size_type i = 0;
             m_iterators.resize(m_ptr_triple_patterns->size());
             m_reverse_iterators.resize(m_ptr_triple_patterns->size());
-            for(const auto triple : *m_ptr_triple_patterns){
+            for(const auto& triple : *m_ptr_triple_patterns){
                 triple_pattern triple_r = triple;
                 //Bulding iterators
                 m_iterators[i] = ltj_iter_type(&triple, m_ptr_ring);
@@ -145,7 +146,6 @@ namespace ring {
                 ++i;
             }
             m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
-
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
         }
 

@@ -41,7 +41,7 @@ print("****** Starting automated test.")
 print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_path))
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
-available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "sigmod21_adaptive"]
+available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "sigmod21_adaptive", "backward_only"]
 
 print("Available modes : "+",".join(available_modes))
 
@@ -79,12 +79,14 @@ sigmod21_performance = []
 one_ring_muthu_leap_performance = []
 one_ring_muthu_adaptive_leap_performance = []
 sigmod21_adaptive_performance = []
+backward_only_performance = []
 for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
     aux=sigmod_row[0].split(";")
     aux2=lists_of_rows[1][index][0].split(";")
     aux3=lists_of_rows[2][index][0].split(";")
     aux4=lists_of_rows[3][index][0].split(";")
+    aux5=lists_of_rows[4][index][0].split(";")
     if aux[1] != aux2[1] and aux[1] != aux3[1] and aux[1] != aux4[1]:
         num_of_results_error=num_of_results_error+1
 
@@ -92,6 +94,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     one_ring_muthu_leap_performance.append(int(aux2[2]))
     one_ring_muthu_adaptive_leap_performance.append(int(aux3[2]))
     sigmod21_adaptive_performance.append(int(aux4[2]))
+    backward_only_performance.append(int(aux5))
 
 print("****** Number of different results: ", num_of_results_error)
 
@@ -108,7 +111,8 @@ print("****** Plotting variants using matplotlib.")
 d = {'Sigmod21': sigmod21_performance,
     '1 Ring Muthu': one_ring_muthu_leap_performance,
     '1 Ring Muthu adaptive': one_ring_muthu_adaptive_leap_performance,
-    'Sigmod21_adaptive': sigmod21_adaptive_performance}
+    'Sigmod21_adaptive': sigmod21_adaptive_performance,
+    'Backward' : backward_only_performance}
 
 df = pd.DataFrame(data = d)
 plt.ylim(10000, 10000000)

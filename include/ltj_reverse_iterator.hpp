@@ -201,7 +201,7 @@ namespace ring {
                 //Interval in P
                 m_i_p = m_ptr_ring->down_O_S(m_i_s, s_aux);
 
-            } /*else if (!m_ptr_triple_pattern->s_is_variable()) {
+            } else if (!m_ptr_triple_pattern->s_is_variable()) {
                 //S ?O ?P
                 //Interval in S
                 auto s_aux = m_ptr_ring->next_S(m_i_s, m_ptr_triple_pattern->term_s.value);
@@ -240,7 +240,7 @@ namespace ring {
 
                 m_i_s = m_i_p = m_ptr_ring->down_O(o_aux);
 
-            }*/
+            }
         }
         const triple_pattern* get_triple_pattern() const{
             return m_ptr_triple_pattern;
