@@ -20,9 +20,11 @@
 #include <iostream>
 #include <utility>
 #include "ring.hpp"
+#include "reverse_ring.hpp"
 #include <chrono>
 #include <triple_pattern.hpp>
 #include <ltj_algorithm.hpp>
+#include <ltj_algorithm_spo_sop.hpp>
 #include "utils.hpp"
 
 using namespace std;
@@ -129,19 +131,28 @@ std::string get_type(const std::string &file){
     return file.substr(p+1);
 }
 
-template<class ring_type>
+template<class ring_type, class reverse_ring_type>
 void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_millis = 600){
     vector<string> dummy_queries;
     bool result = get_file_content(queries, dummy_queries);
 
     ring_type graph;
-
+    reverse_ring_type reverse_graph;
     if(ring::util::configuration.is_verbose()){
-        cout << " Loading the index..."; fflush(stdout);
+        cout << " Loading the index SPO..."; fflush(stdout);
     }
     sdsl::load_from_file(graph, file+".spo");
     if(ring::util::configuration.is_verbose()){
-        cout << endl << " Index loaded " << sdsl::size_in_bytes(graph) << " bytes" << endl;
+        std::cout << endl << " Index loaded " << sdsl::size_in_bytes(graph) << " bytes" << endl;
+    }
+    if(ring::util::configuration.uses_reverse_index()){
+        if(ring::util::configuration.is_verbose()){
+            std::cout << " Loading the index SOP..."; fflush(stdout);
+        }
+        sdsl::load_from_file(reverse_graph, file+".sop");
+        if(ring::util::configuration.is_verbose()){
+            std::cout << endl << " Index loaded " << sdsl::size_in_bytes(reverse_graph) << " bytes" << endl;
+        }
     }
     if(ring::util::configuration.uses_muthu()){
         if(ring::util::configuration.is_verbose()){
@@ -181,15 +192,17 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             // vector<string> gao = get_gao_min_opt(query, graph);
             // cout << gao [0] << " - " << gao [1] << " - " << gao[2] << endl;
 
-            start = high_resolution_clock::now();
-
-            ring::ltj_algorithm<ring_type> ltj(&query, &graph);
-
             typedef std::vector<typename ring::ltj_algorithm<>::tuple_type> results_type;
             results_type res;
-
-            ltj.join(res, number_of_results, timeout_in_millis);
-            //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            start = high_resolution_clock::now();
+            if(ring::util::configuration.uses_reverse_index()){
+                ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type> ltj(&query, &graph, &reverse_graph);
+                ltj.join(res, number_of_results, timeout_in_millis);
+            }
+            else{
+                ring::ltj_algorithm<ring_type> ltj(&query, &graph);
+                ltj.join(res, number_of_results, timeout_in_millis);
+            }
 
             stop = high_resolution_clock::now();
             time_span = duration_cast<microseconds>(stop - start);
@@ -200,11 +213,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 ht.insert({p.second, p.first});
             }
 
-            if(!ring::util::configuration.print_gao()){
-                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
-            } else{
-                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";" << ltj.get_gao(ht) << endl;//Adaptive can have a diff. gao per tuple reported.
-            }
+            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
@@ -256,9 +265,9 @@ int main(int argc, char* argv[])
 
     //Starting quering the index.
     if(type == "ring"){
-        query<ring::ring<>>(index, queries, number_of_results, timeout);
+        query<ring::ring<>, ring::reverse_ring<>>(index, queries, number_of_results, timeout);
     }else if (type == "c-ring"){
-        query<ring::c_ring>(index, queries, number_of_results, timeout);
+        query<ring::c_ring, ring::c_reverse_ring>(index, queries, number_of_results, timeout);
     }else{
         std::cout << "Type of index: " << type << " is not supported." << std::endl;
     }

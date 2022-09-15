@@ -34,7 +34,7 @@ namespace ring {
         /*Classes*/
         class configuration{
             private:
-                enum class execution_mode { sigmod21, one_ring_muthu_leap, one_ring_muthu_leap_adaptive, sigmod21_adaptive };
+                enum class execution_mode { sigmod21, one_ring_muthu_leap, one_ring_muthu_leap_adaptive, sigmod21_adaptive, backward_only };
                 std::unordered_map<execution_mode, string> mode_enum_to_str;
                 std::unordered_map<string, execution_mode> mode_str_to_enum;
                 execution_mode m_mode;
@@ -42,6 +42,7 @@ namespace ring {
                 bool m_verbose;
                 bool m_muthu;
                 bool m_adaptive;
+                bool m_reverse_index;
                 size_type m_threshold;
                 execution_mode get_execution_mode(std::string &mode){
                     execution_mode ex_mode = execution_mode::sigmod21;
@@ -81,18 +82,21 @@ namespace ring {
                 m_verbose(true),
                 m_muthu(false),
                 m_adaptive(false),
-                m_threshold(1){
+                m_threshold(1),
+                m_reverse_index(false){
                     mode_enum_to_str = {
                                         {execution_mode::sigmod21, "sigmod21"},
                                         {execution_mode::one_ring_muthu_leap, "one_ring_muthu_leap"},
                                         {execution_mode::one_ring_muthu_leap_adaptive, "one_ring_muthu_leap_adaptive"},
-                                        {execution_mode::sigmod21_adaptive, "sigmod21_adaptive"}
+                                        {execution_mode::sigmod21_adaptive, "sigmod21_adaptive"},
+                                        {execution_mode::backward_only, "backward_only"}
                                     };
                     mode_str_to_enum = {
                                         {"sigmod21", execution_mode::sigmod21},
                                         {"one_ring_muthu_leap", execution_mode::one_ring_muthu_leap},
                                         {"one_ring_muthu_leap_adaptive", execution_mode::one_ring_muthu_leap_adaptive},
                                         {"sigmod21_adaptive", execution_mode::sigmod21_adaptive},
+                                        {"backward_only", execution_mode::backward_only}
                                     };
                 };
                 size_type get_threshold() const{
@@ -113,6 +117,9 @@ namespace ring {
                 bool uses_get_size_interval() const{
                     return !m_muthu;
                 }
+                bool uses_reverse_index() const{
+                    return m_reverse_index;
+                }
                 void print_configuration() {//It cannot be declared as 'const' because 'get_mode_label' function uses 'm_mode' member, which is not const as well.
                     if(m_verbose){
                         std::cout << "Configuration" << std::endl << "=============" << std::endl;
@@ -121,6 +128,7 @@ namespace ring {
                         std::cout << "Verbose: " << (m_verbose ? "true" : "false") << std::endl;
                         std::cout << "Adaptive gao : " << (m_adaptive ? "true" : "false") << std::endl;
                         std::cout << "Uses Muthu : " << (m_muthu ? "true" : "false") << std::endl;
+                        std::cout << "Uses Reverse Index: " << (m_reverse_index ? "true" : "false") << std::endl;
                     }
                 }
                 void configure(std::string &mode, bool print_gao, bool verbose){
@@ -133,6 +141,10 @@ namespace ring {
 
                     if(m_mode == execution_mode::one_ring_muthu_leap_adaptive || m_mode == execution_mode::sigmod21_adaptive){
                         m_adaptive = true;
+                    }
+
+                    if(m_mode == execution_mode::backward_only){
+                        m_reverse_index = true;
                     }
                 }
                 std::string get_configuration_options() const{

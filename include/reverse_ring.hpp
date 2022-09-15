@@ -329,20 +329,20 @@ namespace ring {
             return {1, 3 * m_n_triples};
         }
 
-        //Given a Subject returns its range in BWT O
+        //Given a Subject returns its range in BWT P
         pair<uint64_t, uint64_t> init_S(uint64_t S) const {
-            return m_bwt_o.backward_search_1_interval(S);
+            return m_bwt_p.backward_search_1_interval(S);
         }
 
-        //Given a Predicate returns its range in BWT S
+        //Given a Predicate returns its range in BWT O
         pair<uint64_t, uint64_t> init_P(uint64_t P) const {
-            return m_bwt_s.backward_search_1_interval(P);
+            return m_bwt_o.backward_search_1_interval(P);
             //return {I.first + m_n_triples, I.second + m_n_triples};
         }
 
-        //Given an Object returns its range in BWT P
+        //Given an Object returns its range in BWT S
         pair<uint64_t, uint64_t> init_O(uint64_t O) const {
-            return m_bwt_p.backward_search_1_interval(O);
+            return m_bwt_s.backward_search_1_interval(O);
             //return {I.first + 2 * m_n_triples, I.second + 2 * m_n_triples};
         }
 
@@ -521,15 +521,6 @@ namespace ring {
             return b;
         }
 
-        uint64_t next_P_in_O(bwt_interval &I, uint64_t p_value) {
-            if (p_value > m_max_p) return 0;
-
-            uint64_t nextv = I.next_value(p_value, m_bwt_p);
-            if (nextv == 0)
-                return 0;
-            else
-                return nextv;
-        }
         uint64_t next_P_in_O(bwt_interval &I, uint64_t o_value, uint64_t p_value) {
             if (p_value > m_max_p) return 0;
 
@@ -788,6 +779,8 @@ namespace ring {
         }
         
     };
+
+    typedef reverse_ring<bwt<sdsl::rrr_vector<15>>> c_reverse_ring;
 }
 
 #endif
