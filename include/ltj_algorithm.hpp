@@ -30,7 +30,7 @@
 
 namespace ring {
 
-    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t>//, class gao = gao_t<>
+    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t, class ltj_iterator_t = ltj_iterator<ring_t,var_t,cons_t>>//, class gao = gao_t<>
     class ltj_algorithm {
 
     public:
@@ -40,7 +40,8 @@ namespace ring {
         typedef ring_t ring_type;
         typedef cons_t const_type;
         //typedef gao_t gao_type;
-        typedef ltj_iterator<ring_type, var_type, const_type> ltj_iter_type;
+        //typedef ltj_iterator<ring_type, var_type, const_type> ltj_iter_type;
+        typedef ltj_iterator_t ltj_iter_type;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
         typedef std::vector<std::pair<var_type, value_type>> tuple_type;
         typedef std::chrono::high_resolution_clock::time_point time_point_type;

@@ -94,7 +94,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     one_ring_muthu_leap_performance.append(int(aux2[2]))
     one_ring_muthu_adaptive_leap_performance.append(int(aux3[2]))
     sigmod21_adaptive_performance.append(int(aux4[2]))
-    backward_only_performance.append(int(aux5))
+    backward_only_performance.append(int(aux5[2]))
 
 print("****** Number of different results: ", num_of_results_error)
 

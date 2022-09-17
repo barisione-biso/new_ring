@@ -633,6 +633,17 @@ namespace ring {
             }
             return std::vector<uint64_t>();
         }
+
+
+        bwt_interval get_i_s() const{
+            return m_i_s;
+        }
+        bwt_interval get_i_p() const{
+            return m_i_p;
+        }
+        bwt_interval get_i_o() const{
+            return m_i_o;
+        }
     };
 
 }

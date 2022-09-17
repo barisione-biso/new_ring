@@ -777,7 +777,6 @@ namespace ring {
             results = all_S_in_range(interval);
             return results;
         }
-        
     };
 
     typedef reverse_ring<bwt<sdsl::rrr_vector<15>>> c_reverse_ring;

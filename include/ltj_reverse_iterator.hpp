@@ -1,6 +1,6 @@
 /*
  * ltj_reverse_iterator.hpp
- * Copyright (C) 2020 Author removed for double-blind evaluation
+ * Copyright (C) 2022, Fabrizio
  *
  *
  * This is free software: you can redistribute it and/or modify it
@@ -530,93 +530,6 @@ namespace ring {
             return 0;
         };
 
-        value_type leap(var_type var, size_type c) { //Return the next value greater or equal than c in the range
-            //0. Which term of our triple pattern is var
-            if (is_variable_subject(var)) {
-                //1. We have to go down through s
-                if (m_cur_p != -1UL && m_cur_o != -1UL) {
-                    //PO->S
-#if VERBOSE
-                    std::cout << "next_S_in_PO" << std::endl;
-#endif
-                    return m_ptr_ring->next_S_in_PO(m_i_s, c);
-                } else if (m_cur_o != -1UL) {
-                    //O->S
-#if VERBOSE
-                    std::cout << "next_S_in_O" << std::endl;
-#endif
-                    return m_ptr_ring->next_S_in_O(m_i_s, m_cur_o, c);
-                } else if (m_cur_p != -1UL) {
-                    //P->S
-#if VERBOSE
-                    std::cout << "next_S_in_P" << std::endl;
-#endif
-                    return m_ptr_ring->next_S_in_P(m_i_s, c);
-                } else {
-                    //S
-#if VERBOSE
-                    std::cout << "next_S" << std::endl;
-#endif
-                    return m_ptr_ring->next_S(m_i_s, c);
-                }
-            } else if (is_variable_predicate(var)) {
-                //1. We have to go down in the trie of p
-                if (m_cur_s != -1UL && m_cur_o != -1UL) {
-                    //SO->P
-#if VERBOSE
-                    std::cout << "next_P_in_SO" << std::endl;
-#endif
-                    return m_ptr_ring->next_P_in_SO(m_i_p, c);
-                } else if (m_cur_s != -1UL) {
-                    //S->P
-#if VERBOSE
-                    std::cout << "next_P_in_S" << std::endl;
-#endif
-                    return m_ptr_ring->next_P_in_S(m_i_p, m_cur_s, c);
-                } else if (m_cur_o != -1UL) {
-                    //O->P
-#if VERBOSE
-                    std::cout << "next_P_in_O" << std::endl;
-#endif
-                    return m_ptr_ring->next_P_in_O(m_i_p, c);
-                } else {
-                    //P
-#if VERBOSE
-                    std::cout << "next_P" << std::endl;
-#endif
-                    return m_ptr_ring->next_P(m_i_p, c);
-                }
-            } else if (is_variable_object(var)) {
-                //1. We have to go down in the trie of o
-                if (m_cur_s != -1UL && m_cur_p != -1UL) {
-                    //SP->O
-#if VERBOSE
-                    std::cout << "next_O_in_SP" << std::endl;
-#endif
-                    return m_ptr_ring->next_O_in_SP(m_i_o, c);
-                } else if (m_cur_s != -1UL) {
-                    //S->O
-#if VERBOSE
-                    std::cout << "next_O_in_S" << std::endl;
-#endif
-                    return m_ptr_ring->next_O_in_S(m_i_o, c);
-                } else if (m_cur_p != -1UL) {
-                    //P->O
-#if VERBOSE
-                    std::cout << "next_O_in_P" << std::endl;
-#endif
-                    return m_ptr_ring->next_O_in_P(m_i_o, m_cur_p, c);
-                } else {
-                    //O
-#if VERBOSE
-                    std::cout << "next_O" << std::endl;
-#endif
-                    return m_ptr_ring->next_O(m_i_o, c);
-                }
-            }
-            return 0;
-        }
-
         bool in_last_level(){
             return (m_cur_o !=-1UL && m_cur_p != -1UL) || (m_cur_s !=-1UL && m_cur_p != -1UL)
                     || (m_cur_o !=-1UL && m_cur_s != -1UL);
@@ -633,8 +546,17 @@ namespace ring {
             }
             return std::vector<uint64_t>();
         }
+        bwt_interval get_i_s() const{
+            return m_i_s;
+        }
+        bwt_interval get_i_p() const{
+            return m_i_p;
+        }
+        bwt_interval get_i_o() const{
+            return m_i_o;
+        }
     };
 
 }
 
-#endif //RING_LTJ_ITERATOR_HPP
+#endif

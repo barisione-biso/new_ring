@@ -29,7 +29,7 @@
 
 namespace ring {
 
-    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t >
+    template<class ring_t = ring<>, class var_t = uint8_t, class cons_t = uint64_t, class ltj_iterator_t = ltj_iterator<ring_t, var_t, cons_t>>
     class gao_size {
 
     public:
@@ -44,7 +44,8 @@ namespace ring {
             std::unordered_set<var_type> related;
         } info_var_type;
         std::vector<info_var_type> m_var_info;
-        typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
+        //typedef ltj_iterator<ring_type, var_type, cons_type> ltj_iter_type;
+        typedef ltj_iterator_t ltj_iter_type;
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;

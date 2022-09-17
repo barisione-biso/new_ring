@@ -26,13 +26,16 @@
 #include <triple_pattern.hpp>
 #include <ring.hpp>
 #include <reverse_ring.hpp>
-#include <ltj_iterator.hpp>
-#include <ltj_reverse_iterator.hpp>
+#include <ltj_iterator_manager.hpp>
 #include <gao.hpp>
 
 namespace ring {
 
-    template<class ring_t = ring<>, class reverse_ring_t = reverse_ring<>, class var_t = uint8_t, class cons_t = uint64_t>//, class gao = gao_t<>
+    template<class ring_t = ring<>,
+    class reverse_ring_t = reverse_ring<>,
+    class var_t = uint8_t,
+    class cons_t = uint64_t,
+    class ltj_iterator_t = ltj_iterator_manager<ring_t,reverse_ring_t, var_t,cons_t>>//, class gao = gao_t<>
     class ltj_algorithm_spo_sop {
 
     public:
@@ -43,11 +46,8 @@ namespace ring {
         typedef reverse_ring_t reverse_ring_type;
         typedef cons_t const_type;
         //typedef gao_t gao_type;
-        typedef ltj_iterator<ring_type, var_type, const_type> ltj_iter_type;
+        typedef ltj_iterator_t ltj_iter_type;
         typedef std::unordered_map<var_type, std::vector<ltj_iter_type*>> var_to_iterators_type;
-
-        typedef ltj_reverse_iterator<reverse_ring_type, var_type, const_type> ltj_reverse_iter_type;
-        typedef std::unordered_map<var_type, std::vector<ltj_reverse_iter_type*>> var_to_reverse_iterators_type;
 
         typedef std::vector<std::pair<var_type, value_type>> tuple_type;
         typedef std::chrono::high_resolution_clock::time_point time_point_type;
@@ -65,12 +65,9 @@ namespace ring {
         reverse_ring_type* m_ptr_reverse_ring;
         std::vector<ltj_iter_type> m_iterators;
 
-        std::vector<ltj_reverse_iter_type> m_reverse_iterators;
-
         var_to_iterators_type m_var_to_iterators;
-        var_to_reverse_iterators_type m_var_to_reverse_iterators;
         bool m_is_empty = false;
-        gao_size<ring_type> m_gao_size;
+        gao_size<ring_type, var_type, const_type, ltj_iter_type> m_gao_size;
         void copy(const ltj_algorithm_spo_sop &o) {
             m_ptr_triple_patterns = o.m_ptr_triple_patterns;
             m_gao = o.m_gao;
@@ -78,9 +75,6 @@ namespace ring {
             m_iterators = o.m_iterators;
             m_var_to_iterators = o.m_var_to_iterators;
             m_is_empty = o.m_is_empty;
-            
-            m_reverse_iterators = o.m_reverse_iterators;
-            m_var_to_reverse_iterators = o.m_var_to_reverse_iterators;
         }
 
 
@@ -94,58 +88,41 @@ namespace ring {
             }
         }
 
-        inline void add_var_to_iterator(const var_type var, ltj_reverse_iter_type* ptr_iterator){
-            auto it =  m_var_to_reverse_iterators.find(var);
-            if(it != m_var_to_reverse_iterators.end()){
-                it->second.push_back(ptr_iterator);
-            }else{
-                std::vector<ltj_reverse_iter_type*> vec = {ptr_iterator};
-                m_var_to_reverse_iterators.insert({var, vec});
-            }
-        }
-
     public:
 
 
         ltj_algorithm_spo_sop() = default;
 
         ltj_algorithm_spo_sop(const std::vector<triple_pattern>* triple_patterns, ring_type* ring, reverse_ring_type* reverse_ring){
-            
             m_ptr_triple_patterns = triple_patterns;
             m_ptr_ring = ring;
 
             m_ptr_reverse_ring = reverse_ring;
             size_type i = 0;
             m_iterators.resize(m_ptr_triple_patterns->size());
-            m_reverse_iterators.resize(m_ptr_triple_patterns->size());
             for(const auto& triple : *m_ptr_triple_patterns){
                 triple_pattern triple_r = triple;
                 //Bulding iterators
-                m_iterators[i] = ltj_iter_type(&triple, m_ptr_ring);
+                m_iterators[i] = ltj_iter_type(&triple, m_ptr_ring, m_ptr_reverse_ring);
                 if(m_iterators[i].is_empty){
                     m_is_empty = true;
                     return;
                 }
-                //Building reverse iterators
-                m_reverse_iterators[i] = ltj_reverse_iter_type(&triple_r, m_ptr_reverse_ring);
 
                 //For each variable we add the pointers to its iterators
                 if(triple.o_is_variable()){
                     add_var_to_iterator(triple.term_o.value, &(m_iterators[i]));
-                    add_var_to_iterator(triple.term_o.value, &(m_reverse_iterators[i]));
                 }
                 if(triple.p_is_variable()){
                     add_var_to_iterator(triple.term_p.value, &(m_iterators[i]));
-                    add_var_to_iterator(triple.term_p.value, &(m_reverse_iterators[i]));
                 }
                 if(triple.s_is_variable()){
                     add_var_to_iterator(triple.term_s.value, &(m_iterators[i]));
-                    add_var_to_iterator(triple.term_s.value, &(m_reverse_iterators[i]));
                 }
 
                 ++i;
             }
-            m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+            m_gao_size = gao_size<ring_type, var_type, const_type, ltj_iter_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
         }
 
@@ -176,9 +153,6 @@ namespace ring {
                 m_iterators = std::move(o.m_iterators);
                 m_var_to_iterators = std::move(o.m_var_to_iterators);
                 m_is_empty = o.m_is_empty;
-
-                m_reverse_iterators = std::move(o.m_reverse_iterators);
-                m_var_to_reverse_iterators = std::move(o.m_var_to_reverse_iterators);
             }
             return *this;
         }
@@ -190,8 +164,6 @@ namespace ring {
             std::swap(m_iterators, o.m_iterators);
             std::swap(m_var_to_iterators, o.m_var_to_iterators);
             std::swap(m_is_empty, o.m_is_empty);
-            std::swap(m_reverse_iterators, o.m_reverse_iterators);
-            std::swap(m_var_to_reverse_iterators, o.m_var_to_reverse_iterators);
         }
 
 
@@ -242,6 +214,7 @@ namespace ring {
             m_gao_stack.pop();
             m_gao_vars[v]=false;
         }
+
         /**
          *
          * @param j                 Index of the variable
