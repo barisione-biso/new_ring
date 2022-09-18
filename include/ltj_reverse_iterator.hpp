@@ -305,13 +305,13 @@ namespace ring {
 #if VERBOSE
                     std::cout << "down_O_S" << std::endl;
 #endif
-                    m_i_p = m_ptr_ring->down_O_S(m_i_s, m_cur_o, c);
+                    m_i_p = m_ptr_ring->down_O_S(m_i_s, c);
                 } else if (m_cur_p != -1UL) {
                     //PS->O
 #if VERBOSE
                     std::cout << "down_P_S" << std::endl;
 #endif
-                    m_i_o = m_ptr_ring->down_P_S(m_i_s, c);
+                    m_i_o = m_ptr_ring->down_P_S(m_i_s, m_cur_p, c);
                 } else {
                     //S->{OP,PO} same range in SOP and SPO
 #if VERBOSE
@@ -333,13 +333,13 @@ namespace ring {
 #if VERBOSE
                     std::cout << "down_O_P" << std::endl;
 #endif
-                    m_i_s = m_ptr_ring->down_O_P(m_i_p, c);
+                    m_i_s = m_ptr_ring->down_O_P(m_i_p, m_cur_o, c);
                 } else if (m_cur_s != -1UL) {
                     //SP->O
 #if VERBOSE
                     std::cout << "down_S_P" << std::endl;
 #endif
-                    m_i_o = m_ptr_ring->down_S_P(m_i_p, m_cur_s, c);
+                    m_i_o = m_ptr_ring->down_S_P(m_i_p, c);
                 } else {
                     //P->{OS,SO} same range in POS and PSO
 #if VERBOSE
@@ -367,7 +367,7 @@ namespace ring {
 #if VERBOSE
                     std::cout << "down_S_O" << std::endl;
 #endif
-                    m_i_p = m_ptr_ring->down_S_O(m_i_o, c);
+                    m_i_p = m_ptr_ring->down_S_O(m_i_o, m_cur_s, c);
                 } else {
                     //O->{PS,SP} same range in OPS and OSP
 #if VERBOSE

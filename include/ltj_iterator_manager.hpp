@@ -27,7 +27,11 @@
 
 namespace ring {
 
-    template<class ring_t, class reverse_ring_t, class var_t, class cons_t>
+    template<class ring_t,
+    class reverse_ring_t,
+    class var_t,
+    class cons_t,
+    class bwt_bit_vector_t = sdsl::bit_vector>
     class ltj_iterator_manager {
 
     public:
@@ -38,6 +42,7 @@ namespace ring {
         typedef uint64_t size_type;
         typedef ltj_iterator<ring_type, var_type, value_type> ltj_iter_type;
         typedef ltj_reverse_iterator<reverse_ring_type, var_type, value_type> ltj_reverse_iter_type;
+        typedef sdsl::wm_int<bwt_bit_vector_t> wm_type;
 
     private:
         const triple_pattern *m_ptr_triple_pattern;
@@ -50,8 +55,9 @@ namespace ring {
         value_type m_cur_o;
         value_type m_cur_p;
         bool m_is_empty = false;
-        ltj_iter_type m_iter;
-        ltj_reverse_iter_type m_reverse_iter;
+        ltj_iter_type spo_iter;
+        ltj_reverse_iter_type sop_iter;
+        std::string m_last_iter;
         void copy(const ltj_iterator_manager &o) {
             m_ptr_triple_pattern = o.m_ptr_triple_pattern;
             m_ptr_ring = o.m_ptr_ring;
@@ -63,8 +69,8 @@ namespace ring {
             m_cur_p = o.m_cur_p;
             m_cur_o = o.m_cur_o;
             m_is_empty = o.m_is_empty;
-            m_iter = o.m_iter;
-            m_reverse_iter = o.m_reverse_iter;
+            spo_iter = o.spo_iter;
+            sop_iter = o.sop_iter;
         }
     public:
         inline bool is_variable_subject(var_type var) {
@@ -89,7 +95,7 @@ namespace ring {
 
         ltj_iterator_manager() = default;
 
-        ltj_iterator_manager(const triple_pattern *triple, ring_type *ring, reverse_ring_type *reverse_ring) {
+        ltj_iterator_manager(const triple_pattern *triple, ring_type *ring, reverse_ring_type *reverse_ring) : m_last_iter(""){
             m_ptr_triple_pattern = triple;
             m_ptr_ring = ring;
             m_ptr_reverse_ring = reverse_ring;
@@ -101,8 +107,8 @@ namespace ring {
             m_i_s = m_ptr_ring->open_SOP();
             m_i_o = m_ptr_ring->open_OPS();
             */
-            m_iter = ltj_iter_type(triple, m_ptr_ring);
-            m_reverse_iter = ltj_reverse_iter_type(triple, m_ptr_reverse_ring);
+            spo_iter = ltj_iter_type(triple, m_ptr_ring);
+            sop_iter = ltj_reverse_iter_type(triple, m_ptr_reverse_ring);
         }
         const triple_pattern* get_triple_pattern() const{
             return m_ptr_triple_pattern;
@@ -138,8 +144,8 @@ namespace ring {
                 m_ptr_triple_pattern = std::move(o.m_ptr_triple_pattern);
                 m_ptr_ring = std::move(o.m_ptr_ring);
                 m_ptr_reverse_ring = std::move(o.m_ptr_reverse_ring);
-                m_iter = std::move(o.m_iter);
-                m_reverse_iter = std::move(o.m_reverse_iter);
+                spo_iter = std::move(o.spo_iter);
+                sop_iter = std::move(o.sop_iter);
             }
             return *this;
         }
@@ -156,46 +162,210 @@ namespace ring {
             std::swap(m_cur_p, o.m_cur_p);
             std::swap(m_cur_o, o.m_cur_o);
             std::swap(m_is_empty, o.m_is_empty);
-            std::swap(m_iter, o.m_iter);
-            std::swap(m_reverse_iter,o.m_reverse_iter);
+            std::swap(spo_iter, o.spo_iter);
+            std::swap(sop_iter,o.sop_iter);
         }
 
         void down(var_type var, size_type c) { //Go down in the trie
-            m_iter.down(var,c);
+            //spo_iter.down(var,c);
+            if (is_variable_subject(var)) {
+                if (m_cur_o != -1UL && m_cur_p != -1UL){
+                    /*if(m_last_iter == "SPO"){
+                        spo_iter.down(var,c);
+                    } else{
+                        sop_iter.down(var,c);
+                    }*/
+                    return;
+                } else if (m_cur_o != -1UL) {
+                    //OS->P
+                    sop_iter.down(var,c);
+                    m_last_iter = "SOP";
+                } else if (m_cur_p != -1UL) {
+                    //PS->O
+                    spo_iter.down(var,c);
+                    m_last_iter = "SPO";
+                } else {
+                    //S->{OP,PO} same range in SOP and SPO
+                    spo_iter.down(var,c);
+                    sop_iter.down(var,c);
+                }
+                m_cur_s = c;
+            } else if (is_variable_predicate(var)) {
+                if (m_cur_s != -1UL && m_cur_o != -1UL){
+                    /*if(m_last_iter == "SPO"){
+                        spo_iter.down(var,c);
+                    } else{
+                        sop_iter.down(var,c);
+                    }*/
+                    return;
+                } else if (m_cur_o != -1UL) {
+                    //OP->S
+                    spo_iter.down(var,c);
+                    m_last_iter = "SPO";
+                } else if (m_cur_s != -1UL) {
+                    //SP->O
+                    sop_iter.down(var,c);
+                    m_last_iter = "SOP";
+                } else {
+                    //P->{OS,SO} same range in POS and PSO
+                    spo_iter.down(var,c);
+                    sop_iter.down(var,c);
+                }
+                m_cur_p = c;
+            } else if (is_variable_object(var)) {
+                if (m_cur_s != -1UL && m_cur_p != -1UL){
+                    /*if(m_last_iter == "SPO"){
+                        spo_iter.down(var,c);
+                    } else{
+                        sop_iter.down(var,c);
+                    }*/
+                    return;
+                }
+                if (m_cur_p != -1UL) {
+                    //PO->S
+                    sop_iter.down(var,c);
+                    m_last_iter = "SOP";
+                } else if (m_cur_s != -1UL) {
+                    //SO->P
+                    spo_iter.down(var,c);
+                    m_last_iter = "SPO";
+                } else {
+                    //O->{PS,SP} same range in OPS and OSP
+                    spo_iter.down(var,c);
+                    sop_iter.down(var,c);
+                }
+                m_cur_o = c;
+            }
+
         };
         //Reverses the intervals and variable weights. Also resets the current value.
         void up(var_type var) { //Go up in the trie
-            m_iter.up(var);
+            //spo_iter.up(var);
+            if (is_variable_subject(var)) {
+                if (m_cur_o != -1UL && m_cur_p != -1UL){ //leaf of virtual trie.
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                } else if (m_cur_o != -1UL || m_cur_p != -1UL) {//second level nodes.
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                    m_last_iter = "";
+                } else {//first level nodes.
+                    spo_iter.up(var);
+                    sop_iter.up(var);
+                }
+                m_cur_s = -1UL;
+            } else if (is_variable_predicate(var)) {
+                if (m_cur_s != -1UL && m_cur_o != -1UL){
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                } else if (m_cur_o != -1UL || m_cur_s != -1UL) {
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                    m_last_iter = "";
+                } else {
+                    spo_iter.up(var);
+                    sop_iter.up(var);
+                }
+                m_cur_p = -1UL;
+            } else if (is_variable_object(var)) {
+                if (m_cur_s != -1UL && m_cur_p != -1UL){
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                }
+                if (m_cur_p != -1UL || m_cur_s != -1UL) {
+                    if(m_last_iter == "SPO"){
+                        spo_iter.up(var);
+                    } else{
+                        sop_iter.up(var);
+                    }
+                    m_last_iter = "";
+                } else {
+                    spo_iter.up(var);
+                    sop_iter.up(var);
+                }
+                m_cur_o = -1UL;
+            }
         };
-
-        value_type leap(var_type var) { //Return the minimum in the range
-            return m_iter.leap(var);
-        };
-
-        value_type leap(var_type var, size_type c) { //Return the next value greater or equal than c in the range
-            return m_iter.leap(var,c);
-        }
 
         bool in_last_level(){
-            return m_iter.in_last_level();
+            bool r = false;
+            if(m_last_iter == "SPO"){
+                spo_iter.in_last_level();
+            }else{
+                sop_iter.in_last_level();
+            }
+
+            return r;
         }
 
         //Solo funciona en último nivel, en otro caso habría que reajustar
         std::vector<uint64_t> seek_all(var_type var){
-            return m_iter.seek_all(var);
+            if(m_last_iter == "SPO"){
+                return spo_iter.seek_all(var);
+            }else{
+                return spo_iter.seek_all(var);
+            }
         }
-        /*
-        bwt_interval get_i_s() const{
-            return m_i_s;
+        bwt_interval get_current_interval(const var_type& var) const{
+            if (is_variable_subject(var)){
+                if(m_last_iter == "SOP"){
+                    return sop_iter.get_i_s();
+                }else{
+                    return spo_iter.get_i_s();
+                }
+            }else if (is_variable_predicate(var)){
+                if(m_last_iter == "SOP"){
+                    return sop_iter.get_i_p();
+                }else{
+                    return spo_iter.get_i_p();
+                }
+            }else if (is_variable_object(var)){
+                if(m_last_iter == "SOP"){
+                    return sop_iter.get_i_o();
+                }else{
+                    return spo_iter.get_i_o();
+                }
+            }
         }
-        bwt_interval get_i_p() const{
-            return m_i_p;
+
+        wm_type get_current_wm(const var_type& var) const{
+            if (is_variable_subject(var)){
+                if(m_last_iter == "SOP"){
+                    return m_ptr_reverse_ring->m_bwt_s.get_L();
+                }else{
+                    return m_ptr_ring->m_bwt_s.get_L();
+                }
+            }else if (is_variable_predicate(var)){
+                 if(m_last_iter == "SOP"){
+                    return m_ptr_reverse_ring->m_bwt_p.get_L();
+                }else{
+                    return m_ptr_ring->m_bwt_p.get_L();
+                }
+            }else if (is_variable_object(var)){
+                 if(m_last_iter == "SOP"){
+                    return m_ptr_reverse_ring->m_bwt_o.get_L();
+                }else{
+                    return m_ptr_ring->m_bwt_o.get_L();
+                }
+            }
         }
-        bwt_interval get_i_o() const{
-            return m_i_o;
-        }*/
     };
 
 }
 
-#endif 
+#endif

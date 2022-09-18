@@ -562,7 +562,7 @@ namespace ring {
 
 
         // S->P  (simulates going down in the trie, for the order SPO)
-        // Returns an interval within m_bwt_p    
+        // Returns an interval within m_bwt_p
         bwt_interval down_S_P(bwt_interval &s_int, uint64_t p) {
             auto I = m_bwt_p.backward_step(s_int.left(), s_int.right(), p);
             uint64_t c = m_bwt_o.get_C(p);
@@ -703,7 +703,6 @@ namespace ring {
 
         // P->O  (simulates going down in the trie, for the order OSP)
         // Returns an interval within m_bwt_p
-        //bwt_interval down_O_S(bwt_interval &o_int, uint64_t o_value, uint64_t s_value) {
         bwt_interval down_O_S(bwt_interval &o_int, uint64_t s){
             auto I = m_bwt_s.backward_step(o_int.left(), o_int.right(), s);
             uint64_t c = m_bwt_p.get_C(s);

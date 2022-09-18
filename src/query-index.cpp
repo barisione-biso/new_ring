@@ -131,7 +131,7 @@ std::string get_type(const std::string &file){
     return file.substr(p+1);
 }
 
-template<class ring_type, class reverse_ring_type>
+template<class ring_type, class reverse_ring_type, class wm_type = sdsl::bit_vector>
 void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_millis = 600){
     vector<string> dummy_queries;
     bool result = get_file_content(queries, dummy_queries);
@@ -196,7 +196,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             results_type res;
             start = high_resolution_clock::now();
             if(ring::util::configuration.uses_reverse_index()){
-                ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type> ltj(&query, &graph, &reverse_graph);
+                ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
                 ltj.join(res, number_of_results, timeout_in_millis);
             }
             else{
@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
     if(type == "ring"){
         query<ring::ring<>, ring::reverse_ring<>>(index, queries, number_of_results, timeout);
     }else if (type == "c-ring"){
-        query<ring::c_ring, ring::c_reverse_ring>(index, queries, number_of_results, timeout);
+        query<ring::c_ring, ring::c_reverse_ring, sdsl::rrr_vector<15>>>(index, queries, number_of_results, timeout);
     }else{
         std::cout << "Type of index: " << type << " is not supported." << std::endl;
     }

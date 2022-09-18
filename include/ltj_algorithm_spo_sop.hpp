@@ -33,9 +33,10 @@ namespace ring {
 
     template<class ring_t = ring<>,
     class reverse_ring_t = reverse_ring<>,
+    class wm_t = sdsl::bit_vector,
     class var_t = uint8_t,
     class cons_t = uint64_t,
-    class ltj_iterator_t = ltj_iterator_manager<ring_t,reverse_ring_t, var_t,cons_t>>//, class gao = gao_t<>
+    class ltj_iterator_t = ltj_iterator_manager<ring_t,reverse_ring_t, var_t,cons_t, wm_t>>//, class gao = gao_t<>
     class ltj_algorithm_spo_sop {
 
     public:
@@ -281,7 +282,7 @@ namespace ring {
                             iter->up(x_j);
                         }
                         //5. Next constant for x_j
-                        c = seek(x_j, c + 1);
+                        c = seek(x_j);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                 }
@@ -298,32 +299,20 @@ namespace ring {
         /**
          *
          * @param x_j   Variable
-         * @param c     Constant. If it is unknown the value is -1UL
          * @return      The next constant that matches the intersection between the triples of x_j.
          *              If the intersection is empty, it returns 0.
          */
 
-        value_type seek(const var_type x_j, value_type c=-1UL){
-            value_type c_i, c_min = UINT64_MAX, c_max = 0;
+        value_type seek(const var_type x_j){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-            while (true){
-                //Compute leap for each triple that contains x_j
-                for(ltj_iter_type* iter : itrs){
-                    if(c == -1UL){
-                        c_i = iter->leap(x_j);
-                    }else{
-                        c_i = iter->leap(x_j, c);
-                    }
-                    if(c_i == 0) {
-                        return 0; //Empty intersection
-                    }
-                    if(c_i > c_max) c_max = c_i;
-                    if(c_i < c_min) c_min = c_i;
-                    c = c_max;
-                }
-                if(c_min == c_max) return c_min;
-                c_min = UINT64_MAX; c_max = 0;
+            for(ltj_iter_type* iter : itrs){
+                //ESTO ES EXTREMADAMENTE LENTO PORQUE NO LOS RETORNO POR REFERENCIA.
+                //const auto& cur_interval = iter->get_current_interval(x_j);
+                //const auto& currrent_wm  = iter->get_current_wm(x_j);
+                nullptr;
             }
+
+            return 0;
         }
 
     };
