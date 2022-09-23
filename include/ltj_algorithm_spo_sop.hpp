@@ -55,6 +55,7 @@ namespace ring {
 
         typedef std::pair<size_type, var_type> pair_type;
         typedef std::priority_queue<pair_type, std::vector<pair_type>, greater<pair_type>> min_heap_type;
+        typedef sdsl::wm_int<wm_t> wm_type;
     private:
         const std::vector<triple_pattern>* m_ptr_triple_patterns;
         std::vector<var_type> m_gao; //TODO: should be a class
@@ -69,6 +70,15 @@ namespace ring {
         var_to_iterators_type m_var_to_iterators;
         bool m_is_empty = false;
         gao_size<ring_type, var_type, const_type, ltj_iter_type> m_gao_size;
+
+        //Stack holding WMs intersection - Variable, intersection results, ptr to last selected.
+        typedef struct {
+            var_type var;
+            std::vector<value_type> intersection;
+            value_type index_next_val;
+        } intersection_type;
+        std::stack<intersection_type> m_intersection_cache;
+
         void copy(const ltj_algorithm_spo_sop &o) {
             m_ptr_triple_patterns = o.m_ptr_triple_patterns;
             m_gao = o.m_gao;
@@ -89,6 +99,39 @@ namespace ring {
             }
         }
 
+    bool is_intersection_calculated(var_type x_j) const{
+        if(!m_intersection_cache.empty()){
+            const auto& top = m_intersection_cache.top();
+            if(top.var == x_j){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
+
+    void push_intersection(const var_type&x_j, const std::vector<value_type>&intersection){
+        intersection_type i;
+        i.var = x_j;
+        i.intersection = std::move(intersection);
+        i.index_next_val = 0;
+        m_intersection_cache.push(i);
+    }
+
+    void pop_intersection(){
+        m_intersection_cache.pop();
+    }
+    value_type get_next_value_intersection(){
+        auto& top = m_intersection_cache.top();
+        const auto& intersection = top.intersection;
+        if(intersection.size() == 0){
+            return 0;
+        }else{
+            value_type val = intersection[top.index_next_val++];
+            return val;
+        }
+    }
     public:
 
 
@@ -215,7 +258,6 @@ namespace ring {
             m_gao_stack.pop();
             m_gao_vars[v]=false;
         }
-
         /**
          *
          * @param j                 Index of the variable
@@ -265,7 +307,7 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -283,8 +325,9 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
+                    pop_intersection();
                 }
                 if(util::configuration.is_adaptive()){
                     m_gao_size.set_previous_weight();
@@ -305,17 +348,25 @@ namespace ring {
 
         value_type seek(const var_type x_j){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-            for(ltj_iter_type* iter : itrs){
-                //ESTO ES EXTREMADAMENTE LENTO PORQUE NO LOS RETORNO POR REFERENCIA.
-                //const auto& cur_interval = iter->get_current_interval(x_j);
-                //const auto& currrent_wm  = iter->get_current_wm(x_j);
-                nullptr;
+            
+            if(!is_intersection_calculated(x_j)){
+                 std::vector<std::pair<wm_type, sdsl::range_vec_type>> params;//TODO: parametrizar
+                for(ltj_iter_type* iter : itrs){
+                    //Getting the current interval and WMs of each iterator_x_j.
+                    const auto& cur_interval = iter->get_current_interval(x_j);
+                    const wm_type& currrent_wm  = iter->get_current_wm(x_j);
+                    sdsl::range_vec_type range_vec = {{cur_interval.left(), cur_interval.right()}};
+                    std::pair<wm_type, sdsl::range_vec_type> p({currrent_wm,range_vec});
+                    params.push_back(p);
+                }
+                push_intersection(x_j, sdsl::intersect_custom(params));
             }
 
-            return 0;
+            size_type next_value = get_next_value_intersection();
+            return next_value;
         }
-
     };
+
 }
 
 #endif //RING_LTJ_ALGORITHM_HPP
