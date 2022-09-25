@@ -99,39 +99,139 @@ namespace ring {
             }
         }
 
-    bool is_intersection_calculated(var_type x_j) const{
-        if(!m_intersection_cache.empty()){
-            const auto& top = m_intersection_cache.top();
-            if(top.var == x_j){
-                return true;
+        bool is_intersection_calculated(var_type x_j) const{
+            if(!m_intersection_cache.empty()){
+                const auto& top = m_intersection_cache.top();
+                if(top.var == x_j){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        void push_intersection(const var_type&x_j, const std::vector<value_type>&intersection){
+            intersection_type i;
+            i.var = x_j;
+            i.intersection = std::move(intersection);
+            i.index_next_val = 0;
+            m_intersection_cache.push(i);
+        }
+
+        void pop_intersection(){
+            m_intersection_cache.pop();
+        }
+        value_type get_next_value_intersection(){
+            auto& top = m_intersection_cache.top();
+            const auto& intersection = top.intersection;
+            if(intersection.size() == 0){
+                return 0;
             }else{
-                return false;
+                value_type val = intersection[top.index_next_val++];
+                return val;
             }
         }
-        return false;
-    }
+        using wt_ranges_type = std::pair<sdsl::wt_int<>, sdsl::range_vec_type>;
 
-    void push_intersection(const var_type&x_j, const std::vector<value_type>&intersection){
-        intersection_type i;
-        i.var = x_j;
-        i.intersection = std::move(intersection);
-        i.index_next_val = 0;
-        m_intersection_cache.push(i);
-    }
+        template <class t_wt, class pnvr_type = std::pair<typename t_wt::node_type, sdsl::range_vec_type>>
+        std::vector<typename t_wt::value_type>
+        _intersect_wts(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wts, const std::vector<pnvr_type> &nodes_v){
+            using std::get;
+            using size_type = typename t_wt::size_type;
+            using value_type = typename t_wt::value_type;
+            using node_type = typename t_wt::node_type;
+            using wt_results_type = std::vector<value_type>;
+            wt_results_type res;
+            //first node of the vector of pairs Node, Ranges.
+            auto& x = nodes_v[0].first;
+            //Ref to the first Wt.
+            t_wt wt = wts[0].first;
+            std::cout << " Level :" << x.level << std::endl;
+            if (wt.is_leaf(x))
+            {
+                // If we reach a leaf it means its corresponding symbol exists in all the WTs.
+                //std::cout << wt.sym(x) << std::endl;
+                res.emplace_back(wt.sym(x));
+                return res;
+            }
+            bool empty_right_range = false, empty_left_range = false;
+            std::vector<pnvr_type> left_children_v;
+            left_children_v.reserve(nodes_v.size() * 2);
+            std::vector<pnvr_type> right_children_v;
+            right_children_v.reserve(nodes_v.size() * 2);
+            for (size_type i = 0; i < wts.size() ; i++){
+                auto children = wts[i].first.expand(std::get<0>(nodes_v[i]));
+                auto children_ranges = wts[i].first.expand(std::get<0>(nodes_v[i]), std::get<1>(nodes_v[i]));
 
-    void pop_intersection(){
-        m_intersection_cache.pop();
-    }
-    value_type get_next_value_intersection(){
-        auto& top = m_intersection_cache.top();
-        const auto& intersection = top.intersection;
-        if(intersection.size() == 0){
-            return 0;
-        }else{
-            value_type val = intersection[top.index_next_val++];
-            return val;
+                if(!empty_left_range){
+                    if(sdsl::empty(get<0>(children_ranges)[0])){
+                        empty_left_range = true;
+                    }
+                    left_children_v.emplace_back(get<0>(children), get<0>(children_ranges));
+                }
+                if(!empty_right_range){
+                    if(sdsl::empty(get<1>(children_ranges)[0])){
+                        empty_right_range = true;
+                    }
+                    right_children_v.emplace_back(get<1>(children), get<1>(children_ranges));
+                }
+                if(empty_left_range && empty_right_range){
+                    break;
+                }
+            }
+            if(!empty_left_range){
+                res = _intersect_wts(wts,left_children_v);
+            }
+            if(!empty_right_range){
+                const auto& r = _intersect_wts(wts,right_children_v);
+                res.insert(res.end(), r.begin(), r.end());
+            }
+            return res;
         }
-    }
+
+        template <class t_wt>
+        std::vector<typename t_wt::value_type>
+        intersect_wts(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wts)
+        {
+            using std::get;
+            using size_type = typename t_wt::size_type;
+            using value_type = typename t_wt::value_type;
+            using node_type = typename t_wt::node_type;
+            using pnvr_type = std::pair<node_type, sdsl::range_vec_type>;
+            using wt_results_type = std::vector<value_type>;
+            wt_results_type res;
+
+            if(wts.size()<=0)
+                return res;
+            bool empty_right_range = false, empty_left_range = false;
+            std::vector<pnvr_type> left_children_v;
+            left_children_v.reserve(wts.size() * 2);
+            std::vector<pnvr_type> right_children_v;
+            right_children_v.reserve(wts.size() * 2);
+            
+            for (int i = 0; i < wts.size() ; i++){
+                auto children = wts[i].first.expand(wts[i].first.root());
+                auto children_ranges = wts[i].first.expand(wts[i].first.root(), wts[i].second);
+
+                if(sdsl::empty(get<0>(children_ranges)[0])){
+                    empty_left_range = true;
+                }
+                left_children_v.emplace_back(get<0>(children), get<0>(children_ranges));
+                if(sdsl::empty(get<1>(children_ranges)[0])){
+                    empty_right_range = true;
+                }
+                right_children_v.emplace_back(get<1>(children), get<1>(children_ranges));
+            }
+            if(!empty_left_range){
+                res = _intersect_wts(wts, left_children_v);
+            }
+            if(!empty_right_range){
+                const auto& r = _intersect_wts(wts,right_children_v);
+                res.insert(res.end(), r.begin(), r.end());
+            }
+            return res;
+        }
     public:
 
 
@@ -324,8 +424,11 @@ namespace ring {
                             iter->up(x_j);
                         }
                         //5. Next constant for x_j
-                        c = seek(x_j);
+                        c = seek(x_j, c + 1);
                         std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        if(c == 15323752){
+                            std::cout << "AHA" << std::endl;
+                        }
                     }
                     pop_intersection();
                 }
@@ -346,25 +449,71 @@ namespace ring {
          *              If the intersection is empty, it returns 0.
          */
 
-        value_type seek(const var_type x_j){
+        value_type seek(const var_type x_j, value_type c=-1UL){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-            
+
             if(!is_intersection_calculated(x_j)){
-                 std::vector<std::pair<wm_type, sdsl::range_vec_type>> params;//TODO: parametrizar
+                std::vector<std::pair<wm_type, sdsl::range_vec_type>> params;//TODO: parametrizar
+                value_type c = -1UL;
+                bool enhancement = false;
                 for(ltj_iter_type* iter : itrs){
                     //Getting the current interval and WMs of each iterator_x_j.
                     const auto& cur_interval = iter->get_current_interval(x_j);
+                    //Enhancement: if any cur_interval.size() < threshold then switch to regular spo.seek cause
+                    //there is no benefit on doing an intersect that is very likely to be empty.
+                    /*
+                    if(cur_interval.size() <= util::configuration.get_threshold()){
+                        c = seek_spo(x_j,c);
+                        enhancement = true;
+                        break;
+                    }*/
                     const wm_type& currrent_wm  = iter->get_current_wm(x_j);
                     sdsl::range_vec_type range_vec = {{cur_interval.left(), cur_interval.right()}};
                     std::pair<wm_type, sdsl::range_vec_type> p({currrent_wm,range_vec});
                     params.push_back(p);
                 }
-                push_intersection(x_j, sdsl::intersect_custom(params));
+                //if(!enhancement)
+                push_intersection(x_j, intersect_wts(params));
+                /*else{
+                    c = (c == -1UL) ? 0 : c;
+                    push_intersection(x_j, std::vector<value_type>({c}));
+                }*/
             }
 
             size_type next_value = get_next_value_intersection();
             return next_value;
         }
+
+        /**
+         *
+         * @param x_j   Variable
+         * @param c     Constant. If it is unknown the value is -1UL
+         * @return      The next constant that matches the intersection between the triples of x_j.
+         *              If the intersection is empty, it returns 0.
+         */
+        /*
+        value_type seek_spo(const var_type x_j, value_type c=-1UL){
+            value_type c_i, c_min = UINT64_MAX, c_max = 0;
+            std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
+            while (true){
+                //Compute leap for each triple that contains x_j
+                for(ltj_iter_type* iter : itrs){
+                    if(c == -1UL){
+                        c_i = iter->leap_spo(x_j);
+                    }else{
+                        c_i = iter->leap_spo(x_j, c);
+                    }
+                    if(c_i == 0) {
+                        return 0; //Empty intersection
+                    }
+                    if(c_i > c_max) c_max = c_i;
+                    if(c_i < c_min) c_min = c_i;
+                    c = c_max;
+                }
+                if(c_min == c_max) return c_min;
+                c_min = UINT64_MAX; c_max = 0;
+            }
+        }*/
     };
 
 }
