@@ -132,103 +132,77 @@ namespace ring {
                 return val;
             }
         }
-        using wt_ranges_type = std::pair<sdsl::wt_int<>, sdsl::range_vec_type>;
-
-        template <class t_wt, class pnvr_type = std::pair<typename t_wt::node_type, sdsl::range_vec_type>>
+        template<class t_wt>
         std::vector<typename t_wt::value_type>
-        _intersect_wts(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wts, const std::vector<pnvr_type> &nodes_v){
-            using std::get;
-            using size_type = typename t_wt::size_type;
-            using value_type = typename t_wt::value_type;
-            using node_type = typename t_wt::node_type;
-            using wt_results_type = std::vector<value_type>;
-            wt_results_type res;
-            //first node of the vector of pairs Node, Ranges.
-            auto& x = nodes_v[0].first;
-            //Ref to the first Wt.
-            t_wt wt = wts[0].first;
-            std::cout << " Level :" << x.level << std::endl;
-            if (wt.is_leaf(x))
-            {
-                // If we reach a leaf it means its corresponding symbol exists in all the WTs.
-                //std::cout << wt.sym(x) << std::endl;
-                res.emplace_back(wt.sym(x));
-                return res;
-            }
-            bool empty_right_range = false, empty_left_range = false;
-            std::vector<pnvr_type> left_children_v;
-            left_children_v.reserve(nodes_v.size() * 2);
-            std::vector<pnvr_type> right_children_v;
-            right_children_v.reserve(nodes_v.size() * 2);
-            for (size_type i = 0; i < wts.size() ; i++){
-                auto children = wts[i].first.expand(std::get<0>(nodes_v[i]));
-                auto children_ranges = wts[i].first.expand(std::get<0>(nodes_v[i]), std::get<1>(nodes_v[i]));
-
-                if(!empty_left_range){
-                    if(sdsl::empty(get<0>(children_ranges)[0])){
-                        empty_left_range = true;
-                    }
-                    left_children_v.emplace_back(get<0>(children), get<0>(children_ranges));
-                }
-                if(!empty_right_range){
-                    if(sdsl::empty(get<1>(children_ranges)[0])){
-                        empty_right_range = true;
-                    }
-                    right_children_v.emplace_back(get<1>(children), get<1>(children_ranges));
-                }
-                if(empty_left_range && empty_right_range){
-                    break;
-                }
-            }
-            if(!empty_left_range){
-                res = _intersect_wts(wts,left_children_v);
-            }
-            if(!empty_right_range){
-                const auto& r = _intersect_wts(wts,right_children_v);
-                res.insert(res.end(), r.begin(), r.end());
-            }
-            return res;
-        }
-
-        template <class t_wt>
-        std::vector<typename t_wt::value_type>
-        intersect_wts(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wts)
+        intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
         {
             using std::get;
-            using size_type = typename t_wt::size_type;
-            using value_type = typename t_wt::value_type;
-            using node_type = typename t_wt::node_type;
-            using pnvr_type = std::pair<node_type, sdsl::range_vec_type>;
-            using wt_results_type = std::vector<value_type>;
-            wt_results_type res;
+            using size_type      = typename t_wt::size_type;
+            using value_type     = typename t_wt::value_type;
+            using node_type      = typename t_wt::node_type;
+            using range_type     = typename sdsl::range_vec_type;
+            typedef struct {
+                const t_wt& wt;
+                node_type node;
+                range_type ranges;
+            } tuple_type;
+            using stack_vector_type = std::vector<tuple_type>;
+            typedef std::stack<stack_vector_type> stack_type;
 
-            if(wts.size()<=0)
-                return res;
-            bool empty_right_range = false, empty_left_range = false;
-            std::vector<pnvr_type> left_children_v;
-            left_children_v.reserve(wts.size() * 2);
-            std::vector<pnvr_type> right_children_v;
-            right_children_v.reserve(wts.size() * 2);
-            
-            for (int i = 0; i < wts.size() ; i++){
-                auto children = wts[i].first.expand(wts[i].first.root());
-                auto children_ranges = wts[i].first.expand(wts[i].first.root(), wts[i].second);
+            std::vector<value_type> res;
+            stack_vector_type vec;
+            for(const std::pair<t_wt, range_type> & wt_ranges : wt_ranges_v){
+                const t_wt& wt = wt_ranges.first;
+                //Can't be const & cause both node and ranges can get invalid / deleted during execution.
+                node_type node = wt.root();
+                range_type ranges = wt_ranges.second;
+                //tuple_type t = {wt, node, ranges};
+                vec.emplace_back(tuple_type{wt, node, ranges});
+            }
+            stack_type stack;
+            stack.emplace(vec);
 
-                if(sdsl::empty(get<0>(children_ranges)[0])){
-                    empty_left_range = true;
+            while (!stack.empty()) {
+                bool symbol_reported = false;
+                stack_vector_type wt_ranges_level_v = stack.top(); stack.pop();
+                bool empty_left_range = false, empty_right_range = false;
+                stack_vector_type left_children_v;
+                stack_vector_type right_children_v;
+                for(const tuple_type& data : wt_ranges_level_v){
+                    const t_wt& wt = data.wt;
+                    const node_type& node = data.node;
+                    const range_type& ranges = data.ranges;
+                    if (wt.is_leaf(node)) {
+                            res.emplace_back(wt.sym(node));
+                            symbol_reported = true;
+                            break;//No need to continue with the other tuples.
+                    } else {
+                        if(empty_left_range && empty_right_range){
+                            break;
+                        }
+
+                        auto children = wt.expand(node);
+                        auto children_ranges = wt.expand(node, ranges);
+                        if(!empty_left_range){
+                            if(sdsl::empty(std::get<0>(children_ranges)[0])){
+                                empty_left_range = true;
+                            }
+                            left_children_v.emplace_back(tuple_type{wt, get<0>(children), get<0>(children_ranges)});
+                        }
+                        if(!empty_right_range){
+                            if(sdsl::empty(std::get<1>(children_ranges)[0])){
+                                empty_right_range = true;
+                            }
+                            right_children_v.emplace_back(tuple_type{wt, get<1>(children), get<1>(children_ranges)});
+                        }
+                    }
                 }
-                left_children_v.emplace_back(get<0>(children), get<0>(children_ranges));
-                if(sdsl::empty(get<1>(children_ranges)[0])){
-                    empty_right_range = true;
+                if(!symbol_reported && !empty_right_range){
+                    stack.emplace(right_children_v);
                 }
-                right_children_v.emplace_back(get<1>(children), get<1>(children_ranges));
-            }
-            if(!empty_left_range){
-                res = _intersect_wts(wts, left_children_v);
-            }
-            if(!empty_right_range){
-                const auto& r = _intersect_wts(wts,right_children_v);
-                res.insert(res.end(), r.begin(), r.end());
+                if(!symbol_reported && !empty_left_range){
+                    stack.emplace(left_children_v);
+                }
             }
             return res;
         }
@@ -426,9 +400,6 @@ namespace ring {
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
                         std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                        if(c == 15323752){
-                            std::cout << "AHA" << std::endl;
-                        }
                     }
                     pop_intersection();
                 }
@@ -473,7 +444,7 @@ namespace ring {
                     params.push_back(p);
                 }
                 //if(!enhancement)
-                push_intersection(x_j, intersect_wts(params));
+                push_intersection(x_j, intersect_iter(params));
                 /*else{
                     c = (c == -1UL) ? 0 : c;
                     push_intersection(x_j, std::vector<value_type>({c}));
