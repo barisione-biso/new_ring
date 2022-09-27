@@ -151,7 +151,9 @@ namespace ring {
             }
             return *this;
         }
-
+        std::string get_order() const{
+            return m_last_iter != "" ? m_last_iter : "SPO-SOP";
+        }
         void swap(ltj_iterator_manager &o) {
             // m_bp.swap(bp_support.m_bp); use set_vector to set the supported bit_vector
             std::swap(m_ptr_triple_pattern, o.m_ptr_triple_pattern);
@@ -256,7 +258,7 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    m_last_iter = "";
+                    //m_last_iter = "";
                 } else {//first level nodes.
                     spo_iter.up(var);
                     sop_iter.up(var);
@@ -275,7 +277,7 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    m_last_iter = "";
+                    //m_last_iter = "";
                 } else {
                     spo_iter.up(var);
                     sop_iter.up(var);
@@ -295,7 +297,7 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    m_last_iter = "";
+                    //m_last_iter = "";
                 } else {
                     spo_iter.up(var);
                     sop_iter.up(var);
@@ -346,6 +348,12 @@ namespace ring {
         }
 
         wm_type get_current_wm(const var_type& var) const{
+            /*sdsl::store_to_file(m_ptr_ring->m_bwt_s.get_L(), "spo_wm_s");
+            sdsl::store_to_file(m_ptr_ring->m_bwt_p.get_L(), "spo_wm_p");
+            sdsl::store_to_file(m_ptr_ring->m_bwt_o.get_L(), "spo_wm_o");
+            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_s.get_L(), "sop_wm_s");
+            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_p.get_L(), "sop_wm_p");
+            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_o.get_L(), "sop_wm_o");*/
             if (is_variable_subject(var)){
                 if(m_last_iter == "SOP"){
                     return m_ptr_reverse_ring->m_bwt_s.get_L();

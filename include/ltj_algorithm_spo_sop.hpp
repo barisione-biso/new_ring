@@ -128,6 +128,9 @@ namespace ring {
             if(intersection.size() == 0){
                 return 0;
             }else{
+                if(top.index_next_val >= intersection.size())
+                    return 0;
+
                 value_type val = intersection[top.index_next_val++];
                 return val;
             }
@@ -381,6 +384,9 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
+                    if(c == 835701){
+                        std::cout << " hmmm ... " << std::endl;
+                    }
                     std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
@@ -425,66 +431,23 @@ namespace ring {
 
             if(!is_intersection_calculated(x_j)){
                 std::vector<std::pair<wm_type, sdsl::range_vec_type>> params;//TODO: parametrizar
-                value_type c = -1UL;
-                bool enhancement = false;
+                std::cout << "Intersecting ";
                 for(ltj_iter_type* iter : itrs){
                     //Getting the current interval and WMs of each iterator_x_j.
                     const auto& cur_interval = iter->get_current_interval(x_j);
-                    //Enhancement: if any cur_interval.size() < threshold then switch to regular spo.seek cause
-                    //there is no benefit on doing an intersect that is very likely to be empty.
-                    /*
-                    if(cur_interval.size() <= util::configuration.get_threshold()){
-                        c = seek_spo(x_j,c);
-                        enhancement = true;
-                        break;
-                    }*/
-                    const wm_type& currrent_wm  = iter->get_current_wm(x_j);
-                    sdsl::range_vec_type range_vec = {{cur_interval.left(), cur_interval.right()}};
-                    std::pair<wm_type, sdsl::range_vec_type> p({currrent_wm,range_vec});
+                    const wm_type& current_wm  = iter->get_current_wm(x_j);
+                     sdsl::range_vec_type range_vec = {{cur_interval.left(), cur_interval.right()}};
+                    std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    std::pair<wm_type, sdsl::range_vec_type> p({current_wm,range_vec});
                     params.push_back(p);
                 }
-                //if(!enhancement)
+                std::cout << "" << std::endl;
                 push_intersection(x_j, intersect_iter(params));
-                /*else{
-                    c = (c == -1UL) ? 0 : c;
-                    push_intersection(x_j, std::vector<value_type>({c}));
-                }*/
             }
 
             size_type next_value = get_next_value_intersection();
             return next_value;
         }
-
-        /**
-         *
-         * @param x_j   Variable
-         * @param c     Constant. If it is unknown the value is -1UL
-         * @return      The next constant that matches the intersection between the triples of x_j.
-         *              If the intersection is empty, it returns 0.
-         */
-        /*
-        value_type seek_spo(const var_type x_j, value_type c=-1UL){
-            value_type c_i, c_min = UINT64_MAX, c_max = 0;
-            std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-            while (true){
-                //Compute leap for each triple that contains x_j
-                for(ltj_iter_type* iter : itrs){
-                    if(c == -1UL){
-                        c_i = iter->leap_spo(x_j);
-                    }else{
-                        c_i = iter->leap_spo(x_j, c);
-                    }
-                    if(c_i == 0) {
-                        return 0; //Empty intersection
-                    }
-                    if(c_i > c_max) c_max = c_i;
-                    if(c_i < c_min) c_min = c_i;
-                    c = c_max;
-                }
-                if(c_min == c_max) return c_min;
-                c_min = UINT64_MAX; c_max = 0;
-            }
-        }*/
     };
 
 }
