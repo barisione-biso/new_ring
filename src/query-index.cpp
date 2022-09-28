@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
     if(type == "ring"){
         query<ring::ring<>, ring::reverse_ring<>>(index, queries, number_of_results, timeout);
     }else if (type == "c-ring"){
-        query<ring::c_ring, ring::c_reverse_ring, sdsl::rrr_vector<15>>>(index, queries, number_of_results, timeout);
+        query<ring::c_ring, ring::c_reverse_ring, sdsl::rrr_vector<15>>(index, queries, number_of_results, timeout);
     }else{
         std::cout << "Type of index: " << type << " is not supported." << std::endl;
     }
