@@ -135,15 +135,15 @@ namespace ring {
                 return val;
             }
         }
-        template<class t_wt>
+        template<class t_wt, class range_type = typename sdsl::range_vec_type>
         std::vector<typename t_wt::value_type>
-        intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
+        //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
+        intersect_iter(const std::vector<t_wt>& p_wts, const std::vector<range_type>& p_ranges)
         {
             using std::get;
             using size_type      = typename t_wt::size_type;
             using value_type     = typename t_wt::value_type;
             using node_type      = typename t_wt::node_type;
-            using range_type     = typename sdsl::range_vec_type;
             typedef struct {
                 const t_wt& wt;
                 node_type node;
@@ -154,11 +154,11 @@ namespace ring {
 
             std::vector<value_type> res;
             stack_vector_type vec;
-            for(const std::pair<t_wt, range_type> & wt_ranges : wt_ranges_v){
-                const t_wt& wt = wt_ranges.first;
+            for(size_type i=0; i < p_wts.size(); i++){
+                const t_wt& wt = p_wts[i];
                 //Can't be const & cause both node and ranges can get invalid / deleted during execution.
                 node_type node = wt.root();
-                range_type ranges = wt_ranges.second;
+                range_type ranges = p_ranges[i];
                 //tuple_type t = {wt, node, ranges};
                 vec.emplace_back(tuple_type{wt, node, ranges});
             }
@@ -387,7 +387,7 @@ namespace ring {
                     if(c == 835701){
                         std::cout << " hmmm ... " << std::endl;
                     }
-                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -405,7 +405,7 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                     pop_intersection();
                 }
@@ -430,19 +430,19 @@ namespace ring {
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
 
             if(!is_intersection_calculated(x_j)){
-                std::vector<std::pair<wm_type, sdsl::range_vec_type>> params;//TODO: parametrizar
                 std::cout << "Intersecting ";
+                std::vector<wm_type> wms;
+                std::vector<sdsl::range_vec_type> ranges;
                 for(ltj_iter_type* iter : itrs){
                     //Getting the current interval and WMs of each iterator_x_j.
                     const auto& cur_interval = iter->get_current_interval(x_j);
                     const wm_type& current_wm  = iter->get_current_wm(x_j);
-                     sdsl::range_vec_type range_vec = {{cur_interval.left(), cur_interval.right()}};
+                    wms.emplace_back(current_wm);
+                    ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
                     std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
-                    std::pair<wm_type, sdsl::range_vec_type> p({current_wm,range_vec});
-                    params.push_back(p);
                 }
                 std::cout << "" << std::endl;
-                push_intersection(x_j, intersect_iter(params));
+                push_intersection(x_j, intersect_iter(wms,ranges));
             }
 
             size_type next_value = get_next_value_intersection();
