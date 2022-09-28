@@ -71,6 +71,7 @@ set(TEST_TARGETS
     wavelet_matrices_runs
     test_colored_range_counting_wm_2
     test_colored_range_counting_wm_3
+    test_ring_sop
 )
 
 add_test(NAME test_vm COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build/test_wm)

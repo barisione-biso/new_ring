@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/query-index",
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
                     "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt",
-                    "one_ring_muthu_leap_adaptive",
+                    "sigmod21",
                     "0", "1"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -32,8 +32,48 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/build-index",
-            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated-red.dat",
+            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat",
                     "ring"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "test_ring_spo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_ring_spo",
+            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring.spo"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "test_ring_sop",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_ring_sop",
+            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring.sop"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
