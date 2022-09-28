@@ -427,7 +427,7 @@ namespace ring {
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
 
             if(!is_intersection_calculated(x_j)){
-                std::cout << "Intersecting ";
+                //std::cout << "Intersecting ";
                 std::vector<wm_type> wms;
                 std::vector<sdsl::range_vec_type> ranges;
                 for(ltj_iter_type* iter : itrs){
@@ -436,9 +436,9 @@ namespace ring {
                     const wm_type& current_wm  = iter->get_current_wm(x_j);
                     wms.emplace_back(current_wm);
                     ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
-                    std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    //std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }
-                std::cout << "" << std::endl;
+                //std::cout << "" << std::endl;
                 push_intersection(x_j, intersect_iter(wms,ranges));
             }
 
