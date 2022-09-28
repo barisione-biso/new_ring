@@ -140,6 +140,7 @@ namespace ring {
         //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
         intersect_iter(const std::vector<t_wt>& p_wts, const std::vector<range_type>& p_ranges)
         {
+            
             using std::get;
             using size_type      = typename t_wt::size_type;
             using value_type     = typename t_wt::value_type;
@@ -154,6 +155,7 @@ namespace ring {
 
             std::vector<value_type> res;
             stack_vector_type vec;
+            stack_type stack;
             for(size_type i=0; i < p_wts.size(); i++){
                 const t_wt& wt = p_wts[i];
                 //Can't be const & cause both node and ranges can get invalid / deleted during execution.
@@ -162,8 +164,9 @@ namespace ring {
                 //tuple_type t = {wt, node, ranges};
                 vec.emplace_back(tuple_type{wt, node, ranges});
             }
-            stack_type stack;
-            stack.emplace(vec);
+            if(p_wts.size() > 0){
+                stack.emplace(vec);
+            }
 
             while (!stack.empty()) {
                 bool symbol_reported = false;
@@ -222,7 +225,6 @@ namespace ring {
             size_type i = 0;
             m_iterators.resize(m_ptr_triple_patterns->size());
             for(const auto& triple : *m_ptr_triple_patterns){
-                triple_pattern triple_r = triple;
                 //Bulding iterators
                 m_iterators[i] = ltj_iter_type(&triple, m_ptr_ring, m_ptr_reverse_ring);
                 if(m_iterators[i].is_empty){
@@ -384,7 +386,7 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -402,7 +404,7 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                     pop_intersection();
                 }
@@ -425,9 +427,9 @@ namespace ring {
 
         value_type seek(const var_type x_j, value_type c=-1UL){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-
+            
             if(!is_intersection_calculated(x_j)){
-                //std::cout << "Intersecting ";
+                std::cout << "Intersecting ";
                 std::vector<wm_type> wms;
                 std::vector<sdsl::range_vec_type> ranges;
                 for(ltj_iter_type* iter : itrs){
@@ -436,9 +438,9 @@ namespace ring {
                     const wm_type& current_wm  = iter->get_current_wm(x_j);
                     wms.emplace_back(current_wm);
                     ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
-                    //std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }
-                //std::cout << "" << std::endl;
+                std::cout << "" << std::endl;
                 push_intersection(x_j, intersect_iter(wms,ranges));
             }
 
