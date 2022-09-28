@@ -138,7 +138,7 @@ namespace ring {
         template<class t_wt, class range_type = typename sdsl::range_vec_type>
         std::vector<typename t_wt::value_type>
         //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
-        intersect_iter(const std::vector<t_wt>& p_wts, const std::vector<range_type>& p_ranges)
+        intersect_iter(const std::vector<t_wt*>& p_wts, const std::vector<range_type>& p_ranges)
         {
             
             using std::get;
@@ -157,7 +157,7 @@ namespace ring {
             stack_vector_type vec;
             stack_type stack;
             for(size_type i=0; i < p_wts.size(); i++){
-                const t_wt& wt = p_wts[i];
+                const t_wt& wt = *p_wts[i];
                 //Can't be const & cause both node and ranges can get invalid / deleted during execution.
                 node_type node = wt.root();
                 range_type ranges = p_ranges[i];
@@ -441,7 +441,7 @@ namespace ring {
                     //std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }
                 std::cout << "" << std::endl;
-                //push_intersection(x_j, intersect_iter(wms,ranges));
+                push_intersection(x_j, intersect_iter(wms,ranges));
             }
 
             size_type next_value = get_next_value_intersection();
