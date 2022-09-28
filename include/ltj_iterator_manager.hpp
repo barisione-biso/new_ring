@@ -347,7 +347,7 @@ namespace ring {
             }
         }
 
-        wm_type get_current_wm(const var_type& var) const{
+        const wm_type& get_current_wm(const var_type& var) const{
             /*sdsl::store_to_file(m_ptr_ring->m_bwt_s.get_L(), "spo_wm_s");
             sdsl::store_to_file(m_ptr_ring->m_bwt_p.get_L(), "spo_wm_p");
             sdsl::store_to_file(m_ptr_ring->m_bwt_o.get_L(), "spo_wm_o");

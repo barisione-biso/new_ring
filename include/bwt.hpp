@@ -219,7 +219,7 @@ namespace ring {
             return {m_L.rank(c + I.first, S), m_L.rank(c + I.second, S)};
         }
 
-        bwt_type get_L() const{
+        const bwt_type& get_L() const{
             return m_L;
         }
     };
