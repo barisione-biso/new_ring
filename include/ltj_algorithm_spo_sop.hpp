@@ -384,9 +384,6 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    if(c == 835701){
-                        std::cout << " hmmm ... " << std::endl;
-                    }
                     //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
