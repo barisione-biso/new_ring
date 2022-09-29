@@ -1,6 +1,6 @@
 /*
  * ltj_algorithm_spo_sop.hpp
- * Copyright (C) 2020 Author removed for double-blind evaluation
+ * Copyright (C) 2022 Fabrizio
  *
  *
  * This is free software: you can redistribute it and/or modify it

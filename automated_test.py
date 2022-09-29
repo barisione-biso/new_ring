@@ -87,7 +87,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     aux3=lists_of_rows[2][index][0].split(";")
     aux4=lists_of_rows[3][index][0].split(";")
     aux5=lists_of_rows[4][index][0].split(";")
-    if aux[1] != aux2[1] and aux[1] != aux3[1] and aux[1] != aux4[1]:
+    if aux[1] != aux2[1] or aux[1] != aux3[1] or aux[1] != aux4[1] or aux[1] != aux5[1]:
         num_of_results_error=num_of_results_error+1
 
     sigmod21_performance.append(int(aux[2]))
