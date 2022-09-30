@@ -48,12 +48,12 @@ namespace ring {
         const triple_pattern *m_ptr_triple_pattern;
         ring_type *m_ptr_ring; //TODO: should be const
         reverse_ring_type *m_ptr_reverse_ring;
-        bwt_interval m_i_s;
-        bwt_interval m_i_o;
-        bwt_interval m_i_p;
-        value_type m_cur_s;
-        value_type m_cur_o;
-        value_type m_cur_p;
+        bwt_interval m_i_s;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        bwt_interval m_i_o;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        bwt_interval m_i_p;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        value_type m_cur_s;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        value_type m_cur_o;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        value_type m_cur_p;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
         bool m_is_empty = false;
         ltj_iter_type spo_iter;
         ltj_reverse_iter_type sop_iter;
@@ -169,7 +169,40 @@ namespace ring {
             std::swap(spo_iter, o.spo_iter);
             std::swap(sop_iter,o.sop_iter);
         }
-
+        void set_iter(var_type var){
+            if (is_variable_subject(var)) {
+                if (m_cur_o != -1UL && m_cur_p != -1UL){
+                    return;
+                } else if (m_cur_o != -1UL) {
+                    //OS->P
+                    m_last_iter = "SOP";
+                } else if (m_cur_p != -1UL) {
+                    //PS->O
+                    m_last_iter = "SPO";
+                } 
+            } else if (is_variable_predicate(var)) {
+                if (m_cur_s != -1UL && m_cur_o != -1UL){
+                    return;
+                } else if (m_cur_o != -1UL) {
+                    //OP->S
+                    m_last_iter = "SPO";
+                } else if (m_cur_s != -1UL) {
+                    //SP->O
+                    m_last_iter = "SOP";
+                }
+            } else if (is_variable_object(var)) {
+                if (m_cur_s != -1UL && m_cur_p != -1UL){
+                    return;
+                }
+                if (m_cur_p != -1UL) {
+                    //PO->S
+                    m_last_iter = "SOP";
+                } else if (m_cur_s != -1UL) {
+                    //SO->P
+                    m_last_iter = "SPO";
+                }
+            }
+        }
         void down(var_type var, size_type c) { //Go down in the trie
             //spo_iter.down(var,c);
             if (is_variable_subject(var)) {
@@ -348,12 +381,6 @@ namespace ring {
         }
 
         const wm_type& get_current_wm(const var_type& var) const{
-            /*sdsl::store_to_file(m_ptr_ring->m_bwt_s.get_L(), "spo_wm_s");
-            sdsl::store_to_file(m_ptr_ring->m_bwt_p.get_L(), "spo_wm_p");
-            sdsl::store_to_file(m_ptr_ring->m_bwt_o.get_L(), "spo_wm_o");
-            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_s.get_L(), "sop_wm_s");
-            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_p.get_L(), "sop_wm_p");
-            sdsl::store_to_file(m_ptr_reverse_ring->m_bwt_o.get_L(), "sop_wm_o");*/
             if (is_variable_subject(var)){
                 if(m_last_iter == "SOP"){
                     return m_ptr_reverse_ring->m_bwt_s.get_L();
