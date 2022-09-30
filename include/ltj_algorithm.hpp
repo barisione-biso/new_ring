@@ -254,7 +254,8 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -272,7 +273,10 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        if(c==77629){
+                            std::cout << " Hmm " << std::endl;
+                        }
                     }
                 }
                 if(util::configuration.is_adaptive()){

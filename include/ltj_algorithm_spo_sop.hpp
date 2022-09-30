@@ -210,6 +210,7 @@ namespace ring {
                     stack.emplace(left_children_v);
                 }
             }
+            std::cout << "Intersection size: " << res.size() << std::endl;
             return res;
         }
     public:
@@ -386,7 +387,7 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
@@ -404,7 +405,7 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                     pop_intersection();
                 }
@@ -429,7 +430,7 @@ namespace ring {
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
             
             if(!is_intersection_calculated(x_j)){
-                //std::cout << "Intersecting ";
+                std::cout << "Intersecting ";
                 std::vector<wm_type*> wms;
                 std::vector<sdsl::range_vec_type> ranges;
                 for(ltj_iter_type* iter : itrs){
@@ -437,10 +438,11 @@ namespace ring {
                     const auto& cur_interval = iter->get_current_interval(x_j);
                     const wm_type& current_wm  = iter->get_current_wm(x_j);
                     wms.emplace_back(&current_wm);
-                    ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
-                    //std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    //assert (cur_interval.right() >= cur_interval.left() ); TODO: ENABLE.
+                    ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left() - 1 , cur_interval.right() + 1}});
+                    std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }
-                //std::cout << "" << std::endl;
+                std::cout << "" << std::endl;
                 push_intersection(x_j, intersect_iter(wms,ranges));
             }
 

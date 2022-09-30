@@ -361,7 +361,7 @@ namespace ring {
 #if VERBOSE
                     std::cout << "down_P_O" << std::endl;
 #endif
-                    m_i_s = m_ptr_ring->down_P_O(m_i_o, m_cur_p, c);
+                    m_i_s = m_ptr_ring->down_P_O(m_i_o, c);
                 } else if (m_cur_s != -1UL) {
                     //SO->P
 #if VERBOSE

@@ -628,21 +628,6 @@ namespace ring {
             return bwt_interval(i.first, i.second);
         }
         
-        // P->O  (simulates going down in the trie, for the order POS)
-        // Returns an interval within m_bwt_p
-        bwt_interval down_P_O(bwt_interval &p_int, uint64_t p_value, uint64_t o_value) {
-            std::pair<uint64_t, uint64_t> q = p_int.get_stored_values();
-            uint64_t b = q.first;
-            if (q.first == (uint64_t) -1) {
-                q = m_bwt_p.select_next(o_value, p_value, m_bwt_s.nElems(p_value));
-                b = m_bwt_p.bsearch_C(q.first) - 1;
-            }
-            uint64_t nE = m_bwt_p.rank(b + 1, p_value) - m_bwt_p.rank(b, p_value);
-            uint64_t start = q.second;
-
-            return bwt_interval(p_int.left() + start, p_int.left() + start + nE - 1);
-        }
-        
         bwt_interval down_P_O(bwt_interval &p_int, uint64_t o) {
             auto I = m_bwt_o.backward_step(p_int.left(), p_int.right(), o);
             uint64_t c = m_bwt_s.get_C(o);
