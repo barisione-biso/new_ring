@@ -386,9 +386,12 @@ namespace ring {
                         itrs[0]->up(x_j);
                     }
                 }else {
-                    for (ltj_iter_type* iter : itrs) {
+                    //Set the index the algorithm will use before the first seek and only in the first level.
+                    if(itrs[0]->get_index_permutation() == ""){
+                        for (ltj_iter_type* iter : itrs) {
                             iter->set_iter(x_j);
                         }
+                    }
                     value_type c = seek(x_j);
                     //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     while (c != 0) { //If empty c=0
@@ -443,7 +446,7 @@ namespace ring {
                     wms.emplace_back(&current_wm);
                     assert (cur_interval.right() >= cur_interval.left() );
                     ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
-                    //std::cout << "iter used: " << iter->get_order() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }
                 //std::cout << "" << std::endl;
                 push_intersection(x_j, intersect_iter(wms,ranges));
