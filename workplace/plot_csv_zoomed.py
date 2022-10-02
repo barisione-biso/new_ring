@@ -15,6 +15,7 @@ parser.add_argument("-f", "--First", help = "First csv in the plot.", required=T
 parser.add_argument("-s", "--Second", help = "Second csv in the plot.", required=True)
 parser.add_argument("-t", "--Third", help = "Third csv in the plot.", required=True)
 parser.add_argument("-fo", "--Fourth", help = "Fourth csv in the plot.", required=True)
+parser.add_argument("-fi", "--Fifth", help = "Fifth csv in the plot.", required=True)
 parser.add_argument("-o", "--OutputFolder", help = "Output folder.")
 
 # Read arguments from command line
@@ -26,7 +27,7 @@ if args.OutputFolder:
 '''
 
 lists_of_rows = [] #A list of lists.
-files = [ args.First, args.Second, args.Third, args.Fourth]
+files = [ args.First, args.Second, args.Third, args.Fourth, args.Fifth]
 
 print("****** Plotting Starts.")
 #SECOND PART
@@ -58,19 +59,22 @@ sigmod21_performance = []
 one_ring_muthu_leap_performance = []
 one_ring_muthu_adaptive_leap_performance = []
 sigmod21_adaptive_performance = []
+backward_only_performance = []
 for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
     aux=sigmod_row[0].split(";")
     aux2=lists_of_rows[1][index][0].split(";")
     aux3=lists_of_rows[2][index][0].split(";")
     aux4=lists_of_rows[3][index][0].split(";")
-    if aux[1] != aux2[1] and aux[1] != aux3[1] and aux[1] != aux4[1]:
+    aux5=lists_of_rows[4][index][0].split(";")
+    if aux[1] != aux2[1] or aux[1] != aux3[1] or aux[1] != aux4[1] or aux[1] != aux5[1]:
         num_of_results_error=num_of_results_error+1
 
     sigmod21_performance.append(int(aux[2]))
     one_ring_muthu_leap_performance.append(int(aux2[2]))
     one_ring_muthu_adaptive_leap_performance.append(int(aux3[2]))
     sigmod21_adaptive_performance.append(int(aux4[2]))
+    backward_only_performance.append(int(aux5[2]))
 
 print("****** Number of different results: ", num_of_results_error)
 
@@ -87,7 +91,8 @@ print("****** Plotting variants using matplotlib.")
 d = {'Orig': sigmod21_performance,
     'Orig Adaptive': sigmod21_adaptive_performance,
     'Muthu': one_ring_muthu_leap_performance,
-    'Muthu adaptive': one_ring_muthu_adaptive_leap_performance}
+    'Muthu adaptive': one_ring_muthu_adaptive_leap_performance,
+    'Backward' : backward_only_performance}
 
 df = pd.DataFrame(data = d)
 plt.ylim(10000, 15000000)

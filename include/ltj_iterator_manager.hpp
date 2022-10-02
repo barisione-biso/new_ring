@@ -351,8 +351,8 @@ namespace ring {
 
         //Solo funciona en último nivel, en otro caso habría que reajustar
         std::vector<uint64_t> seek_all(var_type var){
-            if(m_last_iter == "SPO"){
-                return spo_iter.seek_all(var);
+            if(m_last_iter == "SOP"){
+                return sop_iter.seek_all(var);
             }else{
                 return spo_iter.seek_all(var);
             }
