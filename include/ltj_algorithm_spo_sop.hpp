@@ -444,7 +444,7 @@ namespace ring {
                     const auto& cur_interval = iter->get_current_interval(x_j);
                     const wm_type& current_wm  = iter->get_current_wm(x_j);
                     wms.emplace_back(&current_wm);
-                    assert (cur_interval.right() >= cur_interval.left() );
+                    //assert (cur_interval.right() >= cur_interval.left() );
                     ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
                     //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                 }

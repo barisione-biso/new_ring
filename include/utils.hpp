@@ -43,7 +43,7 @@ namespace ring {
                 bool m_muthu;
                 bool m_adaptive;
                 bool m_reverse_index;
-                size_type m_threshold;
+                const size_type m_threshold;
                 execution_mode get_execution_mode(std::string &mode){
                     execution_mode ex_mode = execution_mode::sigmod21;
                     std::unordered_map<std::string,execution_mode>::iterator item;
@@ -99,7 +99,7 @@ namespace ring {
                                         {"backward_only", execution_mode::backward_only}
                                     };
                 };
-                size_type get_threshold() const{
+                inline size_type get_threshold() const{
                     return m_threshold;
                 }
                 bool is_adaptive() const{
@@ -208,8 +208,8 @@ namespace ring {
                     num_distinct_values_o = ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_s.left(), iter.i_s.right());
                 }
 
-                assert (num_distinct_values_s <= iter.i_s.size());
-                assert (num_distinct_values_o <= iter.i_s.size());
+                //assert (num_distinct_values_s <= iter.i_s.size());
+                //assert (num_distinct_values_o <= iter.i_s.size());
                 //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_s.size() << std::endl;
                 //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_s.size() << std::endl;
                 hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});

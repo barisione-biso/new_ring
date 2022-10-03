@@ -362,6 +362,7 @@ namespace ring {
         // P->S  (simulates going down in the trie, for the order PSO)
         // Returns an interval within m_bwt_o
         bwt_interval down_P_S(bwt_interval &p_int, uint64_t p_value, uint64_t s_value) {
+            std::cout << "SOP forward down_P_S" << std::endl;
             std::pair<uint64_t, uint64_t> q = p_int.get_stored_values();
             uint64_t b = q.first;
             if (q.first == (uint64_t) -1) {
@@ -375,6 +376,7 @@ namespace ring {
         }
     
         uint64_t min_O_in_S(bwt_interval &s_int, uint64_t s_value) {
+            std::cout << "SOP forward min_O_in_S" << std::endl;
             std::pair<uint64_t, uint64_t> q;
             q = m_bwt_s.select_next(1, s_value, m_bwt_p.nElems(s_value));
             uint64_t b = m_bwt_s.bsearch_C(q.first) - 1;
@@ -383,6 +385,7 @@ namespace ring {
         }
    
         uint64_t next_O_in_S(bwt_interval &I, uint64_t s_value, uint64_t o_value) {
+            std::cout << "SOP forward next_O_in_S" << std::endl;
             if (o_value > m_max_o) return 0;
 
             std::pair<uint64_t, uint64_t> q;
@@ -423,6 +426,7 @@ namespace ring {
         // O->P  (simulates going down in the trie)
         // Returns an interval within m_bwt_s
         bwt_interval down_O_P(bwt_interval &o_int, uint64_t o_value, uint64_t p_value) {
+            std::cout << "SOP forward down_O_P" << std::endl;
             std::pair<uint64_t, uint64_t> q = o_int.get_stored_values();
             uint64_t b = q.first;
             if (q.first == (uint64_t) -1) {
@@ -452,6 +456,7 @@ namespace ring {
 
 
         uint64_t min_S_in_P(bwt_interval &p_int, uint64_t p_value) {
+            std::cout << "SOP forward min_S_in_P" << std::endl;
             std::pair<uint64_t, uint64_t> q;
             q = m_bwt_p.select_next(1, p_value, m_bwt_o.nElems(p_value));
             uint64_t b = m_bwt_p.bsearch_C(q.first) - 1;
@@ -460,6 +465,7 @@ namespace ring {
         }
         
         uint64_t next_S_in_P(bwt_interval &I, uint64_t p_value, uint64_t s_value) {
+            std::cout << "SOP forward next_S_in_P" << std::endl;
             if (s_value > m_max_s) return 0;
 
             std::pair<uint64_t, uint64_t> q;
@@ -487,6 +493,7 @@ namespace ring {
         // S->O  (simulates going down in the trie)
         // Returns an interval within m_bwt_p
         bwt_interval down_S_O(bwt_interval &s_int, uint64_t s_value, uint64_t o_value) {
+            std::cout << "SOP forward down_S_O" << std::endl;
             std::pair<uint64_t, uint64_t> q = s_int.get_stored_values();
             uint64_t b = q.first;
             if (q.first == (uint64_t) -1) {
@@ -514,6 +521,7 @@ namespace ring {
         }
 
         uint64_t min_P_in_O(bwt_interval &o_int, uint64_t o_value) {
+            std::cout << "SOP forward min_P_in_O" << std::endl;
             std::pair<uint64_t, uint64_t> q;
             q = m_bwt_o.select_next(1, o_value, m_bwt_s.nElems(o_value));
             uint64_t b = m_bwt_o.bsearch_C(q.first) - 1;
@@ -522,6 +530,7 @@ namespace ring {
         }
 
         uint64_t next_P_in_O(bwt_interval &I, uint64_t o_value, uint64_t p_value) {
+            std::cout << "SOP forward next_P_in_O" << std::endl;
             if (p_value > m_max_p) return 0;
 
             std::pair<uint64_t, uint64_t> q;
@@ -686,8 +695,8 @@ namespace ring {
             return bwt_interval(i.first, i.second);
         }
 
-        // P->O  (simulates going down in the trie, for the order OSP)
-        // Returns an interval within m_bwt_p
+        // O->S  (simulates going down in the trie, for the order OSP)
+        // Returns an interval within m_bwt_s
         bwt_interval down_O_S(bwt_interval &o_int, uint64_t s){
             auto I = m_bwt_s.backward_step(o_int.left(), o_int.right(), s);
             uint64_t c = m_bwt_p.get_C(s);
