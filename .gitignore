@@ -56,3 +56,5 @@ experiment_output/*
 workplace/*.pdf
 workplace/*.ods
 *.out
+callgrind*
+workplace/*.png

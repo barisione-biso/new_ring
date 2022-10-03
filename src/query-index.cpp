@@ -25,6 +25,7 @@
 #include <triple_pattern.hpp>
 #include <ltj_algorithm.hpp>
 #include <ltj_algorithm_spo_sop.hpp>
+#include <ltj_algorithm_spo_sop_leap.hpp>
 #include "utils.hpp"
 
 using namespace std;
@@ -196,8 +197,13 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             results_type res;
             start = high_resolution_clock::now();
             if(ring::util::configuration.uses_reverse_index()){
-                ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                ltj.join(res, number_of_results, timeout_in_millis);
+                if(ring::util::configuration.uses_leap()){
+                    ring::ltj_algorithm_spo_sop_leap<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
+                    ltj.join(res, number_of_results, timeout_in_millis);
+                }else{
+                    ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
+                    ltj.join(res, number_of_results, timeout_in_millis);
+                }
             }
             else{
                 ring::ltj_algorithm<ring_type> ltj(&query, &graph);
