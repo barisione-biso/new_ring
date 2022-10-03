@@ -413,7 +413,7 @@ namespace ring {
                         c = seek(x_j, c + 1);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
-                    pop_intersection();
+                    //pop_intersection();
                 }
                 if(util::configuration.is_adaptive()){
                     m_gao_size.set_previous_weight();
@@ -431,7 +431,7 @@ namespace ring {
          * @return      The next constant that matches the intersection between the triples of x_j.
          *              If the intersection is empty, it returns 0.
          */
-
+/*
         value_type seek(const var_type x_j, value_type c=-1UL){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
             
@@ -454,7 +454,38 @@ namespace ring {
 
             size_type next_value = get_next_value_intersection();
             return next_value;
-        }
+        }*/
+
+        /**
+         *
+         * @param x_j   Variable
+         * @param c     Constant. If it is unknown the value is -1UL
+         * @return      The next constant that matches the intersection between the triples of x_j.
+         *              If the intersection is empty, it returns 0.
+         */
+
+        value_type seek(const var_type x_j, value_type c=-1UL){
+            value_type c_i, c_min = UINT64_MAX, c_max = 0;
+            std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
+            while (true){
+                //Compute leap for each triple that contains x_j
+                for(ltj_iter_type* iter : itrs){
+                    if(c == -1UL){
+                        c_i = iter->leap(x_j);
+                    }else{
+                        c_i = iter->leap(x_j, c);
+                    }
+                    if(c_i == 0) {
+                        return 0; //Empty intersection
+                    }
+                    if(c_i > c_max) c_max = c_i;
+                    if(c_i < c_min) c_min = c_i;
+                    c = c_max;
+                }
+                if(c_min == c_max) return c_min;
+                c_min = UINT64_MAX; c_max = 0;
+            }
+        }        
     };
 
 }

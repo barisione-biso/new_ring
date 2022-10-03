@@ -400,6 +400,20 @@ namespace ring {
                 }
             }
         }
+        value_type leap(var_type var) {
+            if(m_last_iter == "SOP"){
+                return sop_iter.leap(var);
+            }else{
+                return spo_iter.leap(var);
+            }
+        }
+        value_type leap(var_type var, size_type c) {
+            if(m_last_iter == "SOP"){
+                return sop_iter.leap(var,c);
+            }else{
+                return spo_iter.leap(var,c);
+            }
+        }
     };
 }
 
