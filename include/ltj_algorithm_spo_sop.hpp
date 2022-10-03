@@ -72,12 +72,12 @@ namespace ring {
         gao_size<ring_type, var_type, const_type, ltj_iter_type> m_gao_size;
 
         //Stack holding WMs intersection - Variable, intersection results, ptr to last selected.
-        typedef struct {
+        /*typedef struct {
             var_type var;
             std::vector<value_type> intersection;
             value_type index_next_val;
         } intersection_type;
-        std::stack<intersection_type> m_intersection_cache;
+        std::stack<intersection_type> m_intersection_cache;*/
 
         void copy(const ltj_algorithm_spo_sop &o) {
             m_ptr_triple_patterns = o.m_ptr_triple_patterns;
@@ -99,6 +99,7 @@ namespace ring {
             }
         }
 
+        /*
         bool is_intersection_calculated(var_type x_j) const{
             if(!m_intersection_cache.empty()){
                 const auto& top = m_intersection_cache.top();
@@ -110,7 +111,6 @@ namespace ring {
             }
             return false;
         }
-
         void push_intersection(const var_type&x_j, const std::vector<value_type>&intersection){
             intersection_type i;
             i.var = x_j;
@@ -134,7 +134,7 @@ namespace ring {
                 value_type val = intersection[top.index_next_val++];
                 return val;
             }
-        }
+        }*/
         template<class t_wt, class range_type = typename sdsl::range_vec_type>
         std::vector<typename t_wt::value_type>
         //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
@@ -392,9 +392,22 @@ namespace ring {
                             iter->set_iter(x_j);
                         }
                     }
-                    value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                    while (c != 0) { //If empty c=0
+                    //std::cout << "Intersecting ";
+                    std::vector<wm_type*> wms;
+                    std::vector<sdsl::range_vec_type> ranges;
+                    for(ltj_iter_type* iter : itrs){
+                        //Getting the current interval and WMs of each iterator_x_j.
+                        const auto& cur_interval = iter->get_current_interval(x_j);
+                        const wm_type& current_wm  = iter->get_current_wm(x_j);
+                        wms.emplace_back(&current_wm);
+                        //assert (cur_interval.right() >= cur_interval.left() );
+                        ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
+                        //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                    }
+                    //std::cout << "" << std::endl;
+                    const std::vector<value_type>&intersection = intersect_iter(wms,ranges);
+                    for(value_type c : intersection){
+                        //std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
                         //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
@@ -409,11 +422,8 @@ namespace ring {
                         for (ltj_iter_type *iter : itrs) {
                             iter->up(x_j);
                         }
-                        //5. Next constant for x_j
-                        c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        
                     }
-                    //pop_intersection();
                 }
                 if(util::configuration.is_adaptive()){
                     m_gao_size.set_previous_weight();
@@ -431,7 +441,7 @@ namespace ring {
          * @return      The next constant that matches the intersection between the triples of x_j.
          *              If the intersection is empty, it returns 0.
          */
-/*
+        /*
         value_type seek(const var_type x_j, value_type c=-1UL){
             std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
             
@@ -454,38 +464,7 @@ namespace ring {
 
             size_type next_value = get_next_value_intersection();
             return next_value;
-        }*/
-
-        /**
-         *
-         * @param x_j   Variable
-         * @param c     Constant. If it is unknown the value is -1UL
-         * @return      The next constant that matches the intersection between the triples of x_j.
-         *              If the intersection is empty, it returns 0.
-         */
-
-        value_type seek(const var_type x_j, value_type c=-1UL){
-            value_type c_i, c_min = UINT64_MAX, c_max = 0;
-            std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
-            while (true){
-                //Compute leap for each triple that contains x_j
-                for(ltj_iter_type* iter : itrs){
-                    if(c == -1UL){
-                        c_i = iter->leap(x_j);
-                    }else{
-                        c_i = iter->leap(x_j, c);
-                    }
-                    if(c_i == 0) {
-                        return 0; //Empty intersection
-                    }
-                    if(c_i > c_max) c_max = c_i;
-                    if(c_i < c_min) c_min = c_i;
-                    c = c_max;
-                }
-                if(c_min == c_max) return c_min;
-                c_min = UINT64_MAX; c_max = 0;
-            }
-        }        
+        } */
     };
 
 }
