@@ -189,11 +189,6 @@ namespace ring {
 
                         const auto& children = wt.expand(node);
                         const auto& children_ranges = wt.expand(node, ranges);
-                        //Performance improvement: to avoid stack.emplace(vector) which triggers the copy constructor per each entry.
-                        //We first insert an empty vector, then get its reference and emplace_back to it.
-                        //stack.emplace(right_children_v);
-                        //stack_vector_type& right_children_r = stack.top();
-                        //stack.emplace(left_children_v);
                         if(!empty_left_range){
                             if(sdsl::empty(std::get<0>(children_ranges)[0])){
                                 empty_left_range = true;
