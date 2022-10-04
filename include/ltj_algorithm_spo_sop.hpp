@@ -140,7 +140,6 @@ namespace ring {
         //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
         intersect_iter(const std::vector<t_wt*>& p_wts, const std::vector<range_type>& p_ranges)
         {
-            
             using std::get;
             using size_type      = typename t_wt::size_type;
             using value_type     = typename t_wt::value_type;
@@ -156,6 +155,7 @@ namespace ring {
             std::vector<value_type> res;
             stack_vector_type vec;
             stack_type stack;
+
             for(size_type i=0; i < p_wts.size(); i++){
                 const t_wt& wt = *p_wts[i];
                 //Can't be const & cause both node and ranges can get invalid / deleted during execution.
@@ -170,7 +170,7 @@ namespace ring {
 
             while (!stack.empty()) {
                 bool symbol_reported = false;
-                stack_vector_type wt_ranges_level_v = stack.top(); stack.pop();
+                const stack_vector_type& wt_ranges_level_v = stack.top();
                 bool empty_left_range = false, empty_right_range = false;
                 stack_vector_type left_children_v;
                 stack_vector_type right_children_v;
@@ -187,8 +187,13 @@ namespace ring {
                             break;
                         }
 
-                        auto children = wt.expand(node);
-                        auto children_ranges = wt.expand(node, ranges);
+                        const auto& children = wt.expand(node);
+                        const auto& children_ranges = wt.expand(node, ranges);
+                        //Performance improvement: to avoid stack.emplace(vector) which triggers the copy constructor per each entry.
+                        //We first insert an empty vector, then get its reference and emplace_back to it.
+                        //stack.emplace(right_children_v);
+                        //stack_vector_type& right_children_r = stack.top();
+                        //stack.emplace(left_children_v);
                         if(!empty_left_range){
                             if(sdsl::empty(std::get<0>(children_ranges)[0])){
                                 empty_left_range = true;
@@ -203,11 +208,12 @@ namespace ring {
                         }
                     }
                 }
+                stack.pop();
                 if(!symbol_reported && !empty_right_range){
-                    stack.emplace(right_children_v);
+                    stack.emplace(right_children_v);//This operation takes a ton of time.
                 }
                 if(!symbol_reported && !empty_left_range){
-                    stack.emplace(left_children_v);
+                    stack.emplace(left_children_v);//This operation takes a ton of time.
                 }
             }
             //std::cout << "Intersection size: " << res.size() << std::endl;
