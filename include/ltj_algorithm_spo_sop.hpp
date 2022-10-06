@@ -135,19 +135,19 @@ namespace ring {
                 return val;
             }
         }*/
-        template<class t_wt, class range_type = typename sdsl::range_vec_type>
+        template<class t_wt, class range_type = sdsl::range_type>
         std::vector<typename t_wt::value_type>
         //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
         intersect_iter(const std::vector<t_wt*>& p_wts, const std::vector<range_type>& p_ranges)
         {
+            //uint64_t count_nodes = 0;
             using std::get;
             using size_type      = typename t_wt::size_type;
             using value_type     = typename t_wt::value_type;
             using node_type      = typename t_wt::node_type;
             typedef struct {
-                const t_wt& wt;
                 node_type node;
-                range_type ranges;
+                range_type range;
             } tuple_type;
             using stack_vector_type = std::vector<tuple_type>;
             typedef std::stack<stack_vector_type> stack_type;
@@ -156,17 +156,18 @@ namespace ring {
             stack_vector_type vec;
             stack_type stack;
 
+            if(p_wts.size() == 0){
+               return res; 
+            }
             for(size_type i=0; i < p_wts.size(); i++){
                 const t_wt& wt = *p_wts[i];
                 //Can't be const & cause both node and ranges can get invalid / deleted during execution.
                 node_type node = wt.root();
-                range_type ranges = p_ranges[i];
-                //tuple_type t = {wt, node, ranges};
-                vec.emplace_back(tuple_type{wt, node, ranges});
+                range_type range = p_ranges[i];
+                vec.emplace_back(tuple_type{node, range});
+                //count_nodes++;
             }
-            if(p_wts.size() > 0){
-                stack.emplace(vec);
-            }
+            stack.emplace(vec);
 
             while (!stack.empty()) {
                 bool symbol_reported = false;
@@ -174,46 +175,52 @@ namespace ring {
                 bool empty_left_range = false, empty_right_range = false;
                 stack_vector_type left_children_v;
                 stack_vector_type right_children_v;
-                for(const tuple_type& data : wt_ranges_level_v){
-                    const t_wt& wt = data.wt;
-                    const node_type& node = data.node;
-                    const range_type& ranges = data.ranges;
-                    if (wt.is_leaf(node)) {
-                            res.emplace_back(wt.sym(node));
-                            symbol_reported = true;
-                            break;//No need to continue with the other tuples.
-                    } else {
+
+                if (p_wts[0]->is_leaf(wt_ranges_level_v[0].node)) {
+                        res.emplace_back(p_wts[0]->sym(wt_ranges_level_v[0].node));
+                        symbol_reported = true;
+                }
+                else{
+                    for(size_type i = 0; i < wt_ranges_level_v.size() ; i++){
+                        const t_wt& wt = *p_wts[i];
+                        const node_type& node = wt_ranges_level_v[i].node;
+                        const range_type& range = wt_ranges_level_v[i].range;
+                       
+                        const auto& children = wt.expand(node);
+                        const std::array<range_type, 2>& children_ranges = wt.expand(node, range);
+                        //count_nodes++;
+                        if(!empty_left_range){
+                            const range_type& left_range = std::get<0>(children_ranges);
+                            const range_type& right_range = std::get<1>(children_ranges);
+                            if(sdsl::empty(left_range)){
+                                empty_left_range = true;
+                            }
+                            left_children_v.emplace_back(tuple_type{get<0>(children), get<0>(children_ranges)});
+                        }
+                        if(!empty_right_range){
+                            if(sdsl::empty(children_ranges[1])){
+                                empty_right_range = true;
+                            }
+                            right_children_v.emplace_back(tuple_type{get<1>(children), get<1>(children_ranges)});
+                        }
+
                         if(empty_left_range && empty_right_range){
                             break;
                         }
-
-                        const auto& children = wt.expand(node);
-                        const auto& children_ranges = wt.expand(node, ranges);
-                        if(!empty_left_range){
-                            if(sdsl::empty(std::get<0>(children_ranges)[0])){
-                                empty_left_range = true;
-                            }
-                            left_children_v.emplace_back(tuple_type{wt, get<0>(children), get<0>(children_ranges)});
-                        }
-                        if(!empty_right_range){
-                            if(sdsl::empty(std::get<1>(children_ranges)[0])){
-                                empty_right_range = true;
-                            }
-                            right_children_v.emplace_back(tuple_type{wt, get<1>(children), get<1>(children_ranges)});
-                        }
                     }
                 }
+                
                 stack.pop();
                 if(!symbol_reported && !empty_right_range){
-                    stack.emplace(right_children_v);//This operation takes a ton of time.
+                    stack.emplace(std::move(right_children_v));//This operation takes a ton of time.
                 }
                 if(!symbol_reported && !empty_left_range){
-                    stack.emplace(left_children_v);//This operation takes a ton of time.
+                    stack.emplace(std::move(left_children_v));//This operation takes a ton of time.
                 }
             }
-            //std::cout << "Intersection size: " << res.size() << std::endl;
+            //std::cout << "Intersection size: " << res.size() << " visited nodes : " << count_nodes << std::endl;
             return res;
-        }
+        }        
     public:
 
 
@@ -395,14 +402,14 @@ namespace ring {
                     }
                     //std::cout << "Intersecting ";
                     std::vector<wm_type*> wms;
-                    std::vector<sdsl::range_vec_type> ranges;
+                    std::vector<sdsl::range_type> ranges;
                     for(ltj_iter_type* iter : itrs){
                         //Getting the current interval and WMs of each iterator_x_j.
                         const auto& cur_interval = iter->get_current_interval(x_j);
                         const wm_type& current_wm  = iter->get_current_wm(x_j);
                         wms.emplace_back(&current_wm);
                         //assert (cur_interval.right() >= cur_interval.left() );
-                        ranges.emplace_back(sdsl::range_vec_type{{cur_interval.left(), cur_interval.right()}});
+                        ranges.emplace_back(sdsl::range_type{cur_interval.left(), cur_interval.right()});
                         //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                     }
                     //std::cout << "" << std::endl;
