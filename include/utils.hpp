@@ -34,7 +34,7 @@ namespace ring {
         /*Classes*/
         class configuration{
             private:
-                enum class execution_mode { sigmod21, one_ring_muthu_leap, one_ring_muthu_leap_adaptive, sigmod21_adaptive, backward_only, backward_only_leap, backward_only_adaptive,backward_only_adaptive_muthu };                std::unordered_map<execution_mode, string> mode_enum_to_str;
+                enum class execution_mode { sigmod21, one_ring_muthu_leap, one_ring_muthu_leap_adaptive, sigmod21_adaptive, backward_only, backward_only_muthu, backward_only_leap, backward_only_adaptive,backward_only_adaptive_muthu };                std::unordered_map<execution_mode, string> mode_enum_to_str;
                 std::unordered_map<string, execution_mode> mode_str_to_enum;
                 execution_mode m_mode;
                 bool m_print_gao;
@@ -91,6 +91,7 @@ namespace ring {
                                         {execution_mode::one_ring_muthu_leap_adaptive, "one_ring_muthu_leap_adaptive"},
                                         {execution_mode::sigmod21_adaptive, "sigmod21_adaptive"},
                                         {execution_mode::backward_only, "backward_only"},
+                                        {execution_mode::backward_only_muthu, "backward_only_muthu"},
                                         {execution_mode::backward_only_leap, "backward_only_leap"},
                                         {execution_mode::backward_only_adaptive, "backward_only_adaptive"},
                                         {execution_mode::backward_only_adaptive_muthu, "backward_only_adaptive_muthu"}
@@ -101,6 +102,7 @@ namespace ring {
                                         {"one_ring_muthu_leap_adaptive", execution_mode::one_ring_muthu_leap_adaptive},
                                         {"sigmod21_adaptive", execution_mode::sigmod21_adaptive},
                                         {"backward_only", execution_mode::backward_only},
+                                        {"backward_only_muthu", execution_mode::backward_only_muthu},
                                         {"backward_only_leap", execution_mode::backward_only_leap},
                                         {"backward_only_adaptive", execution_mode::backward_only_adaptive},
                                         {"backward_only_adaptive_muthu", execution_mode::backward_only_adaptive_muthu}
@@ -145,17 +147,19 @@ namespace ring {
                     m_mode = get_execution_mode(mode);
                     m_print_gao = print_gao;
                     m_verbose = verbose;
-                    if(m_mode == execution_mode::one_ring_muthu_leap || m_mode == execution_mode::one_ring_muthu_leap_adaptive 
-                    || m_mode == execution_mode::backward_only_adaptive_muthu){
+                    if(m_mode == execution_mode::one_ring_muthu_leap || m_mode == execution_mode::one_ring_muthu_leap_adaptive
+                    || m_mode == execution_mode::backward_only_muthu || m_mode == execution_mode::backward_only_adaptive_muthu){
                         m_muthu = true;
                     }
 
-                    if(m_mode == execution_mode::one_ring_muthu_leap_adaptive || m_mode == execution_mode::sigmod21_adaptive 
+                    if(m_mode == execution_mode::one_ring_muthu_leap_adaptive || m_mode == execution_mode::sigmod21_adaptive
                     || m_mode == execution_mode::backward_only_adaptive || m_mode == execution_mode::backward_only_adaptive_muthu){
                         m_adaptive = true;
                     }
 
-                    if(m_mode == execution_mode::backward_only || m_mode == execution_mode::backward_only_leap){
+                    if(m_mode == execution_mode::backward_only || m_mode == execution_mode::backward_only_leap
+                    || m_mode == execution_mode::backward_only_muthu || m_mode == execution_mode::backward_only_adaptive
+                    || m_mode == execution_mode::backward_only_adaptive_muthu){
                         m_reverse_index = true;
                     }
                     if(m_mode == execution_mode::backward_only_leap){
