@@ -212,10 +212,10 @@ namespace ring {
                 
                 stack.pop();
                 if(!symbol_reported && !empty_right_range){
-                    stack.emplace(std::move(right_children_v));//This operation takes a ton of time.
+                    stack.emplace(std::move(right_children_v));
                 }
                 if(!symbol_reported && !empty_left_range){
-                    stack.emplace(std::move(left_children_v));//This operation takes a ton of time.
+                    stack.emplace(std::move(left_children_v));
                 }
             }
             //std::cout << "Intersection size: " << res.size() << " visited nodes : " << count_nodes << std::endl;
@@ -394,16 +394,14 @@ namespace ring {
                         itrs[0]->up(x_j);
                     }
                 }else {
-                    //Set the index the algorithm will use before the first seek and only in the first level.
-                    for (ltj_iter_type* iter : itrs) {
-                        if(iter->get_index_permutation() == ""){
-                            iter->set_iter(x_j);
-                        }
-                    }
                     //std::cout << "Intersecting ";
                     std::vector<wm_type*> wms;
                     std::vector<sdsl::range_type> ranges;
                     for(ltj_iter_type* iter : itrs){
+                        //Set the index the algorithm will use before the first seek and only in the first level.
+                        if(iter->get_index_permutation() == ""){
+                            iter->set_iter(x_j);
+                        }
                         //Getting the current interval and WMs of each iterator_x_j.
                         const auto& cur_interval = iter->get_current_interval(x_j);
                         const wm_type& current_wm  = iter->get_current_wm(x_j);
@@ -437,7 +435,6 @@ namespace ring {
                     m_gao_size.set_previous_weight();
                 }
                 pop_var_of_stack();
-                //std::cout << " pop. " << std::endl;
             }
             return true;
         };

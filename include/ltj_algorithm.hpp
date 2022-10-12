@@ -167,9 +167,11 @@ namespace ring {
         void join(std::vector<tuple_type> &res,
                   const size_type limit_results = 0, const size_type timeout_seconds = 0){
             if(m_is_empty) return;
+            //m_ptr_ring->fw_count = 0;
             time_point_type start = std::chrono::high_resolution_clock::now();
             tuple_type t(m_gao_size.m_number_of_variables);
             search(0, t, res, start, limit_results, timeout_seconds);
+            //std::cout << m_ptr_ring->fw_count << std::endl;
         };
 
         std::string get_gao(std::unordered_map<uint8_t, std::string>& ht) const{

@@ -41,7 +41,7 @@ print("****** Starting automated test.")
 print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_path))
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
-available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "sigmod21_adaptive", "backward_only", "backward_only_adaptive", "backward_only_adaptive_muthu", "backward_only_leap", "backward_only_muthu"]
+available_modes = ["sigmod21", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"] # "backward_only_leap", "sigmod21_adaptive"
 
 print("Available modes : "+",".join(available_modes))
 
@@ -78,36 +78,37 @@ num_of_results_error = 0
 sigmod21_performance = []
 one_ring_muthu_leap_performance = []
 one_ring_muthu_adaptive_leap_performance = []
-sigmod21_adaptive_performance = []
 backward_only_performance = []
+backward_only_muthu_performance = []
 backward_only_adaptive_performance = []
 backward_only_muthu_adaptive_performance = []
-backward_only_leap_performance = []
-backward_only_muthu = []
+#backward_only_leap_performance = []
+#sigmod21_adaptive_performance = []
+
 for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
-    aux=sigmod_row[0].split(";")
+    aux1=sigmod_row[0].split(";")
     aux2=lists_of_rows[1][index][0].split(";")
     aux3=lists_of_rows[2][index][0].split(";")
     aux4=lists_of_rows[3][index][0].split(";")
     aux5=lists_of_rows[4][index][0].split(";")
     aux6=lists_of_rows[5][index][0].split(";")
     aux7=lists_of_rows[6][index][0].split(";")
-    aux8=lists_of_rows[7][index][0].split(";")
-    aux9=lists_of_rows[8][index][0].split(";")
-    if aux[1] != aux2[1] or aux[1] != aux3[1] or aux[1] != aux4[1] or aux[1] != aux5[1] or aux[1] != aux6[1] or aux[1] != aux7[1] or aux[1] != aux8[1] or aux[1] != aux9[1]:
+    #aux8=lists_of_rows[7][index][0].split(";")
+    #aux9=lists_of_rows[8][index][0].split(";")
+    if aux1[1] != aux2[1] or aux1[1] != aux3[1] or aux1[1] != aux4[1] or aux1[1] != aux5[1] or aux1[1] != aux6[1]:# or aux1[1] != aux7[1]: # or aux1[1] != aux8[1] or aux[1] != aux9[1]:
         num_of_results_error=num_of_results_error+1
 
-    sigmod21_performance.append(int(aux[2]))
+    sigmod21_performance.append(int(aux1[2]))
     one_ring_muthu_leap_performance.append(int(aux2[2]))
     one_ring_muthu_adaptive_leap_performance.append(int(aux3[2]))
-    sigmod21_adaptive_performance.append(int(aux4[2]))
-    backward_only_performance.append(int(aux5[2]))
+    backward_only_performance.append(int(aux4[2]))
+    backward_only_muthu_performance.append(int(aux5[2]))
     backward_only_adaptive_performance.append(int(aux6[2]))
     backward_only_muthu_adaptive_performance.append(int(aux7[2]))
-    backward_only_leap_performance.append(int(aux8[2]))
-    backward_only_muthu.append(int(aux9[2]))
-
+    #backward_only_leap_performance.append(int(aux8[2]))
+    #sigmod21_adaptive_performance.append(int(aux4[2]))
+    
 print("****** Number of different results: ", num_of_results_error)
 
 #THIRD PART. Producing the input files for the sigmod21 plotting mechanism in overleaf.
@@ -123,12 +124,12 @@ print("****** Plotting variants using matplotlib.")
 d = {'Sigmod21': sigmod21_performance,
     '1 Ring Muthu': one_ring_muthu_leap_performance,
     '1 Ring Muthu adaptive': one_ring_muthu_adaptive_leap_performance,
-    'Sigmod21_adaptive': sigmod21_adaptive_performance,
     'Backward' : backward_only_performance,
-    'Backward muthu' : backward_only_muthu,
-    'backward (leap)': backward_only_leap_performance#,
-    #'Backward adaptive' : backward_only_adaptive_performance,
-    #'Backward adaptive Muthu' : backward_only_muthu_adaptive_performance
+    'Backward muthu' : backward_only_muthu_performance,
+    'Backward adaptive' : backward_only_adaptive_performance,
+    'Backward adaptive Muthu' : backward_only_muthu_adaptive_performance
+    #'Sigmod21_adaptive': sigmod21_adaptive_performance,
+    #'backward (leap)': backward_only_leap_performance#,
     }
 
 df = pd.DataFrame(data = d)

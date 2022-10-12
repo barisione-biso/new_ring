@@ -342,6 +342,7 @@ namespace ring {
                                 if(weight < min_weight){
                                     min_weight = weight;
                                 }
+                                //std::cout << "Cur var: " << int(cur_var) << " rel var: " << int(rel_var) << " min weight : " << min_weight << std::endl;
                             }
                         }
                         if(min_weight != -1ULL){
@@ -354,7 +355,7 @@ namespace ring {
                     }
                 }
             }
-            m_previous_values_stack.push(previous_values);
+            m_previous_values_stack.emplace(std::move(previous_values));
         }
         bool is_var_bound(const size_type& var, const std::unordered_map<var_type,bool> &m_gao_vars) const{
             auto it = m_gao_vars.find(var);
@@ -365,7 +366,7 @@ namespace ring {
             return false;
         }
         //Linear search on 'm_var_info' for the non-bound variable with minimum weight.
-        var_type get_next_var(const size_type& j, const std::unordered_map<var_type,bool> &m_gao_vars){
+        var_type get_next_var(const size_type& j, const std::unordered_map<var_type,bool> &m_gao_vars) const{
             size_type min_weight = -1ULL;
             var_type min_var = '\0';
 
