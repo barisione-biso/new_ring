@@ -176,19 +176,19 @@ namespace ring {
         template<class Iterator>
         uint64_t get_size_interval(const Iterator &iter) {
             if(iter.cur_s == -1UL && iter.cur_p == -1UL && iter.cur_o == -1UL){
-                return iter.i_s.size(); //open
+                return iter.get_i_s().size(); //open
             } else if (iter.cur_s == -1UL && iter.cur_p != -1UL && iter.cur_o == -1UL) {
-                return iter.i_s.size(); //i_s = i_o
+                return iter.get_i_s().size(); //i_s = i_o
             } else if (iter.cur_s == -1UL && iter.cur_p == -1UL && iter.cur_o != -1UL) {
-                return iter.i_s.size(); //i_s = i_p
+                return iter.get_i_s().size(); //i_s = i_p
             } else if (iter.cur_s != -1UL && iter.cur_p == -1UL && iter.cur_o == -1UL) {
-                return iter.i_o.size(); //i_o = i_p
+                return iter.get_i_o().size(); //i_o = i_p
             } else if (iter.cur_s != -1UL && iter.cur_p != -1UL && iter.cur_o == -1UL) {
-                return iter.i_o.size();
+                return iter.get_i_o().size();
             } else if (iter.cur_s != -1UL && iter.cur_p == -1UL && iter.cur_o != -1UL) {
-                return iter.i_p.size();
+                return iter.get_i_o().size();
             } else if (iter.cur_s == -1UL && iter.cur_p != -1UL && iter.cur_o != -1UL) {
-                return iter.i_s.size();
+                return iter.get_i_s().size();
             }
             return 0;
         }
@@ -215,16 +215,16 @@ namespace ring {
             //Second case : ?S P ?O
             else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
             {
-                if(iter.i_s.size() <= configuration.get_threshold()){
-                    num_distinct_values_s = iter.i_s.size();
-                    num_distinct_values_o = iter.i_s.size();
+                if(iter.get_i_s().size() <= configuration.get_threshold()){
+                    num_distinct_values_s = iter.get_i_s().size();
+                    num_distinct_values_o = iter.get_i_s().size();
                 }else{
                     //Ring => Going from P to S.
-                    num_distinct_values_s = ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                    num_distinct_values_s = ptr_ring->get_number_distinct_values_spo_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
 
                     // Reverse Ring => Going from P to O.
                     // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    num_distinct_values_o = ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_s.left(), iter.i_s.right());
+                    num_distinct_values_o = ptr_ring->get_number_distinct_values_sop_BWT_O(iter.get_i_s().left(), iter.get_i_s().right());
                 }
 
                 //assert (num_distinct_values_s <= iter.i_s.size());
@@ -238,15 +238,15 @@ namespace ring {
             //Third case ?S ?P O
             else if (triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
             {
-                if(iter.i_p.size() <= configuration.get_threshold()){
-                    num_distinct_values_p = iter.i_p.size();
-                    num_distinct_values_s = iter.i_p.size();
+                if(iter.get_i_p().size() <= configuration.get_threshold()){
+                    num_distinct_values_p = iter.get_i_p().size();
+                    num_distinct_values_s = iter.get_i_p().size();
                 }else{
                     // Ring => Going from O to P.
-                    num_distinct_values_p = ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                    num_distinct_values_p = ptr_ring->get_number_distinct_values_spo_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
                     // Reverse Ring => Going from O to S.
                     // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    num_distinct_values_s = ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_p.left(), iter.i_p.right());
+                    num_distinct_values_s = ptr_ring->get_number_distinct_values_sop_BWT_S(iter.get_i_p().left(), iter.get_i_p().right());
                 }
                 //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_p.size() << std::endl;
                 //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
@@ -257,15 +257,15 @@ namespace ring {
             //Fourth case S ?P ?O
             else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
             {
-                if(iter.i_o.size() <= configuration.get_threshold()){
-                    num_distinct_values_o = iter.i_o.size();
-                    num_distinct_values_p = iter.i_o.size();
+                if(iter.get_i_o().size() <= configuration.get_threshold()){
+                    num_distinct_values_o = iter.get_i_o().size();
+                    num_distinct_values_p = iter.get_i_o().size();
                 }else{
                     // Ring => Going from S to O.
-                    num_distinct_values_o = ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                    num_distinct_values_o = ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
                     // Reverse Ring => Going from S to P.
                     // Important: both ring's C_s and reverse ring's C_o contains range of P's ordered lexicographically, therefore they are equivalents.
-                    num_distinct_values_p = ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_o.left(), iter.i_o.right());
+                    num_distinct_values_p = ptr_ring->get_number_distinct_values_sop_BWT_P(iter.get_i_o().left(), iter.get_i_o().right());
                 }
                 //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_o.size() << std::endl;
                 //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
@@ -276,11 +276,11 @@ namespace ring {
             //Fifth case S P ?O
             else if (!triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && triple_pattern.o_is_variable())
             {
-                if(iter.i_o.size() <= configuration.get_threshold()){
-                    num_distinct_values_o = iter.i_o.size();
+                if(iter.get_i_o().size() <= configuration.get_threshold()){
+                    num_distinct_values_o = iter.get_i_o().size();
                 }else{
                     // Ring => Going from P to O.
-                    num_distinct_values_o = ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                    num_distinct_values_o = ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
                 }
                 //std::cout << "num_distinct_values O = " << num_distinct_values_o << " vs. interval size = " << iter.i_o.size() << std::endl;
                 hash_map.insert({triple_pattern.term_o.value, num_distinct_values_o});
@@ -289,11 +289,11 @@ namespace ring {
             //Sixth case S ?P O
             else if (!triple_pattern.s_is_variable() && triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
             {
-                if(iter.i_p.size() <= configuration.get_threshold()){
-                    num_distinct_values_p = iter.i_p.size();
+                if(iter.get_i_p().size() <= configuration.get_threshold()){
+                    num_distinct_values_p = iter.get_i_p().size();
                 }else{
                     // Ring => Going from O to P.
-                    num_distinct_values_p = ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                    num_distinct_values_p = ptr_ring->get_number_distinct_values_spo_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
                 }
                 //std::cout << "num_distinct_values P = " << num_distinct_values_p << " vs. interval size = " << iter.i_p.size() << std::endl;
                 hash_map.insert({triple_pattern.term_p.value, num_distinct_values_p});
@@ -302,11 +302,11 @@ namespace ring {
             //Seventh case ?S P O
             else if (triple_pattern.s_is_variable() && !triple_pattern.p_is_variable() && !triple_pattern.o_is_variable())
             {
-                if(iter.i_s.size() <= configuration.get_threshold()){
-                    num_distinct_values_s = iter.i_s.size();
+                if(iter.get_i_s().size() <= configuration.get_threshold()){
+                    num_distinct_values_s = iter.get_i_s().size();
                 }else{
                     // Ring => Going from P to S.
-                    num_distinct_values_s = ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                    num_distinct_values_s = ptr_ring->get_number_distinct_values_spo_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
                 }
                 //std::cout << "num_distinct_values S = " << num_distinct_values_s << " vs. interval size = " << iter.i_s.size() << std::endl;
                 hash_map.insert({triple_pattern.term_s.value, num_distinct_values_s});
@@ -324,24 +324,24 @@ namespace ring {
                     //P -> S
                     //auto& it = iter.i_s.size() < iter.i_o.size() ? iter.i_s : iter.i_o;
                     //return ptr_ring->get_number_distinct_values_spo_BWT_S(it.left(), it.right());
-                    if(iter.i_s.size() <= configuration.get_threshold()){
-                        return iter.i_s.size();
+                    if(iter.get_i_s().size() <= configuration.get_threshold()){
+                        return iter.get_i_s().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
                     }
                 } else if(iter.cur_p != -1ULL){//only p is currently set.
                     //P -> S: i_s = i_o = m_ptr_ring->down_P(cur_p)
-                    if(iter.i_s.size() <= configuration.get_threshold()){
-                        return iter.i_s.size();
+                    if(iter.get_i_s().size() <= configuration.get_threshold()){
+                        return iter.get_i_s().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.i_s.left(), iter.i_s.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
                     }
                 } else if(iter.cur_o != -1ULL){//only o is currently set.
                     //O -> S: i_s = i_p = m_ptr_ring->down_O(cur_o)
-                    if(iter.i_s.size() <= configuration.get_threshold()){
-                        return iter.i_s.size();
+                    if(iter.get_i_s().size() <= configuration.get_threshold()){
+                        return iter.get_i_s().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.i_s.left(), iter.i_s.right());
+                        return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
                     }
                 } else{
                     //neither p nor o are set.
@@ -354,24 +354,24 @@ namespace ring {
                     //O -> P
                     //auto& it = iter.i_p.size() < iter.i_o.size() ? iter.i_p : iter.i_o;
                     //return ptr_ring->get_number_distinct_values_spo_BWT_P(it.left(), it.right());
-                    if(iter.i_p.size() <= configuration.get_threshold()){
-                        return iter.i_p.size();
+                    if(iter.get_i_p().size() <= configuration.get_threshold()){
+                        return iter.get_i_p().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
                     }
                 } else if(iter.cur_s != -1ULL){//only s is currently set.
                     //S -> P: i_p = i_o = m_ptr_ring->down_S(cur_s)
-                    if(iter.i_p.size() <= configuration.get_threshold()){
-                        return iter.i_p.size();
+                    if(iter.get_i_p().size() <= configuration.get_threshold()){
+                        return iter.get_i_p().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.i_p.left(), iter.i_p.right());
+                        return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
                     }
                 } else if(iter.cur_o != -1ULL){//only o is currently set.
                     //O -> P: i_p = i_o = m_ptr_ring->down_O(cur_s)
-                    if(iter.i_p.size() <= configuration.get_threshold()){
-                        return iter.i_p.size();
+                    if(iter.get_i_p().size() <= configuration.get_threshold()){
+                        return iter.get_i_p().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.i_p.left(), iter.i_p.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
                     }
                 } else{
                     //neither s nor o are set.
@@ -385,24 +385,24 @@ namespace ring {
                     //auto& it = iter.i_s.size() < iter.i_p.size() ? iter.i_s : iter.i_p;
                     //return ptr_ring->get_number_distinct_values_spo_BWT_O(it.left(), it.right());
                     //Eq to  S P ?O
-                    if(iter.i_o.size() <= configuration.get_threshold()){
-                        return iter.i_o.size();
+                    if(iter.get_i_o().size() <= configuration.get_threshold()){
+                        return iter.get_i_o().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
                     }
                 } else if(iter.cur_s != -1ULL){//only s is currently set.
                     //S -> O: i_p = i_o = m_ptr_ring->down_S(cur_s)
-                    if(iter.i_o.size() <= configuration.get_threshold()){
-                        return iter.i_o.size();
+                    if(iter.get_i_o().size() <= configuration.get_threshold()){
+                        return iter.get_i_o().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.i_o.left(), iter.i_o.right());
+                        return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
                     }
                 } else if(iter.cur_p != -1ULL){//only p is currently set.
                     //P -> O: i_s = i_o = m_ptr_ring->down_P(cur_s)
-                    if(iter.i_o.size() <= configuration.get_threshold()){
-                        return iter.i_o.size();
+                    if(iter.get_i_o().size() <= configuration.get_threshold()){
+                        return iter.get_i_o().size();
                     }else{
-                        return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.i_o.left(), iter.i_o.right());
+                        return ptr_ring->get_number_distinct_values_sop_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
                     }
                 } else{
                     //neither s nor p are set.

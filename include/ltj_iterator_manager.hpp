@@ -86,9 +86,6 @@ namespace ring {
         }
 
         const bool &is_empty = m_is_empty;
-        const bwt_interval &i_s = m_i_s;
-        const bwt_interval &i_p = m_i_p;
-        const bwt_interval &i_o = m_i_o;
         const value_type &cur_s = m_cur_s;
         const value_type &cur_p = m_cur_p;
         const value_type &cur_o = m_cur_o;
@@ -388,6 +385,29 @@ namespace ring {
             }
         }
 
+        const bwt_interval& get_i_s() const{
+            if(m_last_iter == "SOP"){
+                return spo_iter.get_i_s();
+            } else if(m_last_iter == "SOP"){
+                return sop_iter.get_i_s();
+            }
+        }
+
+        const bwt_interval& get_i_p() const{
+            if(m_last_iter == "SOP"){
+                return spo_iter.get_i_p();
+            } else if(m_last_iter == "SOP"){
+                return sop_iter.get_i_p();
+            }
+        }
+
+        const bwt_interval& get_i_o() const{
+            if(m_last_iter == "SOP"){
+                return spo_iter.get_i_o();
+            } else if(m_last_iter == "SOP"){
+                return sop_iter.get_i_o();
+            }
+        }
         const wm_type& get_current_wm(const var_type& var) const{
             if (is_variable_subject(var)){
                 if(m_last_iter == "SOP"){

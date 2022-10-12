@@ -71,9 +71,6 @@ namespace ring {
         }
 
         const bool &is_empty = m_is_empty;
-        const bwt_interval &i_s = m_i_s;
-        const bwt_interval &i_p = m_i_p;
-        const bwt_interval &i_o = m_i_o;
         const value_type &cur_s = m_cur_s;
         const value_type &cur_p = m_cur_p;
         const value_type &cur_o = m_cur_o;
@@ -635,13 +632,13 @@ namespace ring {
             }
             return std::vector<uint64_t>();
         }
-        bwt_interval get_i_s() const{
+        const bwt_interval& get_i_s() const{
             return m_i_s;
         }
-        bwt_interval get_i_p() const{
+        const bwt_interval& get_i_p() const{
             return m_i_p;
         }
-        bwt_interval get_i_o() const{
+        const bwt_interval& get_i_o() const{
             return m_i_o;
         }
     };
