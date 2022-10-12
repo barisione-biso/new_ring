@@ -291,8 +291,11 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    //m_last_iter = "";
-                } else {//first level nodes.
+                    if(util::configuration.is_adaptive()){
+                        //std::cout << "Unsetting last iter" << std::endl; 
+                        m_last_iter = "";
+                    }
+                } else {//first level nodes. //TODO: I think this code is unused cause we can't go up one level if we are in the first one.
                     spo_iter.up(var);
                     sop_iter.up(var);
                 }
@@ -310,7 +313,10 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    //m_last_iter = "";
+                    if(util::configuration.is_adaptive()){
+                        //std::cout << "Unsetting last iter" << std::endl;
+                        m_last_iter = "";
+                    }
                 } else {
                     spo_iter.up(var);
                     sop_iter.up(var);
@@ -330,7 +336,10 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    //m_last_iter = "";
+                    if(util::configuration.is_adaptive()){
+                        //std::cout << "Unsetting last iter" << std::endl;
+                        m_last_iter = "";
+                    }
                 } else {
                     spo_iter.up(var);
                     sop_iter.up(var);
