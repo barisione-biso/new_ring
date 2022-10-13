@@ -258,7 +258,7 @@ namespace ring {
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
             std::cout << "gao : ";
             for (auto& g : m_gao){
-                std::cout << g << " ";
+                std::cout << int(g) << " ";
             }
             std::cout << " " << std::endl;
         }
