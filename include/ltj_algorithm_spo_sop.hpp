@@ -256,6 +256,11 @@ namespace ring {
             }
             m_gao_size = gao_size<ring_type, var_type, const_type, ltj_iter_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
+            std::cout << "gao : ";
+            for (auto& g : m_gao){
+                std::cout << g << " ";
+            }
+            std::cout << " " << std::endl;
         }
 
         //! Copy constructor
@@ -327,7 +332,7 @@ namespace ring {
                 const std::unordered_map<var_type, bool> & b_vars = m_gao_vars;
                 m_gao_size.update_weights(j, cur_var, b_vars, m_var_to_iterators);
                 var = m_gao_size.get_next_var(j, m_gao_vars);
-                //std::cout << "next var: " << int(var) << std::endl;
+                std::cout << "next var: " << int(var) << std::endl;
                 return var;
             }
             else{
