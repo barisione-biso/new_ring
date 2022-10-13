@@ -103,9 +103,9 @@ namespace ring {
             m_cur_s = spo_iter.cur_s;
             m_cur_p = spo_iter.cur_p;
             m_cur_o = spo_iter.cur_o;
-            m_i_p   = spo_iter.i_p;
-            m_i_s   = spo_iter.i_s;
-            m_i_o    =spo_iter.i_o;
+            m_i_p   = spo_iter.get_i_p();
+            m_i_s   = spo_iter.get_i_s();
+            m_i_o    =spo_iter.get_i_o();
             //<<
             sop_iter = ltj_reverse_iter_type(triple, m_ptr_reverse_ring);
         }
