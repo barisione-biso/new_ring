@@ -103,6 +103,7 @@ namespace ring {
             m_cur_s = spo_iter.cur_s;
             m_cur_p = spo_iter.cur_p;
             m_cur_o = spo_iter.cur_o;
+            std::cout << " iter values : " << m_cur_s << ", " << m_cur_p << ", " << m_cur_o << std::endl;
             m_i_p   = spo_iter.get_i_p();
             m_i_s   = spo_iter.get_i_s();
             m_i_o    =spo_iter.get_i_o();
