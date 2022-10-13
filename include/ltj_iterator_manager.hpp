@@ -174,6 +174,7 @@ namespace ring {
                     return;
                 } else if (m_cur_o != -1UL) {
                     //OS->P
+                    std::cout<< int(var) << " : " << m_cur_o << ", " << m_cur_p<< std::endl;
                     m_last_iter = "SOP";
                 } else if (m_cur_p != -1UL) {
                     //PS->O
@@ -217,11 +218,11 @@ namespace ring {
                 } else if (m_cur_o != -1UL) {
                     //OS->P
                     sop_iter.down(var,c);
-                    m_last_iter = "SOP";
+                    //m_last_iter = "SOP";
                 } else if (m_cur_p != -1UL) {
                     //PS->O
                     spo_iter.down(var,c);
-                    m_last_iter = "SPO";
+                    //m_last_iter = "SPO";
                 } else {
                     //S->{OP,PO} same range in SOP and SPO
                     spo_iter.down(var,c);
@@ -239,11 +240,11 @@ namespace ring {
                 } else if (m_cur_o != -1UL) {
                     //OP->S
                     spo_iter.down(var,c);
-                    m_last_iter = "SPO";
+                    //m_last_iter = "SPO";
                 } else if (m_cur_s != -1UL) {
                     //SP->O
                     sop_iter.down(var,c);
-                    m_last_iter = "SOP";
+                    //m_last_iter = "SOP";
                 } else {
                     //P->{OS,SO} same range in POS and PSO
                     spo_iter.down(var,c);
@@ -262,11 +263,11 @@ namespace ring {
                 if (m_cur_p != -1UL) {
                     //PO->S
                     sop_iter.down(var,c);
-                    m_last_iter = "SOP";
+                    //m_last_iter = "SOP";
                 } else if (m_cur_s != -1UL) {
                     //SO->P
                     spo_iter.down(var,c);
-                    m_last_iter = "SPO";
+                    //m_last_iter = "SPO";
                 } else {
                     //O->{PS,SP} same range in OPS and OSP
                     spo_iter.down(var,c);
