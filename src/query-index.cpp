@@ -116,9 +116,9 @@ ring::triple_pattern get_triple(string & s, std::unordered_map<std::string, uint
     }
     if(is_variable(terms[1])){
         triple.var_p(get_variable(terms[1], hash_table_vars));
-        std::cout << "get_triple.p : " << triple.term_p.value << std::endl;
     }else{
         triple.const_p(get_constant(terms[1]));
+        std::cout << "get_triple.p : " << triple.term_p.value << std::endl;
     }
     if(is_variable(terms[2])){
         triple.var_o(get_variable(terms[2], hash_table_vars));
