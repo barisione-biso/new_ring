@@ -171,6 +171,7 @@ namespace ring {
                 if (m_cur_o != -1UL && m_cur_p != -1UL){
                     //OP->S
                     m_last_iter = "SPO";
+                    return;
                 } else if (m_cur_o != -1UL) {
                     //OS->P
                     m_last_iter = "SOP";
@@ -181,6 +182,7 @@ namespace ring {
             } else if (is_variable_predicate(var)) {
                 if (m_cur_s != -1UL && m_cur_o != -1UL){
                     m_last_iter = "SPO";
+                    return;
                 } else if (m_cur_o != -1UL) {
                     //OP->S
                     m_last_iter = "SPO";
@@ -191,6 +193,7 @@ namespace ring {
             } else if (is_variable_object(var)) {
                 if (m_cur_s != -1UL && m_cur_p != -1UL){
                     m_last_iter = "SPO";
+                    return;
                 }
                 if (m_cur_p != -1UL) {
                     //PO->S
