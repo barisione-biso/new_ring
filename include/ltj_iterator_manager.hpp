@@ -169,7 +169,8 @@ namespace ring {
         void set_iter(var_type var){
             if (is_variable_subject(var)) {
                 if (m_cur_o != -1UL && m_cur_p != -1UL){
-                    return;
+                    //OP->S
+                    m_last_iter = "SPO";
                 } else if (m_cur_o != -1UL) {
                     //OS->P
                     m_last_iter = "SOP";
@@ -179,7 +180,7 @@ namespace ring {
                 } 
             } else if (is_variable_predicate(var)) {
                 if (m_cur_s != -1UL && m_cur_o != -1UL){
-                    return;
+                    m_last_iter = "SPO";
                 } else if (m_cur_o != -1UL) {
                     //OP->S
                     m_last_iter = "SPO";
@@ -189,7 +190,7 @@ namespace ring {
                 }
             } else if (is_variable_object(var)) {
                 if (m_cur_s != -1UL && m_cur_p != -1UL){
-                    return;
+                    m_last_iter = "SPO";
                 }
                 if (m_cur_p != -1UL) {
                     //PO->S
@@ -390,6 +391,9 @@ namespace ring {
                 return spo_iter.get_i_s();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_s();
+            } else{
+                //When triple is composed of only vars.
+                return spo_iter.get_i_s();
             }
         }
 
@@ -398,6 +402,9 @@ namespace ring {
                 return spo_iter.get_i_p();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_p();
+            } else{
+                //When triple is composed of only vars.
+                return spo_iter.get_i_p();
             }
         }
 
@@ -406,6 +413,9 @@ namespace ring {
                 return spo_iter.get_i_o();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_o();
+            } else{
+                //When triple is composed of only vars.
+                return spo_iter.get_i_o();
             }
         }
         const wm_type& get_current_wm(const var_type& var) const{
