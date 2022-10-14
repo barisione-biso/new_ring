@@ -50,7 +50,7 @@ for mode in available_modes:
     cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-    
+
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_modes):
@@ -113,9 +113,10 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     backward_only_leap_performance.append(float(aux8[2])/1000000000)
     backward_only_leap_muthu_performance.append(float(aux9[2])/1000000000)
     backward_only_leap_adaptive_muthu_performance.append(float(aux10[2])/1000000000)
-       
-print("****** Number of different results: ", num_of_results_error)
 
+print("****** Number of different results: ", num_of_results_error)
+if num_of_results_error != 0:
+    quit()
 #THIRD PART. Producing the input files for the sigmod21 plotting mechanism in overleaf.
 print("****** Generating input files for sigmod21 plotting mechanism (overleaf).")
 for mode in available_modes:
