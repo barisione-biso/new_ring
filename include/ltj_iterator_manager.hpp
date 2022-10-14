@@ -183,7 +183,6 @@ namespace ring {
                     return;
                 } else if (m_cur_o != -1UL) {
                     //OS->P
-                    std::cout<< int(var) << " : " << m_cur_o << ", " << m_cur_p<< std::endl;
                     m_last_iter = "SOP";
                 } else if (m_cur_p != -1UL) {
                     //PS->O
