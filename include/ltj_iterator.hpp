@@ -169,7 +169,7 @@ namespace ring {
                     return;
                 }
                 m_cur_p = p_aux;
-
+                
                 //Interval in S
                 m_i_s = m_ptr_ring->down_O_P(m_i_p, p_aux);
 
@@ -238,7 +238,6 @@ namespace ring {
                 m_i_s = m_i_p = m_ptr_ring->down_O(o_aux);
 
             }
-            std::cout << "ltj_iterator : " << m_cur_p << std::endl;
         }
         const triple_pattern* get_triple_pattern() const{
             return m_ptr_triple_pattern;

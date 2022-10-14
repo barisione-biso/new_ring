@@ -98,17 +98,25 @@ namespace ring {
             m_ptr_reverse_ring = reverse_ring;
 
             spo_iter = ltj_iter_type(triple, m_ptr_ring);
+            if(spo_iter.is_empty){
+                m_is_empty = true;
+                return;
+            }
             //Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
             //>>
             m_cur_s = spo_iter.cur_s;
             m_cur_p = spo_iter.cur_p;
             m_cur_o = spo_iter.cur_o;
-            std::cout << " iter values : " << m_cur_s << ", " << m_cur_p << ", " << m_cur_o << std::endl;
+            //std::cout << " iter values : " << m_cur_s << ", " << m_cur_p << ", " << m_cur_o << std::endl;
             m_i_p   = spo_iter.get_i_p();
             m_i_s   = spo_iter.get_i_s();
             m_i_o    =spo_iter.get_i_o();
             //<<
             sop_iter = ltj_reverse_iter_type(triple, m_ptr_reverse_ring);
+            if(sop_iter.is_empty){
+                m_is_empty = true;
+                return;
+            }
         }
         const triple_pattern* get_triple_pattern() const{
             return m_ptr_triple_pattern;
