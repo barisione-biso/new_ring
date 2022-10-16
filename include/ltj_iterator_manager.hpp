@@ -57,7 +57,11 @@ namespace ring {
         bool m_is_empty = false;
         ltj_iter_type spo_iter;
         ltj_reverse_iter_type sop_iter;
+        //Stores whether the SPO iterator or the SOP iterator has to be used with the variable below.
         std::string m_last_iter;
+        //Stores the variable that 'owns' the iterator. This means the following:
+        //Any variable which set 'm_last_iter' is flagged as owner, which is useful by adaptive algorithms to 'release' or 'unset' the iterator when needed.
+        var_type m_var_owner;
         void copy(const ltj_iterator_manager &o) {
             m_ptr_triple_pattern = o.m_ptr_triple_pattern;
             m_ptr_ring = o.m_ptr_ring;
@@ -92,7 +96,7 @@ namespace ring {
 
         ltj_iterator_manager() = default;
 
-        ltj_iterator_manager(const triple_pattern *triple, ring_type *ring, reverse_ring_type *reverse_ring) : m_last_iter(""){
+        ltj_iterator_manager(const triple_pattern *triple, ring_type *ring, reverse_ring_type *reverse_ring) : m_last_iter(""), m_var_owner('\0') {
             m_ptr_triple_pattern = triple;
             m_ptr_ring = ring;
             m_ptr_reverse_ring = reverse_ring;
@@ -175,7 +179,14 @@ namespace ring {
             std::swap(spo_iter, o.spo_iter);
             std::swap(sop_iter,o.sop_iter);
         }
+        /*Unset the variable iterator ownership. Only used by adaptive algorithms.*/
+        void unset_iter(var_type var_owner){
+            if(var_owner == m_var_owner){
+                m_last_iter ="";
+            }
+        }
         void set_iter(var_type var){
+            m_var_owner = var;
             if (is_variable_subject(var)) {
                 if (m_cur_o != -1UL && m_cur_p != -1UL){
                     //OP->S
@@ -187,7 +198,7 @@ namespace ring {
                 } else if (m_cur_p != -1UL) {
                     //PS->O
                     m_last_iter = "SPO";
-                } 
+                }
             } else if (is_variable_predicate(var)) {
                 if (m_cur_s != -1UL && m_cur_o != -1UL){
                     m_last_iter = "SPO";
@@ -301,10 +312,6 @@ namespace ring {
                     } else{
                         sop_iter.up(var);
                     }
-                    if(util::configuration.is_adaptive()){
-                        //std::cout << "Unsetting last iter" << std::endl; 
-                        m_last_iter = "";
-                    }
                 } else {//first level nodes. //TODO: I think this code is unused cause we can't go up one level if we are in the first one.
                     spo_iter.up(var);
                     sop_iter.up(var);
@@ -322,10 +329,6 @@ namespace ring {
                         spo_iter.up(var);
                     } else{
                         sop_iter.up(var);
-                    }
-                    if(util::configuration.is_adaptive()){
-                        //std::cout << "Unsetting last iter" << std::endl;
-                        m_last_iter = "";
                     }
                 } else {
                     spo_iter.up(var);
@@ -345,10 +348,6 @@ namespace ring {
                         spo_iter.up(var);
                     } else{
                         sop_iter.up(var);
-                    }
-                    if(util::configuration.is_adaptive()){
-                        //std::cout << "Unsetting last iter" << std::endl;
-                        m_last_iter = "";
                     }
                 } else {
                     spo_iter.up(var);

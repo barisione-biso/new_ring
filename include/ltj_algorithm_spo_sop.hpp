@@ -157,7 +157,7 @@ namespace ring {
             stack_type stack;
 
             if(p_wts.size() == 0){
-               return res; 
+               return res;
             }
             for(size_type i=0; i < p_wts.size(); i++){
                 const t_wt& wt = *p_wts[i];
@@ -185,14 +185,14 @@ namespace ring {
                         const t_wt& wt = *p_wts[i];
                         const node_type& node = wt_ranges_level_v[i].node;
                         const range_type& range = wt_ranges_level_v[i].range;
-                       
+
                         const auto& children = wt.expand(node);
                         const std::array<range_type, 2>& children_ranges = wt.expand(node, range);
                         //count_nodes++;
                         if(!empty_left_range){
-                            const range_type& left_range = std::get<0>(children_ranges);
-                            const range_type& right_range = std::get<1>(children_ranges);
-                            if(sdsl::empty(left_range)){
+                            //const range_type& left_range = std::get<0>(children_ranges);
+                            //const range_type& right_range = std::get<1>(children_ranges);
+                            if(sdsl::empty(children_ranges[0])){
                                 empty_left_range = true;
                             }
                             left_children_v.emplace_back(tuple_type{get<0>(children), get<0>(children_ranges)});
@@ -209,7 +209,7 @@ namespace ring {
                         }
                     }
                 }
-                
+
                 stack.pop();
                 if(!symbol_reported && !empty_right_range){
                     stack.emplace(std::move(right_children_v));
@@ -255,6 +255,8 @@ namespace ring {
                 ++i;
             }
             m_gao_size = gao_size<ring_type, var_type, const_type, ltj_iter_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+            //m_gao = {'\000', '\001', '\003', '\002'};
+            m_gao = {'\000', '\002', '\001', '\003'};
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
             /*std::cout << "gao : ";
             for (auto& g : m_gao){
@@ -375,6 +377,11 @@ namespace ring {
 
             if(j == m_gao_size.m_number_of_variables){
                 //Report results
+                std::cout << "tuple : ";
+                for(auto& pair : tuple){
+                    std::cout << int(pair.first) << " = " << pair.second << std::endl;
+                }
+                std::cout << " " << std::endl;
                 res.emplace_back(tuple);
             }else{
                 //assert(m_gao_stack.size() == m_gao_vars.size());
@@ -399,7 +406,7 @@ namespace ring {
                         itrs[0]->up(x_j);
                     }
                 }else {
-                    //std::cout << "Intersecting ";
+                    std::cout << "Intersecting ";
                     std::vector<wm_type*> wms;
                     std::vector<sdsl::range_type> ranges;
                     for(ltj_iter_type* iter : itrs){
@@ -411,17 +418,17 @@ namespace ring {
                         const auto& cur_interval = iter->get_current_interval(x_j);
                         const wm_type& current_wm  = iter->get_current_wm(x_j);
                         wms.emplace_back(&current_wm);
-                        //assert (cur_interval.right() >= cur_interval.left() );
+                        assert (cur_interval.right() >= cur_interval.left() );
                         ranges.emplace_back(sdsl::range_type{cur_interval.left(), cur_interval.right()});
-                        //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                        std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                     }
-                    //std::cout << "" << std::endl;
+                    std::cout << "" << std::endl;
                     const std::vector<value_type>&intersection = intersect_iter(wms,ranges);
                     for(value_type c : intersection){
-                        //std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
-                        //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
+                        std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
                         for (ltj_iter_type* iter : itrs) {
                             iter->down(x_j, c);
@@ -432,6 +439,12 @@ namespace ring {
                         //4. Going up in the tries by removing x_j = c
                         for (ltj_iter_type *iter : itrs) {
                             iter->up(x_j);
+                        }
+                    }
+                    //Unset type of iterator (SPO / SOP). See logic inside unset_iter() function.
+                    if(util::configuration.is_adaptive()){
+                        for(ltj_iter_type* iter : itrs){
+                            iter->unset_iter(x_j);
                         }
                     }
                 }

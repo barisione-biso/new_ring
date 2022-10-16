@@ -113,7 +113,8 @@ namespace ring {
                 ++i;
             }
             m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
-
+            //m_gao = {'\000', '\001', '\003', '\002'};
+            m_gao = {'\000', '\002', '\001', '\003'};
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
         }
 
@@ -231,6 +232,11 @@ namespace ring {
 
             if(j == m_gao_size.m_number_of_variables){
                 //Report results
+                std::cout << "tuple : ";
+                for(auto& pair : tuple){
+                    std::cout << int(pair.first) << " = " << pair.second << std::endl;
+                }
+                std::cout << " " << std::endl;
                 res.emplace_back(tuple);
             }else{
                 //assert(m_gao_stack.size() == m_gao_vars.size());
@@ -255,7 +261,7 @@ namespace ring {
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
 
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
@@ -274,7 +280,7 @@ namespace ring {
                         }
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                 }
                 if(util::configuration.is_adaptive()){
