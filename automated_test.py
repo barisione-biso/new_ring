@@ -129,15 +129,15 @@ print("****** Plotting variants using matplotlib.")
 
 d = {'Orig': sigmod21_performance,
     'Muthu': one_ring_muthu_leap_performance,
-    'Muthu adaptive': one_ring_muthu_adaptive_leap_performance,
+    'Muthu Adapt': one_ring_muthu_adaptive_leap_performance,
     'Backward' : backward_only_performance,
-    'Backward Muthu' : backward_only_muthu_performance,
-    'Backward Adaptive' : backward_only_adaptive_performance,
-    'Backward Adaptive Muthu' : backward_only_muthu_adaptive_performance,
+    'B. Muthu' : backward_only_muthu_performance,
+    'B. Adapt' : backward_only_adaptive_performance,
+    'B. Adapt Muthu' : backward_only_muthu_adaptive_performance,
     #'Sigmod21_adaptive': sigmod21_adaptive_performance,
-    'Backward (leap)': backward_only_leap_performance,
-    'Backward (leap) Muthu' : backward_only_leap_muthu_performance,
-    'Backward (leap) adaptive Muthu' : backward_only_leap_adaptive_muthu_performance
+    'B. Leap': backward_only_leap_performance,
+    'B. Leap Muthu' : backward_only_leap_muthu_performance,
+    'B. Leap Adapt Muthu' : backward_only_leap_adaptive_muthu_performance
     }
 
 df = pd.DataFrame(data = d)

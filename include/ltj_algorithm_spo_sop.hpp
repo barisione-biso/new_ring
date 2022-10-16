@@ -256,7 +256,7 @@ namespace ring {
             }
             m_gao_size = gao_size<ring_type, var_type, const_type, ltj_iter_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
             //m_gao = {'\000', '\001', '\003', '\002'};
-            m_gao = {'\000', '\002', '\001', '\003'};
+            //m_gao = {'\000', '\002', '\001', '\003'};
             m_gao_vars.reserve(m_gao_size.m_number_of_variables);
             /*std::cout << "gao : ";
             for (auto& g : m_gao){
@@ -377,11 +377,11 @@ namespace ring {
 
             if(j == m_gao_size.m_number_of_variables){
                 //Report results
-                std::cout << "tuple : ";
+                /*std::cout << "tuple : ";
                 for(auto& pair : tuple){
                     std::cout << int(pair.first) << " = " << pair.second << std::endl;
                 }
-                std::cout << " " << std::endl;
+                std::cout << " " << std::endl;*/
                 res.emplace_back(tuple);
             }else{
                 //assert(m_gao_stack.size() == m_gao_vars.size());
@@ -406,7 +406,7 @@ namespace ring {
                         itrs[0]->up(x_j);
                     }
                 }else {
-                    std::cout << "Intersecting ";
+                    //std::cout << "Intersecting ";
                     std::vector<wm_type*> wms;
                     std::vector<sdsl::range_type> ranges;
                     for(ltj_iter_type* iter : itrs){
@@ -420,15 +420,15 @@ namespace ring {
                         wms.emplace_back(&current_wm);
                         assert (cur_interval.right() >= cur_interval.left() );
                         ranges.emplace_back(sdsl::range_type{cur_interval.left(), cur_interval.right()});
-                        std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
+                        //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                     }
-                    std::cout << "" << std::endl;
+                    //std::cout << "" << std::endl;
                     const std::vector<value_type>&intersection = intersect_iter(wms,ranges);
                     for(value_type c : intersection){
-                        std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        //std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                         //1. Adding result to tuple
                         tuple[j] = {x_j, c};
-                        std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
+                        //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
                         for (ltj_iter_type* iter : itrs) {
                             iter->down(x_j, c);

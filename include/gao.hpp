@@ -342,7 +342,7 @@ namespace ring {
                                 if(weight < min_weight){
                                     min_weight = weight;
                                 }
-                                std::cout << "Cur var: " << int(cur_var) << " rel var: " << int(rel_var) << " min weight : " << min_weight << std::endl;
+                                //std::cout << "Cur var: " << int(cur_var) << " rel var: " << int(rel_var) << " min weight : " << min_weight << std::endl;
                             }
                         }
                         if(min_weight != -1ULL){
