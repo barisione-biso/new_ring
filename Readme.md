@@ -51,3 +51,11 @@ Now we are finished! After running this step we will execute the queries. In con
 ---
 
 At the moment, we can find the rest of the complementary material at [this webpage](http://compact-leapfrog.tk/). Note that we will find instructions to run the code there, and although the instructions are different from the ones in this repository, they should work too.
+
+
+Finally how to run quick tests:
+./run_automated_test_wikidata_filtered_1000_600.sh 
+
+Also from workplace/ you can plot output data from servers:
+1. Run ./fetch_files_from_*.sh, and then
+3. Run ./run_plot_csv_filtered_1000_600.sh 
