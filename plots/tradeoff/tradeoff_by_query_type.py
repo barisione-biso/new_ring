@@ -29,7 +29,7 @@ while k < 17:
             y=median,
             marker=marker_value
         )
-        # ytikcs
+        # yticks
         locs,labels = yticks()
         yticks(locs, map(lambda x: x, locs))
         axes[i, j].set_title(query_types[k])
