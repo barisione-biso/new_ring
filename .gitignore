@@ -33,7 +33,7 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/osx
 cmake-build-debug/
 .idea/
-plots/*.*
+!plots/*.py
 
 build/
 dat/
