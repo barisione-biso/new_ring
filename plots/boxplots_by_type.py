@@ -39,15 +39,21 @@ query_type_files = ["matplotlib/P2.txt",
 
 #query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 query_types = ['P2', 'P3', 'P4', 'T2', 'TI2', 'T3', 'TI3', 'J3', 'T4', 'TI4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
+
+labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag', 'PODS', 'PODS Adaptive', 'PODS Muthu', 'PODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu']
+
+colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
 k = 0
 i = 0
 j = 0
 max_rows=3
 max_columns=6
+#first_bplot is declared here as a list but later replaced to store the 'artist' of the first boxplot.
+#The reason to do this is because the last bplot is deleted and therefore it cant be used as a valid handled for the legend.
+first_bplot = []
 print("****** Plotting Starts.")
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 fig.tight_layout(h_pad=2) #Adds padding among subplots with enough size to show x & y labels.
-subplots = []
 while k < len(query_types):
     print('Working with file '+query_type_files[k])
     data = pd.read_csv(query_type_files[k])
@@ -55,9 +61,14 @@ while k < len(query_types):
     concated_data = pd.concat([competitors_data, data], axis=1,join='inner')
     bplot = axes[i, j].boxplot(
         concated_data,
-        patch_artist=True # fill with color
+        patch_artist=True, # fill with color
+        showfliers=False
     )
-    subplots.append(bplot)
+    if not first_bplot:
+        first_bplot = bplot
+    #Setting the colors.
+    for patch, color in zip(bplot['boxes'], colors):
+        patch.set_facecolor(color)
     ymax = 0.01
 
     #print ( 'i = ' + str(i) + ' , j = ' + str(j))
@@ -84,25 +95,10 @@ while k < len(query_types):
 fig.delaxes(axes[2,5]) #remove the last subplot as the 18th one is unused.
 #fig.suptitle("Tradeoff space-time")
 
-#Setting the colors.
-colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
-for subplot in subplots:
-        for patch, color in zip(subplot['boxes'], colors):
-            patch.set_facecolor(color)
+handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17]]
+fig.legend(handles = handles_, labels = labels_, loc="lower right", fontsize=8)
 
-fig.legend(labels = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag', 'PODS', 'PODS Adaptive', 'PODS Muthu', 'PODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu'], loc="lower right", fontsize=8)
-# Finally, add a basic legend
-N = 500
-fig.text(0.80, 0.08, f'{N} Random Numbers',
-         backgroundcolor=colors[0], color='black', weight='roman',
-         size='x-small')
-fig.text(0.80, 0.045, 'IID Bootstrap Resample',
-         backgroundcolor=colors[1],
-         color='white', weight='roman', size='x-small')
-fig.text(0.80, 0.015, '*', color='white', backgroundcolor='silver',
-         weight='roman', size='medium')
-fig.text(0.815, 0.013, ' Average Value', color='black', weight='roman',
-         size='x-small')
+plt.savefig('boxplots_by_type.pdf', format='pdf')
 plt.show()
 
 print("****** Plotting Ends.")
