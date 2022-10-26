@@ -136,9 +136,6 @@ for query_type in query_types: #Per each type of query.
     for variant in available_variants: #Per each ring variant.
         query_type_data[variant] = [] #empty list
         print('Processing : ' +output_folder+'/tmp_'+variant+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv')
-        #First we add all the competitors to the plotting files.
-        #Function that appends existing pre-calculated values per query type.
-        #query_type_data['CompactLTJ'] = TODO
         with open(output_folder+'/tmp_'+variant+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv', 'r') as csvfile:
             # creating a csv reader object
             csvreader = csv.reader(csvfile)
