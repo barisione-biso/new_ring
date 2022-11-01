@@ -114,7 +114,7 @@ locs,labels = yticks()
 yticks(locs, map(lambda x: x, locs))
 
 plt.title("Tradeoff space-time")
-plt.legend(['PODS', 'PODS Adaptive', 'PODS Muthu', 'PODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu', 'Compact LTJ'])
+plt.legend(['TODS', 'TODS Adaptive', 'TODS Muthu', 'TODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu', 'Compact LTJ'])
 plt.xlabel("Bytes per triple")
 plt.ylabel("Median (ms)")
 #plt.text(

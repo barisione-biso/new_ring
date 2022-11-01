@@ -40,7 +40,7 @@ query_type_files = ["matplotlib/P2.txt",
 #query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 query_types = ['P2', 'P3', 'P4', 'T2', 'TI2', 'T3', 'TI3', 'J3', 'T4', 'TI4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
 
-labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag BFS', 'PODS', 'PODS Adaptive', 'PODS Muthu', 'PODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu']
+labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag BFS', 'TODS', 'TODS Adaptive', 'TODS Muthu', 'TODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu']
 
 colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
 k = 0
