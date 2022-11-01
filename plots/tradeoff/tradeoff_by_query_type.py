@@ -14,7 +14,8 @@ i = 0
 j = 0
 max_rows=3
 max_columns=6
-query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'Ti2', 'Ti3', 'Ti4', 'Tr1', 'Tr2' ]
+#query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'Ti2', 'Ti3', 'Ti4', 'Tr1', 'Tr2' ]
+query_types = ['P2', 'P3', 'P4', 'T2', 'Ti2', 'T3', 'Ti3', 'J3', 'T4', 'Ti4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
 colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
 #TODO: Estos son los mismos colores de los boxplots_by_type pero se ven 'mal'. Falta estandarizar. colors = ['green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow', 'orange', 'purple']
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
@@ -62,7 +63,7 @@ fig.delaxes(axes[2,5]) #remove the last subplot as the 18th one is unused.
 handles_ = [mpatches.Patch(color=colors[0], label='TODS'),
             mpatches.Patch(color=colors[1], label='TODS Adaptive'),
             mpatches.Patch(color=colors[2], label='TODS Muthu'),
-            mpatches.Patch(color=colors[3], label='TODS Muthu adaptive'),
+            mpatches.Patch(color=colors[3], label='TODS Adaptive Muthu'),
             mpatches.Patch(color=colors[4], label='Backward'),
             mpatches.Patch(color=colors[5], label='Backward Muthu'),
             mpatches.Patch(color=colors[6], label='Backward Adaptive'),
@@ -78,7 +79,7 @@ handles_ = [mpatches.Patch(color=colors[0], label='TODS'),
 handles_ = [mlines.Line2D([], [], color=colors[0], label='TODS',  linestyle='None', marker='d'),
             mlines.Line2D([], [], color=colors[1], label='TODS Adaptive',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[2], label='TODS Muthu',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[3], label='TODS Muthu adaptive',  linestyle='None', marker='x'),
+            mlines.Line2D([], [], color=colors[3], label='TODS Adaptive Muthu',  linestyle='None', marker='x'),
             mlines.Line2D([], [], color=colors[4], label='Backward',  linestyle='None', marker='d'),
             mlines.Line2D([], [], color=colors[5], label='Backward Muthu',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[6], label='Backward Adaptive',  linestyle='None', marker='o'),
