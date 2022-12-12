@@ -44,13 +44,13 @@ print("Output folder: ", output_folder)
 available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu","backward_only_leap", "backward_only_leap_muthu", "backward_only_leap_adaptive_muthu"] #,
 
 print("Available modes : "+",".join(available_variants))
-'''
+
 for mode in available_variants:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
     cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-'''
+
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_variants):

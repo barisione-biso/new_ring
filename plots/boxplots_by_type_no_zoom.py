@@ -54,15 +54,15 @@ first_bplot = []
 print("****** Plotting Starts.")
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 while k < len(query_types):
-    ymax = 0.01
+    ymax = 0.5
     #hardcoded stuffs >>
     if (i == 0 and j == max_columns - 1): #Omit plot 0,5 (Legend will be here)
         j = 0
         i = i + 1
     if i == 1:
-        ymax = 0.005
+        ymax = 0.5
     elif i == 2:
-        ymax = 0.04
+        ymax = 0.5
     #hardcoded stuffs <<
     
     print('Working with file '+query_type_files[k])
@@ -104,7 +104,7 @@ fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17]]
 fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=7, ncol=1, bbox_to_anchor=(0.99, 1))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
-plt.savefig('boxplots_by_type.svg', format='svg', dpi=500)
+plt.savefig('boxplots_by_type.pdf', format='pdf', dpi=500)
 plt.show()
 
 print("****** Plotting Ends.")

@@ -44,7 +44,7 @@ DartConfiguration.tcl
 Makefile 
 cmake_install.cmake
 wm_*
-plots/experiment_output/*.csv
+plots/experiment_output/tmp_*.csv
 plots/box-plot-sigmod21/output/*
 plots/full_set
 plots/small_set
@@ -58,3 +58,4 @@ workplace/*.ods
 *.out
 callgrind*
 workplace/*.png
+fetch_files_from_*.sh

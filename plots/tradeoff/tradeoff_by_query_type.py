@@ -76,10 +76,10 @@ handles_ = [mpatches.Patch(color=colors[0], label='TODS'),
             ]
 '''
 #taken from : https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
-handles_ = [mlines.Line2D([], [], color=colors[0], label='TODS',  linestyle='None', marker='d'),
-            mlines.Line2D([], [], color=colors[1], label='TODS Adaptive',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[2], label='TODS Muthu',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[3], label='TODS Adaptive Muthu',  linestyle='None', marker='x'),
+handles_ = [mlines.Line2D([], [], color=colors[0], label='Ring',  linestyle='None', marker='d'),
+            mlines.Line2D([], [], color=colors[1], label='Ring Adaptive',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[2], label='Ring Muthu',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[3], label='Ring Adaptive Muthu',  linestyle='None', marker='x'),
             mlines.Line2D([], [], color=colors[4], label='Backward',  linestyle='None', marker='d'),
             mlines.Line2D([], [], color=colors[5], label='Backward Muthu',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[6], label='Backward Adaptive',  linestyle='None', marker='o'),
@@ -93,5 +93,5 @@ handles_ = [mlines.Line2D([], [], color=colors[0], label='TODS',  linestyle='Non
 #labels_ = ['TODS', 'TODS Adaptive', 'TODS Muthu', 'TODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu', 'Compact LTJ','Qdags BFS']
 #fig.legend(labels = labels_, loc="lower right")
 fig.legend(handles = handles_, loc="lower right")
-plt.savefig('tradeoff_by_query_type.pdf', format='pdf')
+plt.savefig('tradeoff_by_query_type.svg', format='svg')
 plt.show()
