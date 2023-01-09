@@ -53,6 +53,7 @@ workplace/*/
 workspace/fetch_files_from_dichato.sh 
 generate_output
 experiment_output/*
+!experiment_output/compactLTJ_out.csv
 workplace/*.pdf
 workplace/*.ods
 *.out

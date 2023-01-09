@@ -48,12 +48,14 @@ namespace ring {
         const triple_pattern *m_ptr_triple_pattern;
         ring_type *m_ptr_ring; //TODO: should be const
         reverse_ring_type *m_ptr_reverse_ring;
-        bwt_interval m_i_s;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
-        bwt_interval m_i_o;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
-        bwt_interval m_i_p;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
-        value_type m_cur_s;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
-        value_type m_cur_o;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
-        value_type m_cur_p;//TODO: fix, Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+        //TODO: fix, Currently all the members below are used exclusively to precalculate gao and to do so we use SPO index values.
+        bwt_interval m_i_s;
+        bwt_interval m_i_o;
+        bwt_interval m_i_p;
+        value_type m_cur_s;
+        value_type m_cur_o;
+        0value_type m_cur_p;
+        //TODO: fix, Currently all the members above are used exclusively to precalculate gao and to do so we use SPO index values.
         bool m_is_empty = false;
         ltj_iter_type spo_iter;
         ltj_reverse_iter_type sop_iter;
@@ -106,7 +108,7 @@ namespace ring {
                 m_is_empty = true;
                 return;
             }
-            //Currently all the members bellow are used exclusively to precalculate gao and to do so we use SPO index values.
+            //Currently all the members below are used exclusively to precalculate gao and to do so we use SPO index values.
             //>>
             m_cur_s = spo_iter.cur_s;
             m_cur_p = spo_iter.cur_p;

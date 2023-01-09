@@ -117,7 +117,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     backward_only_adaptive_performance.append(float(aux7[2])/1000000000)
     backward_only_muthu_adaptive_performance.append(float(aux8[2])/1000000000)
     backward_only_leap_performance.append(float(aux9[2])/1000000000)
-    backward_only_leap_muthu_performance.append(float(aux10[2])/1000000000)
+    backward_only_leap_muthu_performance.append(float(aux10[2])/1000000000)#1000000000 nanoseconds = 1 second
     backward_only_leap_adaptive_muthu_performance.append(float(aux11[2])/1000000000)
 
 print("****** Number of different results: ", num_of_results_error)
