@@ -54,7 +54,7 @@ namespace ring {
         bwt_interval m_i_p;
         value_type m_cur_s;
         value_type m_cur_o;
-        0value_type m_cur_p;
+        value_type m_cur_p;
         //TODO: fix, Currently all the members above are used exclusively to precalculate gao and to do so we use SPO index values.
         bool m_is_empty = false;
         ltj_iter_type spo_iter;

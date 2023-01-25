@@ -8,13 +8,16 @@ To run our code, **we have to install an extended version of the library SDSL**.
 
 After the extended version of SDSL is installed, we have to clone this repository and follow these steps:
 
-1. First we have to compile the code in our **build** folder:
-```Bash
-mkdir build
-cd build
-cmake ..
-make
-```
+1. : Build the project: Compiles everything into our **build** folder:
+    - `cmake -Bbuild/ -DCMAKE_BUILD_TYPE=Release && cmake --build build/`
+
+Alternatively older CMAKE versions require the following different set of commands:
+-```Bash
+-mkdir build
+-cd build
+-cmake ..
+-make
+-```
 
 Check that we do not have any errors.
 
