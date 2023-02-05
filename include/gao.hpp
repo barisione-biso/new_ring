@@ -236,11 +236,11 @@ namespace ring {
                 //3. Choosing the variables
                 //std::cout << "Choosing GAO ... " << std::flush;
                 std::vector<bool> checked(m_var_info.size(), false);
-                while(i < m_lonely_start){ //Related variables
+                while(i < m_lonely_start){ //Regular variables (not lonely)
                     if(!checked[i]){
                         gao.push_back(m_var_info[i].name); //Adding var to gao
                         checked[i] = true;
-                        min_heap_type heap; //Stores the related variables that are related with the chosen ones
+                        min_heap_type heap; //Stores the regular variables that are related with the chosen ones
                         auto var_name = m_var_info[i].name;
                         fill_heap(var_name, m_hash_table_position, m_var_info, checked,heap);
                         while(!heap.empty()){
