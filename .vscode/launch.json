@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Query index (orden promisorio)",
+            "name": "LOCAL REDUCED Query index",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/query-index",
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
                     "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt",
-                    "backward_only_adaptive",
+                    "sigmod21",
                     "0", "1"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -28,11 +28,11 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Build index (orden promisorio)",
+            "name": "DIJKSTRA FULL Build index",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/build-index",
-            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat",
+            "args": ["/data/graphs/wikidata-whole-dump/wikidata.nt.enumerated",
                     "ring"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -49,7 +49,51 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "test_ring_spo",
+            "name": "DIJKSTRA FULL query index - Intersection issue",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/query-index",
+            "args": ["/data/fbarisio/wikidata.nt.enumerated.ring",
+                    "Queries/Queries-bgps-limit1000_dash.txt", 
+                    "backward_only", "1", "1", "1000", "600"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "DIJKSTRA REDUCED Build index",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/build-index",
+            "args": ["/data/graphs/wikidata/wikidata-filtered.nt.sorted.enumerated",
+                    "ring"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+
+        {
+            "name": "LOCAL test_ring_spo",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/test_ring_spo",
@@ -69,7 +113,7 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "test_ring_sop",
+            "name": "LOCAL test_ring_sop",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/test_ring_sop",

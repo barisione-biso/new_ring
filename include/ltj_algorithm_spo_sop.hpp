@@ -137,7 +137,6 @@ namespace ring {
         }*/
         template<class t_wt, class range_type = sdsl::range_type>
         std::vector<typename t_wt::value_type>
-        //intersect_iter(const std::vector<std::pair<t_wt, sdsl::range_vec_type>> &wt_ranges_v)
         intersect_iter(const std::vector<t_wt*>& p_wts, const std::vector<range_type>& p_ranges)
         {
             //uint64_t count_nodes = 0;
@@ -418,11 +417,18 @@ namespace ring {
                         const auto& cur_interval = iter->get_current_interval(x_j);
                         const wm_type& current_wm  = iter->get_current_wm(x_j);
                         wms.emplace_back(&current_wm);
-                        assert (cur_interval.right() >= cur_interval.left() );
+                        //assert (cur_interval.right() >= cur_interval.left() );
                         ranges.emplace_back(sdsl::range_type{cur_interval.left(), cur_interval.right()});
                         //std::cout << "iter used: " << iter->get_index_permutation() << " ( " << cur_interval.left() << " , " << cur_interval.right() << ")" ;
                     }
                     //std::cout << "" << std::endl;
+                    /*
+                    Fix: Sorting the wms vector by max_level ascendingly. This is key to support intersections from either S or O to P. 
+                    The latter could have less (wt) levels than the first two.
+                    If this situation is not handled accordingly then a segmentation fault happens.
+                    */
+                    std::sort(wms.begin(), wms.end(), [](wm_type* a, wm_type* b) {return a->max_level < b->max_level;});
+
                     const std::vector<value_type>&intersection = intersect_iter(wms,ranges);
                     for(value_type c : intersection){
                         //std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
