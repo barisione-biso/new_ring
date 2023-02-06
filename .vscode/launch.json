@@ -49,12 +49,55 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "DIJKSTRA FULL query index - Intersection issue",
+            "name": "DIJKSTRA FULL query index",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/query-index",
             "args": ["/data/fbarisio/wikidata.nt.enumerated.ring",
-                    "Queries/Queries-bgps-limit1000_dash.txt", 
+                    "Queries/Queries-bgps-limit1000.txt", 
+                    "backward_only", "1", "1", "1000", "600"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "SHANNON FULL Build index",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/build-index",
+            "args": ["../data/wikidata.nt.enumerated",
+                    "ring"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "SHANNON FULL query index",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/query-index",
+            "args": ["../data/wikidata.nt.enumerated",
+                    "Queries/Queries-bgps-limit1000.txt", 
                     "backward_only", "1", "1", "1000", "600"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
