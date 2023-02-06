@@ -1,8 +1,8 @@
 import os
 import csv
 
-import pandas as pd
-import matplotlib.pyplot as plt
+#import pandas as pd
+#import matplotlib.pyplot as plt
 
 import argparse
 
@@ -44,13 +44,13 @@ print("Output folder: ", output_folder)
 available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu","backward_only_leap", "backward_only_leap_muthu", "backward_only_leap_adaptive_muthu"] #,
 
 print("Available modes : "+",".join(available_variants))
-
+'''
 for mode in available_variants:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
-    cmd = './build/query-index ../data/'+dataset+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
+    cmd = './build/query-index '+dataset_full_path+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-
+'''
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_variants):
@@ -73,9 +73,10 @@ if not success:
     exit()
 
 print("****** Checking for result correctness.")
-#TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED. rows has to be renamed
+#TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED. rows have to be renamed
 #rows[0] : SIGMOD21, rows[1]: muthu
 num_of_results_error = 0
+timed_out = 0
 sigmod21_performance = []
 sigmod21_adaptive_performance = []
 one_ring_muthu_leap_performance = []
@@ -106,7 +107,20 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     or aux1[1] != aux6[1] or aux1[1] != aux7[1] \
     or aux1[1] != aux8[1] or aux1[1] != aux9[1] \
     or aux1[1] != aux10[1] or aux1[1] != aux11[1]:
-        num_of_results_error=num_of_results_error+1
+        if aux1[2] >= 601000000000 \
+            and aux2[2] >= 601000000000 \
+            and aux3[2] >= 601000000000 \
+            and aux4[2] >= 601000000000 \
+            and aux5[2] >= 601000000000 \
+            and aux6[2] >= 601000000000 \
+            and aux7[2] >= 601000000000 \
+            and aux8[2] >= 601000000000 \
+            and aux9[2] >= 601000000000 \
+            and aux10[2] >= 601000000000 \
+            and aux11[2] >= 601000000000:
+            timed_out=timed_out+1
+        else:
+            num_of_results_error=num_of_results_error+1
     #div by 1000000000 just like in generate_output.cpp
     sigmod21_performance.append(float(aux1[2])/1000000000)
     sigmod21_adaptive_performance.append(float(aux2[2])/1000000000)
@@ -123,7 +137,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
 print("****** Number of different results: ", num_of_results_error)
 if num_of_results_error != 0:
     quit()
-
+print("****** Timed out queries: ", timed_out)
 #THIRD PART. Creating individual measures per query type.
 print("****** Creating type specific files to be use later for plotting.")
 query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
