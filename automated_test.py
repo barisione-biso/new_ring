@@ -15,6 +15,7 @@ parser.add_argument("-q", "--Queries", help = "Queries file.", required=True)
 parser.add_argument("-r", "--Results", help = "Number of results.")
 parser.add_argument("-t", "--Timeout", help = "Query Timeout.")
 parser.add_argument("-o", "--OutputFolder", help = "Output folder.")
+parser.add_argument("-qt", "--TypesPerQuery", help = "Types per query.")
 # Read arguments from command line
 args = parser.parse_args()
 
@@ -36,21 +37,25 @@ if args.Timeout:
 output_folder = "."
 if args.OutputFolder:
     output_folder = args.OutputFolder
+types_per_query = "plots/box-plot-sigmod21/query_types.txt"
+if args.TypesPerQuery:
+    types_per_query = args.TypesPerQuery
 
 print("****** Starting automated test.")
 print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_path))
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
+print("Types per query: ", types_per_query)
 available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu","backward_only_leap", "backward_only_leap_muthu", "backward_only_leap_adaptive_muthu"] #,
 
 print("Available modes : "+",".join(available_variants))
-'''
+
 for mode in available_variants:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
     cmd = './build/query-index '+dataset_full_path+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-'''
+
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_variants):
@@ -141,7 +146,7 @@ print("****** Timed out queries: ", timed_out)
 #THIRD PART. Creating individual measures per query type.
 print("****** Creating type specific files to be use later for plotting.")
 query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
-types_per_queries_file = open('plots/box-plot-sigmod21/query_types.txt', 'r')
+types_per_queries_file = open(types_per_query, 'r')
 types_per_queries = types_per_queries_file.readlines()
 for query_type in query_types: #Per each type of query.
     query_type_data = {} #dictionary
@@ -168,7 +173,7 @@ for query_type in query_types: #Per each type of query.
 #FOURTH PART. Producing the input files for the sigmod21 plotting mechanism in overleaf. (TO BE DEPRECATED) TODO: comparare files with above and deprecate if success.
 print("****** Generating input files for sigmod21 plotting mechanism (overleaf).")
 for mode in available_variants:
-    command='./plots/box-plot-sigmod21/generate_output '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv plots/box-plot-sigmod21/query_types.txt'
+    command='./plots/box-plot-sigmod21/generate_output '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv '+types_per_query
     print("Running command: "+command)
     os.system(command)
 
