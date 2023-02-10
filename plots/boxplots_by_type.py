@@ -69,6 +69,10 @@ while k < len(query_types):
     
     print('Working with file '+query_type_files[k])
     data = pd.read_csv(query_type_files[k])
+    #Deleting URing (leap) variants from plot.
+    del data['backward_only_leap_adaptive_muthu']
+    del data['backward_only_leap_muthu']
+    del data['backward_only_leap']
     competitors_data = pd.read_csv('competitors_measures/'+query_types[k]+'_source_competitors.txt')
     concated_data = pd.concat([competitors_data, data], axis=1,join='inner')
     bplot = axes[i, j].boxplot(
@@ -103,7 +107,7 @@ while k < len(query_types):
 fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 #fig.suptitle("Tradeoff space-time")
 
-handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17],first_bplot["boxes"][18], first_bplot["boxes"][19]]
+handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16]] #,first_bplot["boxes"][17],first_bplot["boxes"][18], first_bplot["boxes"][19]]
 fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=7, ncol=1, bbox_to_anchor=(0.99, 1))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
 plt.savefig('boxplots_by_type.svg', format='svg',dpi=500)
