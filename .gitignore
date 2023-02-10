@@ -60,3 +60,4 @@ workplace/*.ods
 callgrind*
 workplace/*.png
 fetch_files_from_*.sh
+plots/*.svg
