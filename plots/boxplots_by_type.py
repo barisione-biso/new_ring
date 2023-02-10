@@ -40,9 +40,9 @@ query_type_files = ["matplotlib/P2.txt",
 #query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 query_types = ['P2', 'P3', 'P4', 'T2', 'TI2', 'T3', 'TI3', 'J3', 'T4', 'TI4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
 
-labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag BFS', 'RDFCSA' , 'Ring', 'Ring Adaptive', 'Ring Muthu', 'Ring Adaptive Muthu', 'URing', 'URing Muthu', 'URing Adaptive', 'URing Adaptive Muthu', 'URing (leap)', 'URing (leap) Muthu', 'URing (leap) Adaptive Muthu']
+labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag BFS', 'RDFCSA', 'MillenniumDB' , 'Ring', 'Ring Adaptive', 'Ring Muthu', 'Ring Adaptive Muthu', 'URing', 'URing Muthu', 'URing Adaptive', 'URing Adaptive Muthu', 'URing (leap)', 'URing (leap) Muthu', 'URing (leap) Adaptive Muthu']
 
-colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
+colors = ['lightgreen','brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
 k = 0
 i = 0
 j = 0
@@ -101,7 +101,7 @@ while k < len(query_types):
 fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 #fig.suptitle("Tradeoff space-time")
 
-handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17],first_bplot["boxes"][18]]
+handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17],first_bplot["boxes"][18], first_bplot["boxes"][19]]
 fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=7, ncol=1, bbox_to_anchor=(0.99, 1))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
 plt.savefig('boxplots_by_type.svg', format='svg', dpi=500)
