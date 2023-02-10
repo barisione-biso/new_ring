@@ -52,6 +52,8 @@ max_columns=6
 #The reason to do this is because the last bplot is deleted and therefore it cant be used as a valid handled for the legend.
 first_bplot = []
 print("****** Plotting Starts.")
+#plt.figure(figsize=(12.8,9.6))
+plt.rcParams['figure.figsize'] = [12.8,9.6]
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 while k < len(query_types):
     ymax = 0.01
@@ -104,7 +106,7 @@ fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17],first_bplot["boxes"][18], first_bplot["boxes"][19]]
 fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=7, ncol=1, bbox_to_anchor=(0.99, 1))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
-plt.savefig('boxplots_by_type.svg', format='svg', dpi=500)
+plt.savefig('boxplots_by_type.svg', format='svg',dpi=500)
 plt.show()
 
 print("****** Plotting Ends.")
