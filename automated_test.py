@@ -46,8 +46,7 @@ print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_pat
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
 print("Types per query: ", types_per_query)
-available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu","backward_only_leap", "backward_only_leap_muthu", "backward_only_leap_adaptive_muthu"] #,
-
+available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"] 
 print("Available modes : "+",".join(available_variants))
 
 for mode in available_variants:
@@ -56,6 +55,7 @@ for mode in available_variants:
     print(cmd)
     os.system(cmd)
 
+    
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_variants):
@@ -77,6 +77,7 @@ if not success:
     print("An error has occured. Stoping the automated testing.")
     exit()
 
+
 print("****** Checking for result correctness.")
 #TODO: FROM HERE ONWARDS CODE GENERALIZATION IS NEEDED. rows have to be renamed
 #rows[0] : SIGMOD21, rows[1]: muthu
@@ -90,9 +91,6 @@ backward_only_performance = []
 backward_only_muthu_performance = []
 backward_only_adaptive_performance = []
 backward_only_muthu_adaptive_performance = []
-backward_only_leap_performance = []
-backward_only_leap_muthu_performance = []
-backward_only_leap_adaptive_muthu_performance = []
 
 for index, sigmod_row in enumerate(lists_of_rows[0]):
     # working with the second column of the row
@@ -104,14 +102,10 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     aux6=lists_of_rows[5][index][0].split(";")
     aux7=lists_of_rows[6][index][0].split(";")
     aux8=lists_of_rows[7][index][0].split(";")
-    aux9=lists_of_rows[8][index][0].split(";")
-    aux10=lists_of_rows[9][index][0].split(";")
-    aux11=lists_of_rows[10][index][0].split(";")
     if aux1[1] != aux2[1] or aux1[1] != aux3[1] \
     or aux1[1] != aux4[1] or aux1[1] != aux5[1] \
     or aux1[1] != aux6[1] or aux1[1] != aux7[1] \
-    or aux1[1] != aux8[1] or aux1[1] != aux9[1] \
-    or aux1[1] != aux10[1] or aux1[1] != aux11[1]:
+    or aux1[1] != aux8[1]:
         if aux1[2] >= 601000000000 \
             and aux2[2] >= 601000000000 \
             and aux3[2] >= 601000000000 \
@@ -119,10 +113,7 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
             and aux5[2] >= 601000000000 \
             and aux6[2] >= 601000000000 \
             and aux7[2] >= 601000000000 \
-            and aux8[2] >= 601000000000 \
-            and aux9[2] >= 601000000000 \
-            and aux10[2] >= 601000000000 \
-            and aux11[2] >= 601000000000:
+            and aux8[2] >= 601000000000:
             timed_out=timed_out+1
         else:
             num_of_results_error=num_of_results_error+1
@@ -134,12 +125,10 @@ for index, sigmod_row in enumerate(lists_of_rows[0]):
     backward_only_performance.append(float(aux5[2])/1000000000)
     backward_only_muthu_performance.append(float(aux6[2])/1000000000)
     backward_only_adaptive_performance.append(float(aux7[2])/1000000000)
-    backward_only_muthu_adaptive_performance.append(float(aux8[2])/1000000000)
-    backward_only_leap_performance.append(float(aux9[2])/1000000000)
-    backward_only_leap_muthu_performance.append(float(aux10[2])/1000000000)#1000000000 nanoseconds = 1 second
-    backward_only_leap_adaptive_muthu_performance.append(float(aux11[2])/1000000000)
+    backward_only_muthu_adaptive_performance.append(float(aux8[2])/1000000000) #1000000000 nanoseconds = 1 second
 
 print("****** Number of different results: ", num_of_results_error)
+
 if num_of_results_error != 0:
     quit()
 print("****** Timed out queries: ", timed_out)
