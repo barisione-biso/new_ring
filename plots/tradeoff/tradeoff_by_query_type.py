@@ -57,41 +57,22 @@ while k < 17:
     k = k + 1
 
 fig.delaxes(axes[2,5]) #remove the last subplot as the 18th one is unused.
-#fig.suptitle("Tradeoff space-time")
-#https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html "Creating artists specifically for adding to the legend (aka. Proxy artists("
-'''
-handles_ = [mpatches.Patch(color=colors[0], label='TODS'),
-            mpatches.Patch(color=colors[1], label='TODS Adaptive'),
-            mpatches.Patch(color=colors[2], label='TODS Muthu'),
-            mpatches.Patch(color=colors[3], label='TODS Adaptive Muthu'),
-            mpatches.Patch(color=colors[4], label='Backward'),
-            mpatches.Patch(color=colors[5], label='Backward Muthu'),
-            mpatches.Patch(color=colors[6], label='Backward Adaptive'),
-            mpatches.Patch(color=colors[7], label='Backward Adaptive Muthu'),
-            mpatches.Patch(color=colors[8], label='Backward (leap)'),
-            mpatches.Patch(color=colors[9], label='Backward (leap) Muthu'),
-            mpatches.Patch(color=colors[10], label='Backward (leap) Adaptive Muthu'),
-            mpatches.Patch(color=colors[11], label='Compact LTJ'),
-            mpatches.Patch(color=colors[12], label='Qdag BFS')
-            ]
-'''
+
 #taken from : https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
 handles_ = [mlines.Line2D([], [], color=colors[0], label='Ring',  linestyle='None', marker='d'),
             mlines.Line2D([], [], color=colors[1], label='Ring Adaptive',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[2], label='Ring Muthu',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[3], label='Ring Adaptive Muthu',  linestyle='None', marker='x'),
-            mlines.Line2D([], [], color=colors[4], label='Backward',  linestyle='None', marker='d'),
-            mlines.Line2D([], [], color=colors[5], label='Backward Muthu',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[6], label='Backward Adaptive',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[7], label='Backward Adaptive Muthu',  linestyle='None', marker='x'),
-            mlines.Line2D([], [], color=colors[8], label='Backward (leap)',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[9], label='Backward (leap) Muthu',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[10], label='Backward (leap) Adaptive Muthu',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[4], label='URing',  linestyle='None', marker='d'),
+            mlines.Line2D([], [], color=colors[5], label='URing Muthu',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[6], label='URing Adaptive',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[7], label='URing Adaptive Muthu',  linestyle='None', marker='x'),
+            #mlines.Line2D([], [], color=colors[8], label='URing (leap)',  linestyle='None', marker='o'),
+            #mlines.Line2D([], [], color=colors[9], label='URing (leap) Muthu',  linestyle='None', marker='o'),
+            #mlines.Line2D([], [], color=colors[10], label='URing (leap) Adaptive Muthu',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[11], label='Compact LTJ',  linestyle='None', marker='d'),
             mlines.Line2D([], [], color=colors[12], label='Qdag BFS',  linestyle='None', marker='<')
             ]
-#labels_ = ['TODS', 'TODS Adaptive', 'TODS Muthu', 'TODS Muthu adaptive', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) adaptive Muthu', 'Compact LTJ','Qdags BFS']
-#fig.legend(labels = labels_, loc="lower right")
 fig.legend(handles = handles_, loc="lower right")
-plt.savefig('tradeoff_by_query_type.svg', format='svg')
+plt.savefig('tradeoff_by_query_type.pdf', format='pdf')
 plt.show()
