@@ -46,7 +46,7 @@ print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_pat
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
 print("Types per query: ", types_per_query)
-available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"] 
+available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"]
 print("Available modes : "+",".join(available_variants))
 
 for mode in available_variants:
@@ -55,7 +55,7 @@ for mode in available_variants:
     print(cmd)
     os.system(cmd)
 
-    
+
 #SECOND PART
 success=True
 for mode_idx, mode in enumerate(available_variants):
@@ -156,40 +156,14 @@ for query_type in query_types: #Per each type of query.
     #print(query_type_data)
     with open(query_type_file, "w") as csv_output_file:
         writer = csv.writer(csv_output_file)
+        #Warning: writing both the keys and the values of a CSV loaded as a dictionary seems to order the columns lexicographically.
+        #Therefore, additional work to sort them as we one is needed when plotting.
         writer.writerow(query_type_data.keys())
         writer.writerows(zip(*query_type_data.values())) # * is the unpack operator.
+
+#TODO:FOURTH PART. Calculating the median of variant / type  for bytes by triple tradeoff plot.
 '''
-#FOURTH PART. Producing the input files for the sigmod21 plotting mechanism in overleaf. (TO BE DEPRECATED) TODO: comparare files with above and deprecate if success.
-print("****** Generating input files for sigmod21 plotting mechanism (overleaf).")
-for mode in available_variants:
-    command='./plots/box-plot-sigmod21/generate_output '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv '+types_per_query
-    print("Running command: "+command)
-    os.system(command)
-
-#FOURTH PART (DEPRECATED)
-print("****** Plotting variants using matplotlib.")
-
-d = {'Orig': sigmod21_performance,
-    'Muthu': one_ring_muthu_leap_performance,
-    'Muthu Adapt': one_ring_muthu_adaptive_leap_performance,
-    'Backward' : backward_only_performance,
-    'B. Muthu' : backward_only_muthu_performance,
-    'B. Adapt' : backward_only_adaptive_performance,
-    'B. Adapt Muthu' : backward_only_muthu_adaptive_performance,
-    #'Sigmod21_adaptive': sigmod21_adaptive_performance,
-    'B. Leap': backward_only_leap_performance,
-    'B. Leap Muthu' : backward_only_leap_muthu_performance,
-    'B. Leap Adapt Muthu' : backward_only_leap_adaptive_muthu_performance
-    }
-
-df = pd.DataFrame(data = d)
-plt.ylim(0, 0.005)
-df.boxplot()
-
-plt.show()
-plt.savefig('plot.pdf', format='pdf')
-#plot.get_figure().savefig('plot.pdf', format='pdf')
-#https://stackoverflow.com/questions/69828508/warning-ignoring-xdg-session-type-wayland-on-gnome-use-qt-qpa-platform-wayland
-'''
-
+for variant in available_variants:
+    query_type_data[variant]
 print("****** Ending automated test.")
+'''

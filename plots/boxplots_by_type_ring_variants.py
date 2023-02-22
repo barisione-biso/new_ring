@@ -105,6 +105,11 @@ fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7]]
 fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=8, ncol=1, bbox_to_anchor=(0.99, 0.9))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
+#Removing left padding.
+fig.subplots_adjust(
+    left=0.075,
+    hspace=0.2
+)
 plt.savefig('boxplots_by_type_ring_variants_only.pdf', format='pdf',dpi=500)
 plt.show()
 
