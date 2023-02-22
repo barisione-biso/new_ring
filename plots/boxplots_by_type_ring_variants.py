@@ -40,9 +40,8 @@ query_type_files = ["matplotlib/P2.txt",
 #query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 query_types = ['P2', 'P3', 'P4', 'T2', 'TI2', 'T3', 'TI3', 'J3', 'T4', 'TI4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
 
-labels_ = ['Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph', 'CompactLTJ', 'Qdag BFS', 'Ring', 'Ring Adaptive', 'Ring Muthu', 'Ring Adaptive Muthu', 'Backward', 'Backward Muthu', 'Backward Adaptive', 'Backward Adaptive Muthu', 'Backward (leap)', 'Backward (leap) Muthu', 'Backward (leap) Adaptive Muthu']
-
-colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
+labels_ = ['Ring', 'Ring Adaptive', 'Ring Muthu', 'Ring Adaptive Muthu', 'URing', 'URing Muthu', 'URing Adaptive', 'URing Adaptive Muthu']
+colors = ['lightgreen','brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
 k = 0
 i = 0
 j = 0
@@ -52,25 +51,27 @@ max_columns=6
 #The reason to do this is because the last bplot is deleted and therefore it cant be used as a valid handled for the legend.
 first_bplot = []
 print("****** Plotting Starts.")
+plt.rcParams['figure.figsize'] = [11.2, 8.05] #[12.8,9.6]
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 while k < len(query_types):
-    ymax = 0.5
+    ymax = 0.02
     #hardcoded stuffs >>
     if (i == 0 and j == max_columns - 1): #Omit plot 0,5 (Legend will be here)
         j = 0
         i = i + 1
     if i == 1:
-        ymax = 0.5
+        ymax = 0.015
     elif i == 2:
-        ymax = 0.5
+        ymax = 0.2
     #hardcoded stuffs <<
-    
+
     print('Working with file '+query_type_files[k])
     data = pd.read_csv(query_type_files[k])
-    competitors_data = pd.read_csv('competitors_measures/'+query_types[k]+'_source_competitors.txt')
-    concated_data = pd.concat([competitors_data, data], axis=1,join='inner')
+    #It is important to reorder the dataframe since the CSV containing the measures is created with a map, therefore the order is not guaranted.
+    new_order = ['sigmod21', 'sigmod21_adaptive', 'one_ring_muthu_leap', 'one_ring_muthu_leap_adaptive', 'backward_only','backward_only_muthu', 'backward_only_adaptive', 'backward_only_adaptive_muthu']
+    data = data.reindex(columns=new_order)
     bplot = axes[i, j].boxplot(
-        concated_data,
+        data,
         patch_artist=True, # fill with color
         showfliers=False
     )
@@ -101,10 +102,10 @@ while k < len(query_types):
 fig.delaxes(axes[0,5]) #remove the last subplot of the first row (unused)
 #fig.suptitle("Tradeoff space-time")
 
-handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10],first_bplot["boxes"][11],first_bplot["boxes"][12],first_bplot["boxes"][13],first_bplot["boxes"][14],first_bplot["boxes"][15],first_bplot["boxes"][16],first_bplot["boxes"][17]]
-fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=7, ncol=1, bbox_to_anchor=(0.99, 1))
+handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7]]
+fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=8, ncol=1, bbox_to_anchor=(0.99, 0.9))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
-plt.savefig('boxplots_by_type.pdf', format='pdf', dpi=500)
+plt.savefig('boxplots_by_type_ring_variants_only.pdf', format='pdf',dpi=500)
 plt.show()
 
 print("****** Plotting Ends.")
