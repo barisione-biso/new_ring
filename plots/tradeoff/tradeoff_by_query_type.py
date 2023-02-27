@@ -5,10 +5,10 @@ from pylab import yticks
 #import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 #Markers: ['o', '.', ',', 'x', '+', 'v', '^', '<', '>', 's', 'd']
-bytes_space_usage_per_structure = np.asarray([11.6, 11.6, 26.7, 26.7, 23.2, 38.3, 23.2, 38.3, 23.2, 38.3, 38.3, 45.6, 4.9])
-
+bytes_space_usage_per_structure = np.asarray([11.16, 11.16, 26.26, 26.26, 22.32, 37.42, 22.32, 37.42, 15.04, 45.6, 4.9])
+#Muthu = +15.1 ? how?
 data = read_csv('median_per_query_type.csv')
-
+#plt.rcParams['figure.figsize'] = [12.8,9.6]#[11.2, 8.05]
 k = 0
 i = 0
 j = 0
@@ -17,23 +17,31 @@ max_columns=6
 #query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'Ti2', 'Ti3', 'Ti4', 'Tr1', 'Tr2' ]
 query_types = ['P2', 'P3', 'P4', 'T2', 'Ti2', 'T3', 'Ti3', 'J3', 'T4', 'Ti4', 'J4', 'Tr1', 'Tr2', 'S1', 'S2', 'S3', 'S4' ]
 colors = ['brown', 'lightblue', 'black', 'red', 'blue', 'orange', 'purple', 'green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow']
+
 #TODO: Estos son los mismos colores de los boxplots_by_type pero se ven 'mal'. Falta estandarizar. colors = ['green', 'violet', 'olive',  'teal', 'cyan', 'lime', 'lightgray', 'darkgray', 'tan', 'pink', 'yellow', 'orange', 'purple']
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 fig.tight_layout(h_pad=2) #Adds padding among subplots with enough size to show x & y labels.
+#Removing left padding.
+
+fig.subplots_adjust(
+    left=0.042,
+    hspace=0.4,
+    wspace=0.3
+)
 while k < 17:
     #I created 1 scatter per each struture and add it to a specific Query type. In the future I can try to create 1 scatter plot per all structures (pass an array x, y) and then add it to a specific query type.
     for structure_index, median in enumerate(data[query_types[k]]):
         #Hacks >>
-        if structure_index in [0, 4, 11]:
+        if structure_index in [0, 4, 9]:
             marker_value = 'd'
         elif structure_index in [3, 7]:
             marker_value = 'x'
-        elif structure_index in [12]:
+        elif structure_index in [10]:
             marker_value = '<'
         else:
             marker_value = 'o'
         #Removing qdag from J3, J4, P3, P4, S2, T3, T4, TI3 and TI4
-        if query_types[k] in ['J3', 'J4', 'P3', 'P4', 'S2', 'T3', 'T4', 'Ti2', 'Ti3', 'Ti4']  and structure_index  == 12:
+        if query_types[k] in ['J3', 'J4', 'P3', 'P4', 'S2', 'T3', 'T4', 'Ti2', 'Ti3', 'Ti4']  and structure_index  == 10:
             continue
         #Hacks <<
         axes[i, j].scatter(
@@ -43,13 +51,15 @@ while k < 17:
             color=colors[structure_index]
             #label=query_types[k]
         )
-        
         # yticks
         locs,labels = yticks()
         yticks(locs, map(lambda x: x, locs))
         axes[i, j].set_title(query_types[k])
         axes[i, j].set_xlabel("Bytes per triple")
-        axes[i, j].set_ylabel("Median (ms)")
+        if j == 0:
+            axes[i, j].set_ylabel("Median (ns)")
+        else:
+            axes[i, j].set_ylabel("")
     j = j + 1
     if j >= max_columns:
         j = 0
@@ -70,9 +80,10 @@ handles_ = [mlines.Line2D([], [], color=colors[0], label='Ring',  linestyle='Non
             #mlines.Line2D([], [], color=colors[8], label='URing (leap)',  linestyle='None', marker='o'),
             #mlines.Line2D([], [], color=colors[9], label='URing (leap) Muthu',  linestyle='None', marker='o'),
             #mlines.Line2D([], [], color=colors[10], label='URing (leap) Adaptive Muthu',  linestyle='None', marker='o'),
-            mlines.Line2D([], [], color=colors[11], label='Compact LTJ',  linestyle='None', marker='d'),
-            mlines.Line2D([], [], color=colors[12], label='Qdag BFS',  linestyle='None', marker='<')
+            mlines.Line2D([], [], color=colors[8], label='RDFCSA',  linestyle='None', marker='o'),
+            mlines.Line2D([], [], color=colors[9], label='Compact LTJ',  linestyle='None', marker='d'),
+            mlines.Line2D([], [], color=colors[10], label='Qdag BFS',  linestyle='None', marker='<')
             ]
-fig.legend(handles = handles_, loc="lower right")
-plt.savefig('tradeoff_by_query_type.pdf', format='pdf')
+fig.legend(handles = handles_, loc="lower right", bbox_to_anchor=(0.95, 0.06))
+plt.savefig('tradeoff_bytes_per_triple_median.pdf', format='pdf')
 plt.show()
