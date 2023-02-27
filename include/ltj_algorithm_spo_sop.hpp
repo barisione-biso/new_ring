@@ -572,27 +572,6 @@ namespace ring {
                         c = next(x_j, wms, ranges);
                         //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
-                    /*
-                    const std::vector<value_type>&intersection = intersect_iter(wms,ranges);
-                    for(value_type c : intersection){
-                        if(int(x_j)==5)
-                            std::cout << "Seek : (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
-                        //1. Adding result to tuple
-                        tuple[j] = {x_j, c};
-                        //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
-                        //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
-                        for (ltj_iter_type* iter : itrs) {
-                            iter->down(x_j, c);
-                        }
-                        //3. Search with the next variable x_{j+1}
-                        ok = search(j + 1, tuple, res, start, limit_results, timeout_seconds);
-                        if(!ok) return false;
-                        //4. Going up in the tries by removing x_j = c
-                        for (ltj_iter_type *iter : itrs) {
-                            iter->up(x_j);
-                        }
-                    }
-                    */
                     //Unset type of iterator (SPO / SOP). See logic inside unset_iter() function.
                     if(util::configuration.is_adaptive()){
                         for(ltj_iter_type* iter : itrs){
