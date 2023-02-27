@@ -230,6 +230,8 @@ namespace ring {
             //(Optional) Check limit
             if(limit_results > 0 && res.size() == limit_results) return false;
 
+//            int leap_count = 0;
+
             if(j == m_gao_size.m_number_of_variables){
                 //Report results
                 /*std::cout << "tuple : ";
@@ -244,6 +246,7 @@ namespace ring {
                 push_var_to_stack(x_j);
                 std::vector<ltj_iter_type*>& itrs = m_var_to_iterators[x_j];
                 bool ok;
+
                 if(itrs.size() == 1 && itrs[0]->in_last_level()) {//Lonely variables
                     auto results = itrs[0]->seek_all(x_j);
                     //std::cout << "Results: " << results.size() << std::endl;
@@ -255,16 +258,22 @@ namespace ring {
                         itrs[0]->down(x_j, c);
                         //2. Search with the next variable x_{j+1}
                         ok = search(j + 1, tuple, res, start, limit_results, timeout_seconds);
+
+  //                      if(int(x_j) == 0){
+  //                          std::cout << "Leap count : " << leap_count << std::endl;
+  //                      }
+                        
                         if(!ok) return false;
                         //4. Going up in the trie by removing x_j = c
                         itrs[0]->up(x_j);
                     }
                 }else {
                     value_type c = seek(x_j);
-                    //std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                    std::cout << "Seek (init): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
 
                     while (c != 0) { //If empty c=0
                         //1. Adding result to tuple
+                        //leap_count++;
                         tuple[j] = {x_j, c};
                         //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
@@ -273,14 +282,18 @@ namespace ring {
                         }
                         //3. Search with the next variable x_{j+1}
                         ok = search(j + 1, tuple, res, start, limit_results, timeout_seconds);
+
+                        //if(int(x_j) == 0){
+                        //    std::cout << "Leap count : " << leap_count << std::endl;
+                        //}
                         if(!ok) return false;
                         //4. Going up in the tries by removing x_j = c
-                        for (ltj_iter_type *iter : itrs) {
-                            iter->up(x_j);
-                        }
+                        //for (ltj_iter_type *iter : itrs) {
+                        //    iter->up(x_j);
+                        //}
                         //5. Next constant for x_j
                         c = seek(x_j, c + 1);
-                        //std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
+                        std::cout << "Seek (bucle): (" << (uint64_t) x_j << ": " << c << ")" <<std::endl;
                     }
                 }
                 if(util::configuration.is_adaptive()){
@@ -288,6 +301,9 @@ namespace ring {
                 }
                 pop_var_of_stack();
                 //std::cout << " pop. " << std::endl;
+                //if(int(x_j) == 0){
+                  //  std::cout << "Leap count : " << leap_count << std::endl;
+                //}
             }
             return true;
         };

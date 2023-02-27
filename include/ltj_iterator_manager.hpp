@@ -79,6 +79,19 @@ namespace ring {
             sop_iter = o.sop_iter;
         }
     public:
+
+        bool is_owner_variable_subject() {
+            return m_ptr_triple_pattern->term_s.is_variable && m_var_owner == m_ptr_triple_pattern->term_s.value;
+        }
+
+        bool is_owner_variable_predicate(var_type var) {
+            return m_ptr_triple_pattern->term_p.is_variable && m_var_owner == m_ptr_triple_pattern->term_p.value;
+        }
+
+        bool is_owner_variable_object(var_type var) {
+            return m_ptr_triple_pattern->term_o.is_variable && m_var_owner == m_ptr_triple_pattern->term_o.value;
+        }
+
         inline bool is_variable_subject(var_type var) {
             return m_ptr_triple_pattern->term_s.is_variable && var == m_ptr_triple_pattern->term_s.value;
         }
@@ -400,7 +413,7 @@ namespace ring {
         }
 
         const bwt_interval& get_i_s() const{
-            if(m_last_iter == "SOP"){
+            if(m_last_iter == "SPO"){
                 return spo_iter.get_i_s();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_s();
@@ -411,7 +424,7 @@ namespace ring {
         }
 
         const bwt_interval& get_i_p() const{
-            if(m_last_iter == "SOP"){
+            if(m_last_iter == "SPO"){
                 return spo_iter.get_i_p();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_p();
@@ -422,7 +435,7 @@ namespace ring {
         }
 
         const bwt_interval& get_i_o() const{
-            if(m_last_iter == "SOP"){
+            if(m_last_iter == "SPO"){
                 return spo_iter.get_i_o();
             } else if(m_last_iter == "SOP"){
                 return sop_iter.get_i_o();
