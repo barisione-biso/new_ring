@@ -164,7 +164,7 @@ for query_type in query_types: #Per each type of query.
             for i, row in enumerate(csvreader):
                 if types_per_queries[i].strip() == query_type+".txt":
                     aux = row[0].split(";")
-                    query_type_data[variant].append(float(aux[2])/1000000000)#third argument is the execution time in nanoseconds (/1000000000 to convert to seconds)
+                    query_type_data[variant].append(float(aux[2]))#third argument is the execution time in nanoseconds (/1000000000 to convert to seconds)
     #print(query_type_data)
     with open(query_type_file, "w") as csv_output_file:
         writer = csv.writer(csv_output_file)

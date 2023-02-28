@@ -58,13 +58,14 @@ while k < 17:
         )
 
         # yticks
-        locs,labels = yticks()
-        yticks(locs, map(lambda x: x, locs))
+        #locs,labels = yticks()
+        #yticks(locs, map(lambda x: x, locs))
         axes[i, j].set_title(query_types[k])
+        # xticks
         axes[i, j].set_xticks([10,20,30,40, 50])
         axes[i, j].set_xlabel("Bytes per triple")
         if j == 0:
-            axes[i, j].set_ylabel("Median (s)")
+            axes[i, j].set_ylabel("Median (ns)")
         else:
             axes[i, j].set_ylabel("")
     j = j + 1
