@@ -1,6 +1,6 @@
 import os
 import csv
-
+from statistics import median
 #import pandas as pd
 #import matplotlib.pyplot as plt
 
@@ -42,19 +42,25 @@ if args.TypesPerQuery:
     types_per_query = args.TypesPerQuery
 
 print("****** Starting automated test.")
+median_file = "plots/tradeoff/median_ring_variants_"+dataset+".csv"
+try:
+    os.remove(median_file)
+    print(median_file + " succeded")
+except:
+    print(median_file + " failed")
 print("Index file: ", dataset, " located at :", os.path.dirname(dataset_full_path))
 print("Query file: ", queries, " located at :", os.path.dirname(queries_full_path))
 print("Output folder: ", output_folder)
 print("Types per query: ", types_per_query)
 available_variants = ["sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"]
 print("Available modes : "+",".join(available_variants))
-
+'''
 for mode in available_variants:
     print("Running queries for dataset '"+dataset+"' using '"+mode+"' mode.")
     cmd = './build/query-index '+dataset_full_path+' Queries/'+queries+' '+mode+' 0 0 '+number_of_results+' ' + timeout + ' > '+output_folder+'/tmp_'+mode+'_'+dataset+'_'+number_of_results+'_'+timeout+'.csv'
     print(cmd)
     os.system(cmd)
-
+'''
 
 #SECOND PART
 success=True
@@ -132,11 +138,17 @@ print("****** Number of different results: ", num_of_results_error)
 if num_of_results_error != 0:
     quit()
 print("****** Timed out queries: ", timed_out)
+
+#The following code should only run for the filtered dataset.
+if 'filtered' not in dataset:
+    print("****** Ending automated test.")
+    quit()
 #THIRD PART. Creating individual measures per query type.
 print("****** Creating type specific files to be use later for plotting.")
 query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 types_per_queries_file = open(types_per_query, 'r')
 types_per_queries = types_per_queries_file.readlines()
+median_map = {} #dictionary
 for query_type in query_types: #Per each type of query.
     query_type_data = {} #dictionary
     query_type_file = "plots/matplotlib/"+query_type+".txt"
@@ -152,18 +164,33 @@ for query_type in query_types: #Per each type of query.
             for i, row in enumerate(csvreader):
                 if types_per_queries[i].strip() == query_type+".txt":
                     aux = row[0].split(";")
-                    query_type_data[variant].append(float(aux[2])/1000000000)#third argument is the execution time.
+                    query_type_data[variant].append(float(aux[2])/1000000000)#third argument is the execution time in nanoseconds (/1000000000 to convert to seconds)
     #print(query_type_data)
     with open(query_type_file, "w") as csv_output_file:
         writer = csv.writer(csv_output_file)
-        #Warning: writing both the keys and the values of a CSV loaded as a dictionary seems to order the columns lexicographically.
+        #WARNING: writing both the keys and the values of a CSV loaded as a dictionary seems to order the columns lexicographically.
         #Therefore, additional work to sort them as we one is needed when plotting.
         writer.writerow(query_type_data.keys())
+        #zip joins lists as columns.
         writer.writerows(zip(*query_type_data.values())) # * is the unpack operator.
 
-#TODO:FOURTH PART. Calculating the median of variant / type  for bytes by triple tradeoff plot.
-'''
-for variant in available_variants:
-    query_type_data[variant]
+    #Calculating and Saving median for 'query_type' (ex J3, J4, ... ) of query_type_data[variant] (masures) for tradeoff scatter plot.
+    #Recall that
+    # variants = "sigmod21", "sigmod21_adaptive", "one_ring_muthu_leap", "one_ring_muthu_leap_adaptive", "backward_only", "backward_only_muthu", "backward_only_adaptive", "backward_only_adaptive_muthu"
+    # WARNING: tradeoff chart MUST have the same order otherwise it will plot data of variant 'y' in the place of variant 'x'.
+
+    median_map[query_type] = []
+    for variant in available_variants:
+        median_in_decimal = '{0:.0f}'.format(median(query_type_data[variant]))
+        print("Median for "+query_type+" / "+variant+" "+ median_in_decimal)
+        median_map[query_type].append(median_in_decimal)
+    print("Appended median of all variants (in the same order) for query type "+query_type)
+
+with open(median_file, "w") as csv_output_file:
+    writer = csv.writer(csv_output_file)
+    writer.writerow(median_map.keys())
+    #zip joins lists as columns.
+    writer.writerows(zip(*median_map.values()))# * is the unpack operator.
+    print("Saving median to "+median_file)
+
 print("****** Ending automated test.")
-'''
