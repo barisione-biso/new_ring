@@ -199,27 +199,51 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             if(ring::util::configuration.uses_reverse_index()){
                 if(ring::util::configuration.uses_leap()){
                     ring::ltj_algorithm_spo_sop_leap<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                    ltj.join(res, number_of_results, timeout_in_millis);
+                    //ltj.join(res, number_of_results, timeout_in_millis);
+
+                    stop = high_resolution_clock::now();
+                    time_span = duration_cast<microseconds>(stop - start);
+                    total_time = time_span.count();
+
+                    std::unordered_map<uint8_t, std::string> ht;
+                    for(const auto &p : hash_table_vars){
+                        ht.insert({p.second, p.first});
+                    }
+
+                    cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";"<< ltj.get_gao(ht) << endl;
                 }else{
                     ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                    ltj.join(res, number_of_results, timeout_in_millis);
+                    //ltj.join(res, number_of_results, timeout_in_millis);
+
+                    stop = high_resolution_clock::now();
+                    time_span = duration_cast<microseconds>(stop - start);
+                    total_time = time_span.count();
+
+                    std::unordered_map<uint8_t, std::string> ht;
+                    for(const auto &p : hash_table_vars){
+                        ht.insert({p.second, p.first});
+                    }
+
+                    cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";"<< ltj.get_gao(ht) << endl;
                 }
             }
             else{
                 ring::ltj_algorithm<ring_type> ltj(&query, &graph);
-                ltj.join(res, number_of_results, timeout_in_millis);
+                //ltj.join(res, number_of_results, timeout_in_millis);
+
+                stop = high_resolution_clock::now();
+                time_span = duration_cast<microseconds>(stop - start);
+                total_time = time_span.count();
+
+                std::unordered_map<uint8_t, std::string> ht;
+                for(const auto &p : hash_table_vars){
+                    ht.insert({p.second, p.first});
+                }
+
+                cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << ";"<< ltj.get_gao(ht) << endl;
             }
 
-            stop = high_resolution_clock::now();
-            time_span = duration_cast<microseconds>(stop - start);
-            total_time = time_span.count();
-
-            std::unordered_map<uint8_t, std::string> ht;
-            for(const auto &p : hash_table_vars){
-                ht.insert({p.second, p.first});
-            }
-
-            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
+            
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
