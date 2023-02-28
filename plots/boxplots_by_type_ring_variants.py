@@ -66,7 +66,8 @@ while k < len(query_types):
     #hardcoded stuffs <<
 
     print('Working with file '+query_type_files[k])
-    data = pd.read_csv(query_type_files[k])
+    data = pd.read_csv(query_type_files[k]) #In Nanoseconds
+    data = data.div(1000000000, level=1, fill_value=0)
     #It is important to reorder the dataframe since the CSV containing the measures is created with a map, therefore the order is not guaranted.
     new_order = ['sigmod21', 'sigmod21_adaptive', 'one_ring_muthu_leap', 'one_ring_muthu_leap_adaptive', 'backward_only','backward_only_muthu', 'backward_only_adaptive', 'backward_only_adaptive_muthu']
     data = data.reindex(columns=new_order)

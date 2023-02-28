@@ -1,3 +1,5 @@
+#DISCONTINUED FILE. Check boxplots_by_type_ring_variants.py instead.
+#============================
 #Started as a copy of automated_test.py
 import os
 import csv
