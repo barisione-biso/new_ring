@@ -331,6 +331,7 @@ namespace ring {
         }
         void load(std::istream &in) {
             m_bwt_s.load(in);
+            //auto response = sdsl::intersect(m_bwt_s.get_L(), {{307367827,312059634}, {424239487, 427535141}, {427535142, 429206404}, {434197698, 435423606}, {430985497, 433965531}});
             m_bwt_p.load(in);
             m_bwt_o.load(in);
             sdsl::read_member(m_max_s, in);
