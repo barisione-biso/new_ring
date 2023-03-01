@@ -143,7 +143,7 @@ print("****** Timed out queries: ", timed_out)
 if 'filtered' not in dataset:
     print("****** Ending automated test.")
     quit()
-#THIRD PART. Creating individual measures per query type.
+#THIRD PART. Creating individual measurements per query type.
 print("****** Creating type specific files to be use later for plotting.")
 query_types = ['J3', 'J4', 'P2', 'P3', 'P4', 'S1', 'S2', 'S3', 'S4', 'T2', 'T3', 'T4', 'TI2', 'TI3', 'TI4', 'Tr1', 'Tr2' ]
 types_per_queries_file = open(types_per_query, 'r')

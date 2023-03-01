@@ -30,8 +30,8 @@ query_type_files = [
 
 query_types = ['T3', 'TI3', 'J3', 'T4', 'TI4', 'J4']
 
-labels_ = ['URing Adaptive Muthu', 'URing Muthu', 'CompactLTJ', 'RDFCSA', 'Qdag BFS', 'MillenniumDB', 'Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph']
-colors = ['purple', 'blue', 'yellow', 'green', 'lightblue', 'brown', 'cyan', 'darkgray', 'tan', 'olive', 'lime']
+labels_ = ['URing Adaptive Muthu', 'URing Adaptive', 'CompactLTJ', 'RDFCSA', 'Qdag BFS', 'MillenniumDB', 'Emptyheaded', 'Jena-LTJ', 'RDF3X', 'Virtuoso', 'Blazegraph']
+colors = ['purple', 'orange', 'yellow', 'green', 'lightblue', 'brown', 'cyan', 'darkgray', 'tan', 'olive', 'lime']
 k = 0
 max_rows=1
 max_columns=6
@@ -42,22 +42,22 @@ print("****** Plotting Starts.")
 plt.rcParams['figure.figsize'] = [18, 2.0125] #[12.8,9.6]
 fig, axes = plt.subplots(max_rows,max_columns) #2 rows with 4 columns
 while k < len(query_types):
-    ymax = 0.05#0.01
+    ymax = 0.02#0.01
 
     print('Working with file '+query_type_files[k])
     data = pd.read_csv(query_type_files[k])
-    #It is important to reorder the dataframe since the CSV containing the measures is created with a map, therefore the order is not guaranted.
+    #It is important to reorder the dataframe since the CSV containing the measurements is created with a map, therefore the order is not guaranted.
     #Winners should be first (and have the same order than the labels!), because the rest will be deleted.
-    new_order = ['backward_only_adaptive_muthu', 'backward_only_muthu', 'sigmod21', 'sigmod21_adaptive', 'one_ring_muthu_leap', 'one_ring_muthu_leap_adaptive', 'backward_only','backward_only_adaptive']
+    new_order = ['backward_only_adaptive_muthu', 'backward_only_adaptive', 'sigmod21', 'sigmod21_adaptive', 'one_ring_muthu_leap', 'one_ring_muthu_leap_adaptive', 'backward_only','backward_only_muthu']
     data = data.reindex(columns=new_order)
     data = data.div(1000000000, level=1, fill_value=0) #changed to seconds.
-    #Ring variants with better performance must remain ('URing Adaptive Muthu', 'URing Muthu'), the rest have to be removed.
+    #Ring variants with better performance must remain ('URing Adaptive Muthu', 'URing Adaptive'), the rest have to be removed.
     del data['sigmod21']
     del data['sigmod21_adaptive']
     del data['one_ring_muthu_leap']
     del data['one_ring_muthu_leap_adaptive']
     del data['backward_only']
-    del data['backward_only_adaptive']
+    del data['backward_only_muthu']
     competitors_data = pd.read_csv('competitors_measures/'+query_types[k]+'_source_competitors.txt')
     competitors_new_order = ['CompactLTJ', 'RDFCSA', 'qdag', 'MillDB', 'emptyheaded', 'Jena-LTJ','RDF3X','virtuoso','blazegraph']
     competitors_data = competitors_data.reindex(columns=competitors_new_order)
