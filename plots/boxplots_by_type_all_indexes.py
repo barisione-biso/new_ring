@@ -117,7 +117,7 @@ locs,labels = yticks()
 plt.yticks(locs, map(lambda x: x, locs))
 axes[2, 5].set_yticklabels([]) #TODO, fix it properly.
 handles_ = [first_bplot["boxes"][0],first_bplot["boxes"][1],first_bplot["boxes"][2],first_bplot["boxes"][3],first_bplot["boxes"][4],first_bplot["boxes"][5],first_bplot["boxes"][6],first_bplot["boxes"][7],first_bplot["boxes"][8],first_bplot["boxes"][9],first_bplot["boxes"][10]]
-fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=10, ncol=1, bbox_to_anchor=(0.99, 0.97))
+fig.legend(handles = handles_, labels = labels_, loc="upper right", fontsize=10, ncol=1, bbox_to_anchor=(0.99, 0.98))
 fig.tight_layout() #Adds padding among subplots with enough size to show x & y labels.
 #Removing left padding.
 fig.subplots_adjust(
