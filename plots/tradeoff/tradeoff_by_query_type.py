@@ -6,7 +6,7 @@ from pylab import yticks
 import matplotlib.lines as mlines
 
 #Markers: ['o', '.', ',', 'x', '+', 'v', '^', '<', '>', 's', 'd']
-bytes_space_usage_per_structure = np.asarray([11.6, 11.6, 26.24, 26.24, 23.2, 53.36, 23.2, 53.36, 43.74, 4.9])
+bytes_space_usage_per_structure = np.asarray([11.6, 11.6, 26.24, 26.24, 23.2, 53.36, 23.2, 53.36, 43.74, 4.9, 15.04])
 #1 muthu = 5.02 bytes.
 # 3 muthus are needed in a triple = 1.08.
 #URing w/ Muthu requires 6 muthus.
@@ -34,7 +34,7 @@ while k < 17:
             marker_value = 'd'
         elif structure_index in [2, 5, 8]:
             marker_value = 'x'
-        elif structure_index in [9]:
+        elif structure_index in [9, 10]:
             marker_value = '<'
         elif structure_index in [3, 7]:
             marker_value = '^'
@@ -89,14 +89,15 @@ handles_ = [mlines.Line2D([], [], color=colors[0], label='Ring',  linestyle='Non
             #mlines.Line2D([], [], color=colors[9], label='URing (leap) Muthu',  linestyle='None', marker='o'),
             #mlines.Line2D([], [], color=colors[10], label='URing (leap) Adaptive Muthu',  linestyle='None', marker='o'),
             mlines.Line2D([], [], color=colors[8], label='Compact LTJ',  linestyle='None', marker='x'),
-            mlines.Line2D([], [], color=colors[9], label='Qdag BFS',  linestyle='None', marker='<')
+            mlines.Line2D([], [], color=colors[9], label='Qdag BFS',  linestyle='None', marker='<'),
+            mlines.Line2D([], [], color=colors[10], label='RDFCSA',  linestyle='None', marker='<')
             ]
-fig.legend(handles = handles_, loc="lower right", bbox_to_anchor=(0.89, 0.65))
+fig.legend(handles = handles_, loc="lower right", bbox_to_anchor=(0.90, 0.65))
 
 #Removing left padding.
 fig.subplots_adjust(
     left=0.04,
-    hspace=0.4,
+    hspace=0.6,
     wspace=0.2
 )
 
