@@ -27,6 +27,7 @@
 #include <ltj_algorithm_spo_sop.hpp>
 #include <ltj_algorithm_spo_sop_leap.hpp>
 #include "utils.hpp"
+#include "float.h"
 
 using namespace std;
 
@@ -133,6 +134,13 @@ std::string get_type(const std::string &file){
     return file.substr(p+1);
 }
 
+std::string get_gao(std::vector<var_type>& gao, std::unordered_map<uint8_t, std::string>& ht){
+    std::string str = "";
+    for(const auto& var : gao){
+        str += "?" + ht[var] + " ";
+    }
+    return str;
+}
 template<class ring_type, class reverse_ring_type, class wm_type = sdsl::bit_vector>
 void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_millis = 600){
     vector<string> dummy_queries;
@@ -177,7 +185,6 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
     {
 
         int count = 1;
-        std::set<var_type> number_of_variables;
             
         for (string& query_string : dummy_queries) {
             std::vector<var_type> gao;
@@ -193,6 +200,8 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             typedef std::vector<typename ring::ltj_algorithm<>::tuple_type> results_type;
             results_type res;
             //Try all permutations of the GAO.
+            double best_total_time = DBL_MAX;
+            std::vector<var_type> best_gao;
             do{
                 if(gao.empty()){
                     //Calculates the first GAO based on hash_table_vars map (var, char).
@@ -224,13 +233,18 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 stop = high_resolution_clock::now();
                 time_span = duration_cast<microseconds>(stop - start);
                 total_time = time_span.count();
+
+                if(best_total_time > total_time){
+                    best_total_time = total_time;
+                    best_gao = gao;
+                }
             }while(std::next_permutation(gao.begin(),gao.end()));
             std::unordered_map<uint8_t, std::string> ht;
             for(const auto &p : hash_table_vars){
                 ht.insert({p.second, p.first});
             }
 
-            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(total_time*1000000000ULL) << endl;
+            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(best_total_time*1000000000ULL) << ";" << get_gao(best_gao,ht) << ";" << hash_table_vars.size()<< endl;
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
