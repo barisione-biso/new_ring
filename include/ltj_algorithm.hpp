@@ -60,6 +60,7 @@ namespace ring {
         var_to_iterators_type m_var_to_iterators;
         bool m_is_empty = false;
         gao_size<ring_type> m_gao_size;
+        size_type m_number_of_variables;
         void copy(const ltj_algorithm &o) {
             m_ptr_triple_patterns = o.m_ptr_triple_patterns;
             m_gao = o.m_gao;
@@ -85,7 +86,7 @@ namespace ring {
 
         ltj_algorithm() = default;
 
-        ltj_algorithm(const std::vector<triple_pattern>* triple_patterns, ring_type* ring){
+        ltj_algorithm(const std::vector<triple_pattern>* triple_patterns, ring_type* ring, std::vector<var_type>* gao){
 
             m_ptr_triple_patterns = triple_patterns;
             m_ptr_ring = ring;
@@ -112,10 +113,10 @@ namespace ring {
                 }
                 ++i;
             }
-            m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
-            //m_gao = {'\000', '\001', '\003', '\002'};
-            //m_gao = {'\000', '\002', '\001', '\003'};
-            m_gao_vars.reserve(m_gao_size.m_number_of_variables);
+            //m_gao_size = gao_size<ring_type>(m_ptr_triple_patterns, &m_iterators, m_ptr_ring, m_gao);
+            m_gao = *gao;
+            m_number_of_variables = gao->size();
+            m_gao_vars.reserve(m_number_of_variables);
         }
 
         //! Copy constructor
@@ -170,7 +171,7 @@ namespace ring {
             if(m_is_empty) return;
             //m_ptr_ring->fw_count = 0;
             time_point_type start = std::chrono::high_resolution_clock::now();
-            tuple_type t(m_gao_size.m_number_of_variables);
+            tuple_type t(m_number_of_variables);
             search(0, t, res, start, limit_results, timeout_seconds);
             //std::cout << m_ptr_ring->fw_count << std::endl;
         };
@@ -230,7 +231,7 @@ namespace ring {
             //(Optional) Check limit
             if(limit_results > 0 && res.size() == limit_results) return false;
 
-            if(j == m_gao_size.m_number_of_variables){
+            if(j == m_number_of_variables){
                 //Report results
                 /*std::cout << "tuple : ";
                 for(auto& pair : tuple){

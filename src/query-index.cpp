@@ -34,6 +34,7 @@ using namespace std;
 //#include<ctime>
 
 using namespace std::chrono;
+typedef uint8_t var_type;
 
 bool get_file_content(string filename, vector<string> & vector_of_strings)
 {
@@ -172,13 +173,14 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
     high_resolution_clock::time_point start, stop;
     double total_time = 0.0;
     duration<double> time_span;
-
     if(result)
     {
 
         int count = 1;
+        std::set<var_type> number_of_variables;
+            
         for (string& query_string : dummy_queries) {
-
+            std::vector<var_type> gao;
             //vector<Term*> terms_created;
             //vector<Triple*> query;
             std::unordered_map<std::string, uint8_t> hash_table_vars;
@@ -188,32 +190,41 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 auto triple_pattern = get_triple(token, hash_table_vars);
                 query.push_back(triple_pattern);
             }
-
-            // vector<string> gao = get_gao(query);
-            // vector<string> gao = get_gao_min_opt(query, graph);
-            // cout << gao [0] << " - " << gao [1] << " - " << gao[2] << endl;
-
             typedef std::vector<typename ring::ltj_algorithm<>::tuple_type> results_type;
             results_type res;
-            start = high_resolution_clock::now();
-            if(ring::util::configuration.uses_reverse_index()){
-                if(ring::util::configuration.uses_leap()){
-                    ring::ltj_algorithm_spo_sop_leap<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                    ltj.join(res, number_of_results, timeout_in_millis);
-                }else{
-                    ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
+            //Try all permutations of the GAO.
+            do{
+                if(gao.empty()){
+                    //Calculates the first GAO based on hash_table_vars map (var, char).
+                    for(const auto &p : hash_table_vars){
+                        gao.emplace_back(p.second);   
+                    }
+                }
+                
+                // vector<string> gao = get_gao(query);
+                // vector<string> gao = get_gao_min_opt(query, graph);
+                // cout << gao [0] << " - " << gao [1] << " - " << gao[2] << endl;
+
+                res.clear();
+                start = high_resolution_clock::now();
+                if(ring::util::configuration.uses_reverse_index()){
+                    if(ring::util::configuration.uses_leap()){
+                        ring::ltj_algorithm_spo_sop_leap<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
+                        ltj.join(res, number_of_results, timeout_in_millis);
+                    }else{
+                        ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
+                        ltj.join(res, number_of_results, timeout_in_millis);
+                    }
+                }
+                else{
+                    ring::ltj_algorithm<ring_type> ltj(&query, &graph, &gao);
                     ltj.join(res, number_of_results, timeout_in_millis);
                 }
-            }
-            else{
-                ring::ltj_algorithm<ring_type> ltj(&query, &graph);
-                ltj.join(res, number_of_results, timeout_in_millis);
-            }
 
-            stop = high_resolution_clock::now();
-            time_span = duration_cast<microseconds>(stop - start);
-            total_time = time_span.count();
-
+                stop = high_resolution_clock::now();
+                time_span = duration_cast<microseconds>(stop - start);
+                total_time = time_span.count();
+            }while(std::next_permutation(gao.begin(),gao.end()));
             std::unordered_map<uint8_t, std::string> ht;
             for(const auto &p : hash_table_vars){
                 ht.insert({p.second, p.first});
