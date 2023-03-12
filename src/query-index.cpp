@@ -202,12 +202,14 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             //Try all permutations of the GAO.
             double best_total_time = DBL_MAX;
             std::vector<var_type> best_gao;
+            uint64_t permutation_count = 0;
             do{
                 if(gao.empty()){
                     //Calculates the first GAO based on hash_table_vars map (var, char).
                     for(const auto &p : hash_table_vars){
                         gao.emplace_back(p.second);   
                     }
+                    std::sort(gao.begin(), gao.end());
                 }
                 
                 // vector<string> gao = get_gao(query);
@@ -233,18 +235,19 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 stop = high_resolution_clock::now();
                 time_span = duration_cast<microseconds>(stop - start);
                 total_time = time_span.count();
-
+                
                 if(best_total_time > total_time){
                     best_total_time = total_time;
                     best_gao = gao;
                 }
+                permutation_count++;
             }while(std::next_permutation(gao.begin(),gao.end()));
             std::unordered_map<uint8_t, std::string> ht;
             for(const auto &p : hash_table_vars){
                 ht.insert({p.second, p.first});
             }
 
-            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(best_total_time*1000000000ULL) << ";" << get_gao(best_gao,ht) << ";" << hash_table_vars.size()<< endl;
+            cout << nQ <<  ";" << res.size() << ";" << (unsigned long long)(best_total_time*1000000000ULL) << ";" << get_gao(best_gao,ht) << ";" << permutation_count<< endl;
             nQ++;
 
             // cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << std::endl;
