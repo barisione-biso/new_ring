@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/query-index",
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
                     "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt",
-                    "sigmod21",
+                    "one_ring_muthu_leap",
                     "0", "1"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -225,6 +225,27 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/test_ring_sop",
             "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring.sop"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Online aggregation test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/online_aggregation_test",
+            "args": ["~/dcc_uchile/git_projects/data/wikidata-filtered-enumerated.dat.ring",
+                "${workspaceFolder}/Queries/Queries-wikidata-benchmark.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

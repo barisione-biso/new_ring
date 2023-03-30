@@ -21,7 +21,7 @@
 #define RING_LTJ_ITERATOR_HPP
 
 #define VERBOSE 0
-
+#include <triple_pattern.hpp>
 namespace ring {
 
     template<class ring_t, class var_t, class cons_t>
