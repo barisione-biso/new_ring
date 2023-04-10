@@ -22,6 +22,7 @@
 
 #define VERBOSE 0
 #include <triple_pattern.hpp>
+#include <utils.hpp>
 namespace ring {
 
     template<class ring_t, class var_t, class cons_t>
@@ -376,6 +377,9 @@ namespace ring {
                 m_cur_o = c;
             }
 
+            //Online Aggr: ?a = a
+            auto weight = util::get_num_diff_values<ring_type>(var, m_ptr_ring, *this);
+            std::cout << "var: " << int(var) << " weight (debemos quedarnos con el menor para Q{x_j}: " << weight << std::endl;
         };
         //Reverses the intevals changed by a previous 'down' for subjects.
         void up_iter_sub(){
