@@ -142,7 +142,7 @@ std::string get_gao(std::vector<var_type>& gao, std::unordered_map<uint8_t, std:
     return str;
 }
 template<class ring_type, class reverse_ring_type, class wm_type = sdsl::bit_vector>
-void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_millis = 600){
+void query(const std::string &file, const std::string &queries, uint64_t number_of_results = 1000, uint64_t timeout_in_secs = 600){
     vector<string> dummy_queries;
     bool result = get_file_content(queries, dummy_queries);
 
@@ -172,7 +172,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
     }
 
     if(ring::util::configuration.is_verbose()){
-        std::cout << "Max number of results: " << number_of_results << " Timeout : " << timeout_in_millis << "." << std::endl;
+        std::cout << "Max number of results: " << number_of_results << " Timeout : Variable." << std::endl;
     }
     //graph.store_Ls();
     std::ifstream ifs;
@@ -181,12 +181,15 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
     high_resolution_clock::time_point start, stop;
     double total_time = 0.0;
     duration<double> time_span;
+
     if(result)
     {
-
+        vector<string> best_timeouts;//is vector<string> to reuse what we have, quick and dirty. :)
+        get_file_content("Queries/Queries-bgps_best_performance_timeouts_in_secs.txt", best_timeouts);
         int count = 1;
             
         for (string& query_string : dummy_queries) {
+            timeout_in_secs = std::stoull(best_timeouts[nQ]);
             std::vector<var_type> gao;
             //vector<Term*> terms_created;
             //vector<Triple*> query;
@@ -218,18 +221,20 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
 
                 res.clear();
                 start = high_resolution_clock::now();
+                //>> NOT SUPPORTED YET
                 if(ring::util::configuration.uses_reverse_index()){
                     if(ring::util::configuration.uses_leap()){
                         ring::ltj_algorithm_spo_sop_leap<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                        ltj.join(res, number_of_results, timeout_in_millis);
+                        ltj.join(res, number_of_results, timeout_in_secs);
                     }else{
                         ring::ltj_algorithm_spo_sop<ring_type,reverse_ring_type, wm_type> ltj(&query, &graph, &reverse_graph);
-                        ltj.join(res, number_of_results, timeout_in_millis);
+                        ltj.join(res, number_of_results, timeout_in_secs);
                     }
-                }
+                
+                }// NOT SUPPORTED YET
                 else{
                     ring::ltj_algorithm<ring_type> ltj(&query, &graph, &gao);
-                    ltj.join(res, number_of_results, timeout_in_millis);
+                    ltj.join(res, number_of_results, timeout_in_secs);
                 }
 
                 stop = high_resolution_clock::now();
