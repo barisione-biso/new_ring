@@ -421,6 +421,46 @@ namespace ring {
             }
             return -1ULL;
         }
+
+
+        template<class ring_type = ring<>,class Iterator>
+        size_type get_num_diff_values_online_aggr(var_type x_j, ring_type* ptr_ring, const Iterator &iter){
+            if(iter.cur_s != -1ULL && iter.cur_p != -1ULL && iter.cur_o != -1ULL){
+                return 1;
+            }
+            if(iter.is_variable_subject(x_j)){
+                if(iter.cur_s != -1ULL && iter.cur_p != -1ULL){//s and p are set in the iterator, and x_j = a.
+                    //We need muthu of S using index SOP.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
+                } else if(iter.cur_s != -1ULL && iter.cur_o != -1ULL){//s and o are set in the iterator, and x_j = a.
+                    return ptr_ring->get_number_distinct_values_sop_BWT_P(iter.get_i_p().left(), iter.get_i_p().right());
+                } else{
+                    return ptr_ring->get_sigma_s();
+                }
+            }
+            if(iter.is_variable_predicate(x_j)){
+                if(iter.cur_s != -1ULL && iter.cur_p != -1ULL){//s and p are set in the iterator, and x_j = a.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_O(iter.get_i_o().left(), iter.get_i_o().right());
+                } else if(iter.cur_p != -1ULL && iter.cur_o != -1ULL){//p and o are set in the iterator, and x_j = a.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
+                } else{
+                    return ptr_ring->get_sigma_p();
+                }
+            }
+            if(iter.is_variable_object(x_j)){
+                if(iter.cur_p != -1ULL && iter.cur_o != -1ULL){//p and o are set in the iterator, and x_j = a.
+                    //We need muthu of S using index SOP.
+                    return ptr_ring->get_number_distinct_values_sop_BWT_S(iter.get_i_s().left(), iter.get_i_s().right());
+                } else if(iter.cur_s != -1ULL && iter.cur_o != -1ULL){//s and o are set in the iterator, and x_j = a.
+                    return ptr_ring->get_number_distinct_values_spo_BWT_P(iter.get_i_o().left(), iter.get_i_o().right());
+                } else{
+                    //neither s nor p are set.
+                    //return iter.i_o.size();
+                    return ptr_ring->get_sigma_o();
+                }
+            }
+            return -1ULL;
+        }
     }
 }
 

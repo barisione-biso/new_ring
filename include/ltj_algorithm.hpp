@@ -268,9 +268,13 @@ namespace ring {
                         tuple[j] = {x_j, c};
                         //std::cout << "current var: " << int(std::get<0>(tuple[j])) << " = " << std::get<1>(tuple[j]) << std::endl;
                         //2. Going down in the tries by setting x_j = c (\mu(t_i) in paper)
+                        uint64_t weight = 1;
                         for (ltj_iter_type* iter : itrs) {
                             iter->down(x_j, c);
+                            //Online Aggr: ?a = a
+                            weight *= util::get_num_diff_values_online_aggr<ring_type>(x_j, m_ptr_ring, *iter);
                         }
+                        std::cout << "var " << int(x_j) << " has " << weight << " number of children." << std::endl;
                         //3. Search with the next variable x_{j+1}
                         ok = search(j + 1, tuple, res, start, limit_results, timeout_seconds);
                         if(!ok) return false;

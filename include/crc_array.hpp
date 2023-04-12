@@ -138,7 +138,6 @@ namespace ring {
                 r = r - 1;
                 value_type rng_s = 0;
                 value_type rng_e = (l == 0) ? 0 : l - 1;
-
                 num_dist_values = get_number_distinct_values_on_range(l, r, rng_s, rng_e);
                 //num_dist_values = get_number_distinct_values_on_range(0, crc_L.size() - 1, 0, 0);
                 //std::cout << "Num of distinct values : " << num_dist_values <<  " vs. Interval size : " << (r - l + 1) << " l : " << l << " r : " << r << std::endl;

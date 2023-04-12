@@ -134,6 +134,7 @@ size_type offline_aggregation (ring_type& graph, const string &query_string){
         results_type res;
         ring::ltj_algorithm<ring_type> ltj(&query, &graph);
         ltj.join(res, number_of_results, timeout_in_millis);
+        std::cout << "LTJ Number of results : " << res.size() <<std::endl;
 }
 size_type offline_aggregation_individual_triples_approach(ring_type& graph_spo, const string &query_string){
     //vector<Term*> terms_created;

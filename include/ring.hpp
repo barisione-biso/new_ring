@@ -346,6 +346,10 @@ namespace ring {
         }
         void load_crc_arrays(std::string file){
             sdsl::load_from_file(m_crc_arrays, file+".crc");
+            std::cout << "bwt_L_o : " << m_bwt_o.get_L() << std::endl;
+            std::cout << "bwt_L_p : " << m_bwt_p.get_L() << std::endl;
+            std::cout << "bwt_L_s : " << m_bwt_s.get_L() << std::endl;
+            m_crc_arrays.print_arrays();
         }
         // The following init funtions work with suffix array positions
         // (i.e., positions in the global interval [1, 3*m_n_triples] )
