@@ -36,6 +36,7 @@ using namespace std;
 
 using namespace std::chrono;
 typedef uint8_t var_type;
+std::unordered_map<var_type, bool> is_lonely_map;
 
 bool get_file_content(string filename, vector<string> & vector_of_strings)
 {
@@ -97,8 +98,10 @@ uint8_t get_variable(string &s, std::unordered_map<std::string, uint8_t> &hash_t
     if(it == hash_table_vars.end()){
         uint8_t id = hash_table_vars.size();
         hash_table_vars.insert({var, id });
+        is_lonely_map[id] = true;
         return id;
     }else{
+        is_lonely_map[it->second] = false;
         return it->second;
     }
 }
@@ -191,6 +194,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
         for (string& query_string : dummy_queries) {
             timeout_in_secs = std::stoull(best_timeouts[nQ]);
             std::vector<var_type> gao;
+            std::vector<var_type> lonely_vars;
             //vector<Term*> terms_created;
             //vector<Triple*> query;
             std::unordered_map<std::string, uint8_t> hash_table_vars;
@@ -206,15 +210,25 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
             double best_total_time = DBL_MAX;
             std::vector<var_type> best_gao;
             uint64_t permutation_count = 0;
+
             do{
+                std::vector<var_type> tmp_gao;
                 if(gao.empty()){
                     //Calculates the first GAO based on hash_table_vars map (var, char).
                     for(const auto &p : hash_table_vars){
-                        gao.emplace_back(p.second);   
+                        if(!is_lonely_map[p.second]){
+                            gao.emplace_back(p.second);
+                        } else{
+                            lonely_vars.emplace_back(p.second);
+                        }
                     }
                     std::sort(gao.begin(), gao.end());
                 }
                 
+                for(auto g : gao)
+                    tmp_gao.emplace_back(g);
+                for(auto l : lonely_vars)
+                    tmp_gao.emplace_back(l);
                 // vector<string> gao = get_gao(query);
                 // vector<string> gao = get_gao_min_opt(query, graph);
                 // cout << gao [0] << " - " << gao [1] << " - " << gao[2] << endl;
@@ -233,7 +247,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 
                 }// NOT SUPPORTED YET
                 else{
-                    ring::ltj_algorithm<ring_type> ltj(&query, &graph, &gao);
+                    ring::ltj_algorithm<ring_type> ltj(&query, &graph, &tmp_gao);
                     ltj.join(res, number_of_results, timeout_in_secs);
                 }
 
@@ -243,7 +257,7 @@ void query(const std::string &file, const std::string &queries, uint64_t number_
                 
                 if(best_total_time > total_time){
                     best_total_time = total_time;
-                    best_gao = gao;
+                    best_gao = tmp_gao;
                 }
                 permutation_count++;
             }while(std::next_permutation(gao.begin(),gao.end()));
